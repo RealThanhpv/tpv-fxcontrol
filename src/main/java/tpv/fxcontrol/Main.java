@@ -1,4 +1,4 @@
-package ptk.fxcontrol;
+package tpv.fxcontrol;
 
 class Main {
     public static void main(String[] args) {
