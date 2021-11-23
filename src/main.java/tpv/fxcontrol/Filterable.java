@@ -1,4 +1,4 @@
-package ptk.fxcontrols;
+package ptk.fxcontrol;
 
 import javafx.beans.property.StringProperty;
 

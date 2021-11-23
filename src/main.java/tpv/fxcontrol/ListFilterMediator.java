@@ -1,4 +1,4 @@
-package ptk.fxcontrols;
+package ptk.fxcontrol;
 
 import java.util.ArrayList;
 import java.util.List;
