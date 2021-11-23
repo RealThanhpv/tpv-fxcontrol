@@ -4,3 +4,80 @@
  * This is a general purpose Gradle build.
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds
  */
+
+
+plugins {
+
+    id 'java'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+javafx {
+    version = "18-ea+3"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing']
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+    maven {
+        url = uri('http://repo.maven.apache.org/maven2')
+    }
+
+    maven {
+        url = uri('http://nexus.gluonhq.com/nexus/content/repositories/releases/')
+    }
+
+    flatDir {
+        dir rootProject.file('libs')
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: rootProject.rootDir.toString() + "/libs", include: '*.jar')
+//     implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+//     implementation 'org.kordamp.ikonli:ikonli-javafx:12.2.0'
+//     implementation 'org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0'
+}
+
+compileJava {
+    options.compilerArgs = [
+            '--add-exports=javafx.base/com.sun.javafx=ptk.fxcontrols',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control=ptk.fxcontrols',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=ptk.fxcontrols',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ptk.fxcontrols',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene=ptk.fxcontrols'
+    ]
+//    options.compilerArgs << 'exports javafx.base/com.sun.javafx=ptk.fxcontrols'
+}
+
+// run {
+//     jvmArgs = [
+//             '--add-exports=javafx.base/com.sun.javafx=ptk.fxcontrols',
+//             '--add-exports=javafx.controls/com.sun.javafx.scene.control=ptk.fxcontrols',
+//             '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=ptk.fxcontrols',
+//             '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ptk.fxcontrols',
+//             '--add-exports=javafx.graphics/com.sun.javafx.scene=ptk.fxcontrols'
+//     ]
+// }
+//
+// task copyJar(type: Copy) {
+//     from jar // here it automatically reads jar file produced from jar task
+//     into {
+//         "../plantrek/libs"
+//            "C:/Users/Dell/AppData/Roaming/Scene Builder/Library"
+// //       "/Users/thanh/Library/Application Support/Scene Builder/Library"
+//     }
+// }
+//
+// build.dependsOn copyJar
+
+//
+// application {
+//     // Define the main class for the application.
+//     mainClassName = 'tpv.fxcontrols.Main'
+// }
