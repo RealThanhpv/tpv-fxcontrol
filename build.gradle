@@ -52,7 +52,6 @@ compileJava {
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ptk.fxcontrols',
             '--add-exports=javafx.graphics/com.sun.javafx.scene=ptk.fxcontrols'
     ]
-//    options.compilerArgs << 'exports javafx.base/com.sun.javafx=ptk.fxcontrols'
 }
 
 // run {
