@@ -2,7 +2,7 @@ package tpv.fxcontrol;
 
 import javafx.beans.property.StringProperty;
 
-public interface Filterable {
+interface Filterable {
     StringProperty filterProperty();
     default String getFilter() {
         return filterProperty().get();
