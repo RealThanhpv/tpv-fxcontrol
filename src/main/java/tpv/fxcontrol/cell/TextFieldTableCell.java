@@ -50,7 +50,7 @@ public class TextFieldTableCell<S, T> extends TableCell<S, T> {
             KeyCode keyCode = t.getCode();
             if (keyCode == KeyCode.ENTER && t.isAltDown()) {
                 t.consume();
-            } else if (t.getCode() == KeyCode.ENTER && !t.isAltDown()) {
+            } else if (t.getCode() == KeyCode.ENTER) {
                 if (converter == null) {
                     throw new IllegalStateException(
                             "Attempting to convert text input into Object, but provided "
