@@ -1,14 +1,29 @@
 package tpv.fxcontrol;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.collections.ObservableList;
+
 import java.util.ArrayList;
 import java.util.List;
 
-final class ListFilterMediator<E> {
+final class FilterMediator<E> {
 
-    private List<E> source;
+    public ObservableList<E> getSource() {
+        return source.get();
+    }
 
-     ListFilterMediator(final List<E> source) {
-        this.source = source;
+    public ObjectProperty<ObservableList<E>> sourceProperty() {
+        return source;
+    }
+
+    public void setSource(ObservableList<E> source) {
+        this.source.set(source);
+    }
+
+    private ObjectProperty<ObservableList<E>> source;
+
+     FilterMediator(final ObservableList<E> source) {
+        this.source.set(source);
     }
 
     final  List<E> filter(String s) {
@@ -26,7 +41,7 @@ final class ListFilterMediator<E> {
     private List<E> doFilter(String filter) {
         List<E> filters = new ArrayList<>();
 
-        for (E o : source) {
+        for (E o : getSource()) {
             if (isMatch(o, filter)) {
                 filters.add(o);
             }
@@ -36,11 +51,5 @@ final class ListFilterMediator<E> {
 
     }
 
-    final List<E> getSource() {
-        return source;
-    }
 
-    final void setSource(List<E> list) {
-        this.source = list;
-    }
 }

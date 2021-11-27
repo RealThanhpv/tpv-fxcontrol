@@ -2,7 +2,7 @@ package tpv.fxcontrol;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class TableViewFilterable<T> extends TableView<T> implements Filterable {
+public class TableViewFilterable<T> extends TableView<T> implements CollectionFilterable {
 
-    private final ListFilterMediator mediator;
+    private final FilterMediator mediator;
     private final StringProperty filter = new SimpleStringProperty() {
         @Override
         protected void invalidated() {
@@ -33,49 +33,16 @@ public class TableViewFilterable<T> extends TableView<T> implements Filterable {
     }
 
     public TableViewFilterable() {
-        mediator = new ListFilterMediator(new ArrayList());
+        mediator = new FilterMediator(FXCollections.observableArrayList());
     }
 
-    final public List<T> getSource() {
-        return mediator.getSource();
-    }
-
-    public void setSource(final List<T> items) {
-        mediator.setSource(items);
-        reFilter();
-
+    @Override
+    public FilterMediator getMediator() {
+        return mediator;
     }
 
     public List<T> getFilteredItems() {
         return new ArrayList<>(getItems());
-    }
-
-    public void addItems(List<T> items) {
-        mediator.getSource().addAll(items);
-        reFilter();
-    }
-
-    public void addItems(T... items) {
-        mediator.getSource().addAll(Arrays.asList(items));
-        reFilter();
-
-    }
-
-    public boolean removeItems(List<T> items) {
-        boolean r = mediator.getSource().removeAll(items);
-        reFilter();
-        return r;
-    }
-
-    public boolean removeItem(T item) {
-        boolean r = mediator.getSource().remove(item);
-        reFilter();
-        return r;
-    }
-
-    public void addItem(int index, T item) {
-        mediator.getSource().add(index, item);
-        reFilter();
     }
 
     @Override
@@ -83,22 +50,13 @@ public class TableViewFilterable<T> extends TableView<T> implements Filterable {
         return filter;
     }
 
-    private void doFilter(String filter) {
-        getItems().setAll(mediator.filter(filter));
+    @Override
+    public void doFilter(String filter) {
+        TableViewFilterable.this.getItems().setAll(getMediator().filter(filter));
     }
 
-    private void reFilter() {
-        doFilter(filter.get());
-    }
 
-    private void reset() {
-        doFilter("");
-    }
 
-    final public void clear() {
-        mediator.getSource().clear();
-        reFilter();
-    }
 
 
 }

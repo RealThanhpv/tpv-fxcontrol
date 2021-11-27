@@ -2,20 +2,18 @@ package tpv.fxcontrol;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class ListViewFilterable<E> extends ListView<E> implements Filterable {
 
-    //    private final ObservableList<E> origins = FXCollections.observableArrayList();
-    private final ListFilterMediator<E> filterMediator;
+public class ListViewFilterable<E> extends ListView<E> implements CollectionFilterable {
+
+    private final FilterMediator<E> filterMediator;
     private final StringProperty filter = new SimpleStringProperty("") {
         @Override
         protected void invalidated() {
@@ -34,7 +32,7 @@ public class ListViewFilterable<E> extends ListView<E> implements Filterable {
     }
 
     public ListViewFilterable() {
-        filterMediator = new ListFilterMediator(new ArrayList());
+        filterMediator = new FilterMediator(FXCollections.observableArrayList());
     }
 
     @Override
@@ -42,52 +40,22 @@ public class ListViewFilterable<E> extends ListView<E> implements Filterable {
         return filter;
     }
 
-    public final List<E> getSource() {
-        return filterMediator.getSource();
+
+    @Override
+    public FilterMediator getMediator() {
+        return filterMediator;
     }
 
-    public final void setSource(List<E> items) {
-        filterMediator.setSource(items);
-        reFilter();
+    @Override
+    public void doFilter(String filter) {
+        ListViewFilterable.this.getItems().setAll(getMediator().filter(filter));
+    }
+
+    public List<E> getFilteredItems() {
+        return new ArrayList<>(getItems());
     }
 
 
-    public void addItems(List<E> items) {
-        filterMediator.getSource().addAll(items);
-        reFilter();
-    }
 
-    public void addItems(E... items) {
-        filterMediator.getSource().addAll(Arrays.asList(items));
-        reFilter();
-
-    }
-
-    public void removeItem(E item) {
-        filterMediator.getSource().remove(item);
-        reFilter();
-    }
-
-    public void removeItems(List<E> items){
-        filterMediator.getSource().removeAll(items);
-        reFilter();
-    }
-
-    public void clear() {
-        filterMediator.getSource().clear();
-        reFilter();
-    }
-
-    private void reset() {
-        doFilter("");
-    }
-
-    private void doFilter(String filter) {
-        ListViewFilterable.this.getItems().setAll(filterMediator.filter(filter));
-    }
-
-    private void reFilter() {
-        doFilter(filter.get());
-    }
 
 }
