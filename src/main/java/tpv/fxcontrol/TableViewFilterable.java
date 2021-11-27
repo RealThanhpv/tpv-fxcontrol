@@ -33,7 +33,6 @@ public class TableViewFilterable<T> extends TableView<T> implements Filterable {
     }
 
     public TableViewFilterable() {
-        setTableMenuButtonVisible(true);
         mediator = new ListFilterMediator(new ArrayList());
     }
 
