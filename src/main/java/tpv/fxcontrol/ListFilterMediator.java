@@ -3,15 +3,15 @@ package tpv.fxcontrol;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ListFilterMediator<E> {
+final class ListFilterMediator<E> {
 
     private List<E> source;
 
-    public ListFilterMediator(final List<E> source) {
+     ListFilterMediator(final List<E> source) {
         this.source = source;
     }
 
-    final public List<E> filter(String s) {
+    final  List<E> filter(String s) {
         if (s == null) {
             s = "";
         }
@@ -36,11 +36,11 @@ public final class ListFilterMediator<E> {
 
     }
 
-    public List<E> getSource() {
+    final List<E> getSource() {
         return source;
     }
 
-    public void setSource(List<E> list) {
+    final void setSource(List<E> list) {
         this.source = list;
     }
 }
