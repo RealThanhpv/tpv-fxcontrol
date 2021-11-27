@@ -1,5 +1,6 @@
 package tpv.fxcontrol;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 
 import java.util.Arrays;
@@ -19,6 +20,10 @@ interface CollectionFilterable<E> extends Filterable {
     default void setSource(List<E> items) {
         getMediator().getSource().setAll(items);
         reFilter();
+    }
+
+    default ObjectProperty<ObservableList<E>> sourceProperty(){
+        return getMediator().sourceProperty();
     }
 
 

@@ -1,6 +1,8 @@
 package tpv.fxcontrol;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
@@ -8,25 +10,34 @@ import java.util.List;
 
 final class FilterMediator<E> {
 
-    public ObservableList<E> getSource() {
-        return source.get();
+    private final ObjectProperty<ObservableList<E>> source = new SimpleObjectProperty<>(){
+//        protected void invalidated(){
+//            if(get() != null){
+//                doFilte
+//            }
+//        }
+    };
+    FilterMediator(){
+        source.set(FXCollections.observableArrayList());
     }
 
-    public ObjectProperty<ObservableList<E>> sourceProperty() {
-        return source;
+    FilterMediator(final ObservableList<E> source) {
+        this.source.set(source);
+    }
+
+    public ObservableList<E> getSource() {
+        return source.get();
     }
 
     public void setSource(ObservableList<E> source) {
         this.source.set(source);
     }
 
-    private ObjectProperty<ObservableList<E>> source;
-
-     FilterMediator(final ObservableList<E> source) {
-        this.source.set(source);
+    public ObjectProperty<ObservableList<E>> sourceProperty() {
+        return source;
     }
 
-    final  List<E> filter(String s) {
+    final List<E> filter(String s) {
         if (s == null) {
             s = "";
         }
