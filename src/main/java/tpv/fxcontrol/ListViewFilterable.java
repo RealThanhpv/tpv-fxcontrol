@@ -43,7 +43,6 @@ public class ListViewFilterable<E> extends ListView<E> implements CollectionFilt
         return filter;
     }
 
-
     @Override
     public FilterMediator getMediator() {
         return meditor;
