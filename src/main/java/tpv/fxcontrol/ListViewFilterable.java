@@ -68,6 +68,11 @@ public class ListViewFilterable<E> extends ListView<E> implements Filterable {
         reFilter();
     }
 
+    public void removeItems(List<E> items){
+        filterMediator.getSource().removeAll(items);
+        reFilter();
+    }
+
     public void clear() {
         filterMediator.getSource().clear();
         reFilter();
