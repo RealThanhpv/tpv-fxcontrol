@@ -61,13 +61,13 @@ public class TableViewFilterable<T> extends TableView<T> implements Filterable {
 
     }
 
-    public boolean removeItem(List<T> items) {
+    public boolean removeItems(List<T> items) {
         boolean r = mediator.getSource().removeAll(items);
         reFilter();
         return r;
     }
 
-    public boolean removeItems(T item) {
+    public boolean removeItem(T item) {
         boolean r = mediator.getSource().remove(item);
         reFilter();
         return r;
