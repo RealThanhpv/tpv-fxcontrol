@@ -1,4 +1,4 @@
-module ptv.fxcontrol {
+module tpv.fxcontrol {
     exports tpv.fxcontrol;
 
     opens tpv.fxcontrol to javafx.fxml;
