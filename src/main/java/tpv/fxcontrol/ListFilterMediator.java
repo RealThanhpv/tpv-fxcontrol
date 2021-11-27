@@ -29,7 +29,6 @@ public final class ListFilterMediator<E> {
         for (E o : source) {
             if (isMatch(o, filter)) {
                 filters.add(o);
-
             }
         }
 

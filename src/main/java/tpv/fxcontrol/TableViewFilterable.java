@@ -3,7 +3,9 @@ package tpv.fxcontrol;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +26,11 @@ public class TableViewFilterable<T> extends TableView<T> implements Filterable {
             doFilter(get());
         }
     };
+
+    public TableViewFilterable(Callback<TableView<T>, TableRow<T>> rowCallback){
+        this();
+        setRowFactory(rowCallback);
+    }
 
     public TableViewFilterable() {
         setTableMenuButtonVisible(true);
