@@ -13,6 +13,7 @@ final class FilterMediator<E> {
     private final ObjectProperty<ObservableList<E>> source = new SimpleObjectProperty<>();
     FilterMediator(){
         source.set(FXCollections.observableArrayList());
+
     }
 
     FilterMediator(final ObservableList<E> source) {

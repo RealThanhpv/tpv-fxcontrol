@@ -8,7 +8,6 @@ import javafx.scene.control.TableView;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -34,6 +33,9 @@ public class TableViewFilterable<T> extends TableView<T> implements CollectionFi
 
     public TableViewFilterable() {
         mediator = new FilterMediator(FXCollections.observableArrayList());
+        mediator.sourceProperty().addListener((observable, oldValue, newValue) -> {
+            doFilter(getFilter());
+        });
     }
 
     @Override
