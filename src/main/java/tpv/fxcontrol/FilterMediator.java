@@ -10,13 +10,7 @@ import java.util.List;
 
 final class FilterMediator<E> {
 
-    private final ObjectProperty<ObservableList<E>> source = new SimpleObjectProperty<>(){
-//        protected void invalidated(){
-//            if(get() != null){
-//                doFilte
-//            }
-//        }
-    };
+    private final ObjectProperty<ObservableList<E>> source = new SimpleObjectProperty<>();
     FilterMediator(){
         source.set(FXCollections.observableArrayList());
     }
