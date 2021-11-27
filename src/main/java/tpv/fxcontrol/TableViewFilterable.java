@@ -50,7 +50,7 @@ public class TableViewFilterable<T> extends TableView<T> implements Filterable {
         return new ArrayList<>(getItems());
     }
 
-    public void addItems(ObservableList<T> items) {
+    public void addItems(List<T> items) {
         mediator.getSource().addAll(items);
         reFilter();
     }
