@@ -2,7 +2,11 @@ package tpv.fxcontrol;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +27,11 @@ public class ListViewFilterable<E> extends ListView<E> implements Filterable {
             doFilter(get());
         }
     };
+
+    public ListViewFilterable(Callback<ListView<E>, ListCell<E>> cellCallBack){
+        this();
+        setCellFactory(cellCallBack);
+    }
 
     public ListViewFilterable() {
         filterMediator = new ListFilterMediator(new ArrayList());
