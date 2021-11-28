@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TableViewFilterable<T> extends TableView<T> implements CollectionFilterable {
+public class TableViewFilterable<T> extends TableView<T> implements CollectionFilterable<T> {
 
     private final FilterMediator mediator;
     private final StringProperty filter = new SimpleStringProperty() {

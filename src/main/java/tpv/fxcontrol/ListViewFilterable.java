@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ListViewFilterable<E> extends ListView<E> implements CollectionFilterable {
+public class ListViewFilterable<E> extends ListView<E> implements CollectionFilterable<E> {
 
     private final FilterMediator<E> meditor;
     private final StringProperty filter = new SimpleStringProperty("") {
