@@ -26,42 +26,12 @@ repositories {
     mavenCentral()
 
 }
-//application {
-//    // Define the main class for the application.
-//    mainClassName = 'tpv.fxcontrol.Main'
-//}
 
-
-//
-//compileJava {
+compileJava {
 //    options.compilerArgs = [
-//            '--add-exports=javafx.base/com.sun.javafx=ptk.fxcontrols',
-//            '--add-exports=javafx.controls/com.sun.javafx.scene.control=ptk.fxcontrols',
-//            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=ptk.fxcontrols',
-//            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ptk.fxcontrols',
-//            '--add-exports=javafx.graphics/com.sun.javafx.scene=ptk.fxcontrols'
+////            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
 //    ]
-//}
+}
 
-// run {
-//     jvmArgs = [
-//             '--add-exports=javafx.base/com.sun.javafx=ptk.fxcontrols',
-//             '--add-exports=javafx.controls/com.sun.javafx.scene.control=ptk.fxcontrols',
-//             '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=ptk.fxcontrols',
-//             '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ptk.fxcontrols',
-//             '--add-exports=javafx.graphics/com.sun.javafx.scene=ptk.fxcontrols'
-//     ]
-// }
-//
-// task copyJar(type: Copy) {
-//     from jar // here it automatically reads jar file produced from jar task
-//     into {
-//         "../plantrek/libs"
-//            "C:/Users/Dell/AppData/Roaming/Scene Builder/Library"
-// //       "/Users/thanh/Library/Application Support/Scene Builder/Library"
-//     }
-// }
-//
-// build.dependsOn copyJar
 
-//
+
