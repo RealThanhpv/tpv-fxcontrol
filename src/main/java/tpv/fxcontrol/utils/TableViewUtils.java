@@ -5,13 +5,7 @@ import java.lang.reflect.Field;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.input.MouseEvent;
@@ -30,15 +24,12 @@ public class TableViewUtils {
      * @param tableView
      */
     public static void addCustomTableMenu(TableView tableView) {
-        tableView.getContextMenu();
-        // enable table menu
-        tableView.setTableMenuButtonVisible(true);
 
         // get the table  header row
         TableHeaderRow tableHeaderRow = getTableHeaderRow((TableViewSkin) tableView.getSkin());
 
         // get context menu via reflection
-        ContextMenu contextMenu = getContextMenu(tableHeaderRow);
+        ContextMenu contextMenu = getTableViewHeaderContextMenu(tableView);
 
         // setting the preferred height for the table header row
         // if the preferred height isn't set, then the table header would disappear if there are no visible columns
@@ -53,6 +44,18 @@ public class TableViewUtils {
 
         addCustomMenuItems( contextMenu, tableView);
 
+    }
+
+    static public ContextMenu getTableViewHeaderContextMenu(TableView table){
+        table.getContextMenu();
+        // enable table menu
+        table.setTableMenuButtonVisible(true);
+
+        // get the table  header row
+        TableHeaderRow tableHeaderRow = getTableHeaderRow((TableViewSkin) table.getSkin());
+
+        // get context menu via reflection
+        return getContextMenu(tableHeaderRow);
     }
 
     /**
