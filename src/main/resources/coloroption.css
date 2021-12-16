@@ -1,0 +1,19 @@
+StackPane {
+    visibility: false;
+}
+
+.arrow{
+    visibility: false;
+    -fx-background-color: transparent;
+}
+
+{
+    -fx-border-color:transparent;
+    -fx-border-width:0;
+    -fx-background-insets: 0 0 0 0;
+    -fx-background-padding: 0 0 0 0;
+    -fx-padding: 0 0 0 0;
+    -fx-margin: 0 0 0 0;
+
+
+}

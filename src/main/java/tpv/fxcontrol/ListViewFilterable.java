@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ListViewFilterable<E> extends ListView<E> implements CollectionFilterable<E> {
 
-    private final FilterMediator<E> meditor;
+    private final FilterMediator<E> mediator;
     private final StringProperty filter = new SimpleStringProperty("") {
         @Override
         protected void invalidated() {
@@ -32,8 +32,8 @@ public class ListViewFilterable<E> extends ListView<E> implements CollectionFilt
     }
 
     public ListViewFilterable() {
-        meditor = new FilterMediator(FXCollections.observableArrayList());
-        meditor.sourceProperty().addListener((observable, oldValue, newValue) -> {
+        mediator = new FilterMediator(FXCollections.observableArrayList());
+        mediator.sourceProperty().addListener((observable, oldValue, newValue) -> {
             doFilter(getFilter());
         });
     }
@@ -44,8 +44,8 @@ public class ListViewFilterable<E> extends ListView<E> implements CollectionFilt
     }
 
     @Override
-    public FilterMediator getMediator() {
-        return meditor;
+    public FilterMediator<E> getMediator() {
+        return mediator;
     }
 
     @Override

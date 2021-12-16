@@ -13,7 +13,7 @@ import java.util.List;
 
 public class TableViewFilterable<T> extends TableView<T> implements CollectionFilterable<T> {
 
-    private final FilterMediator mediator;
+    private final FilterMediator<T> mediator;
     private final StringProperty filter = new SimpleStringProperty() {
         @Override
         protected void invalidated() {
@@ -39,7 +39,7 @@ public class TableViewFilterable<T> extends TableView<T> implements CollectionFi
     }
 
     @Override
-    public FilterMediator getMediator() {
+    public FilterMediator<T> getMediator() {
         return mediator;
     }
 
