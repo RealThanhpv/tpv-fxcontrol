@@ -1,4 +1,4 @@
-package ptk.fxcontrols;
+package tpv.fxcontrol;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -22,7 +22,7 @@ public class ColorOptionNullable extends StackPane {
 
         );
 
-        colorPicker.getStylesheets().add(ptk.fxcontrols.ColorOptionNullable.class.getClassLoader().getResource("coloroption.css").toExternalForm());
+        colorPicker.getStylesheets().add(ColorOptionNullable.class.getClassLoader().getResource("coloroption.css").toExternalForm());
 
 
         eventTaker.setWidth(getMaxWidth()-1);

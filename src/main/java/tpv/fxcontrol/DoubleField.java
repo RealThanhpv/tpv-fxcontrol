@@ -15,7 +15,7 @@ public final class DoubleField extends TextField {
         String text = c.getControlNewText();
         return validEditingState.matcher(text).matches() ? c : null;
     };
-    private static final StringConverter<Double> converter = new StringConverter<Double>() {
+    private static final StringConverter<Double> converter = new StringConverter<>() {
         public Double fromString(String s) {
             return !s.isEmpty() && !"-".equals(s) && !".".equals(s) && !"-.".equals(s) ? Double.valueOf(s) : 0.0D;
         }
