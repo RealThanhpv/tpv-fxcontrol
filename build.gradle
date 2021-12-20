@@ -33,5 +33,10 @@ compileJava {
 //    ]
 }
 
+dependencies {
+    implementation 'org.kordamp.ikonli:ikonli-javafx:12.2.0'
+    implementation 'org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0'
+}
+
 
 
