@@ -1,0 +1,25 @@
+.resizable-text-area .resize-corner {
+    -fx-padding: 0px 2px 2px 0px;
+}
+
+.resizable-text-area .resize-corner .ikonli-font-icon {
+    -fx-icon-size: 24px;
+}
+
+.resizable-text-area .resize-corner .ikonli-font-icon:active {
+    -fx-icon-color: -fx-accent;
+}
+.resizable-text-area .scroll-bar:vertical {
+    -fx-pref-width: 1;
+    -fx-opacity: 0;
+}
+
+.resizable-text-area  {
+    -fx-background-color:transparent;
+    -fx-border-width:1;
+    -fx-border-color:red;
+}
+
+.resizable-text-area * {
+    -fx-background-color:transparent;
+}
