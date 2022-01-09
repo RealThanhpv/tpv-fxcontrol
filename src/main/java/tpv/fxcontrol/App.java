@@ -6,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -26,13 +25,13 @@ public class App extends Application {
         root.getChildren().setAll(subScene);
         Scene scene  = new Scene(root);
 
-        TextAreaExtandable2 ta = new TextAreaExtandable2();
+        TextAreaExtendable2 ta = new TextAreaExtendable2();
 //        Node ta = new TextAreaResizable();
 //        container.setScaleX(2);
 //        container.setScaleY(2);
         ta.setPrefWidth(100);
         container.getChildren().setAll(ta);
-        Node ta2 = new TextAreaExtandable2();
+        Node ta2 = new TextAreaExtendable2();
         container.getChildren().add(ta2);
 
         ta2.setTranslateX(300);
