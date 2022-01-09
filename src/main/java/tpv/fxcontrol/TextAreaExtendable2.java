@@ -20,20 +20,17 @@ public class TextAreaExtendable2 extends TextArea {
     public TextAreaExtendable2() {
         this.setWrapText(true);
         textProperty().addListener((observable, oldValue, newValue) -> {
-            COMPUTE_TEXT.setText(newValue);
-            COMPUTE_TEXT.applyCss();
-            setPrefWidth( this.getFont().getSize()*FONT_EXT + COMPUTE_TEXT.getBoundsInLocal().getWidth());
+            recomputePrefWidth(newValue);
         });
         this.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
+                recomputePrefWidth(getText());
                 this.applyCss();
                 setWrapText(true);
                 Node text = this.lookup(".text");
                 this.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> {
                     return this.getFont().getSize() + text.getBoundsInLocal().getHeight();
                 }, new Observable[]{text.boundsInLocalProperty()}));
-
-                setPrefWidth(text.getBoundsInLocal().getWidth() + this.getFont().getSize()*FONT_EXT);
 
                 text.boundsInLocalProperty().addListener((observableBoundsAfter, boundsBefore, boundsAfter) -> {
                     Platform.runLater(() -> {
@@ -43,5 +40,11 @@ public class TextAreaExtendable2 extends TextArea {
             }
 
         });
+    }
+
+    private void recomputePrefWidth(String text){
+        COMPUTE_TEXT.setText(text);
+        COMPUTE_TEXT.applyCss();
+        setPrefWidth( this.getFont().getSize()*FONT_EXT + COMPUTE_TEXT.getBoundsInLocal().getWidth());
     }
 }
