@@ -9,6 +9,7 @@
 plugins {
     id 'java'
     id 'maven'
+    id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
@@ -39,4 +40,6 @@ dependencies {
 }
 
 
-
+application {
+    mainClassName = 'tpv.fxcontrol.App'
+}
