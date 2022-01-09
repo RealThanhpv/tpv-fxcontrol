@@ -1,7 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
 
 package tpv.fxcontrol;
 
@@ -17,6 +13,7 @@ import javafx.scene.text.Text;
 public class TextAreaExtandable2 extends TextArea {
     private final static Scene COMPUTE_SCENE = new Scene(new Group());
     private final static Text COMPUTE_TEXT = new Text();
+    private final static double FONT_EXT = 2.75;
     static {
         ((Group) COMPUTE_SCENE.getRoot()).getChildren().setAll(COMPUTE_TEXT);
     }
@@ -25,7 +22,7 @@ public class TextAreaExtandable2 extends TextArea {
         textProperty().addListener((observable, oldValue, newValue) -> {
             COMPUTE_TEXT.setText(newValue);
             COMPUTE_TEXT.applyCss();
-            setPrefWidth( this.getFont().getSize()*2.75 + COMPUTE_TEXT.getBoundsInLocal().getWidth());
+            setPrefWidth( this.getFont().getSize()*FONT_EXT + COMPUTE_TEXT.getBoundsInLocal().getWidth());
         });
         this.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -36,7 +33,7 @@ public class TextAreaExtandable2 extends TextArea {
                     return this.getFont().getSize() + text.getBoundsInLocal().getHeight();
                 }, new Observable[]{text.boundsInLocalProperty()}));
 
-                setPrefWidth(text.getBoundsInLocal().getWidth() + this.getFont().getSize()*2.75);
+                setPrefWidth(text.getBoundsInLocal().getWidth() + this.getFont().getSize()*FONT_EXT);
 
                 text.boundsInLocalProperty().addListener((observableBoundsAfter, boundsBefore, boundsAfter) -> {
                     Platform.runLater(() -> {
