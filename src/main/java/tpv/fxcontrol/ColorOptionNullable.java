@@ -22,7 +22,7 @@ public class ColorOptionNullable extends StackPane {
 
         );
 
-        colorPicker.getStylesheets().add(ColorOptionNullable.class.getResource("/tpv/fxcontrol/coloroption.css").toExternalForm());
+        colorPicker.getStylesheets().add(getUserAgentStylesheet());
 
 
         eventTaker.setWidth(getMaxWidth()-1);
@@ -82,7 +82,10 @@ public class ColorOptionNullable extends StackPane {
         });
 
     }
-
+    @Override
+    public String getUserAgentStylesheet() {
+        return ColorOptionNullable.class.getResource("/tpv/fxcontrol/coloroption.css").toExternalForm();
+    }
 
     public ObjectProperty<Color> valueProperty() {
         return color;

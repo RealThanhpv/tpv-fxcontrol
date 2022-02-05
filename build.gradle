@@ -14,7 +14,7 @@ plugins {
 }
 
 javafx {
-    version = "17.0.1"
+    version = "18-ea+10"
     modules = ['javafx.controls']
 }
 

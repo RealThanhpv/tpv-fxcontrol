@@ -37,6 +37,9 @@ public class App extends Application {
         ColorOptionNullable colorOptionNullable = new ColorOptionNullable();
 
         container.getChildren().add(colorOptionNullable);
+        colorOptionNullable.setTranslateX(200);
+        colorOptionNullable.setTranslateY(50);
+        colorOptionNullable.setValue(null);
 
         ta2.setTranslateX(300);
         ta2.setTranslateY(500);
