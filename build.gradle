@@ -7,9 +7,9 @@
 
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven'
-    id 'application'
+//    id 'application'
     id "org.openjfx.javafxplugin" version "0.0.11"
 }
 
@@ -39,6 +39,6 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0'
 }
 
-application {
-    mainClassName = 'tpv.fxcontrol.App'
-}
+//application {
+//    mainClassName = 'tpv.fxcontrol.App'
+//}
