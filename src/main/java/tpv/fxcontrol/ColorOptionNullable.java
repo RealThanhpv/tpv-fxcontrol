@@ -41,8 +41,6 @@ public class ColorOptionNullable extends StackPane {
         stroke.startYProperty().bind(maxWidthProperty());
         stroke.endXProperty().bind(maxHeightProperty().subtract(1));
 
-
-
         setMaxWidth(14);
         setMaxHeight(14);
 
