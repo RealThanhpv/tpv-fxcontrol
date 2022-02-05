@@ -41,8 +41,9 @@ public class TextAreaResizable extends Control {
         return new TextAreaResizable.TextAreaResizableSkin(this);
     }
 
+    @Override
     public String getUserAgentStylesheet() {
-        return getClass().getResource("resizable-text-area.css").toExternalForm();
+        return TextAreaResizable.class.getResource("resizable-text-area.css").toExternalForm();
     }
 
     public final TextArea getEditor() {
