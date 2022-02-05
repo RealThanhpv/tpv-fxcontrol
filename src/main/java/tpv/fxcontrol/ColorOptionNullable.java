@@ -22,7 +22,7 @@ public class ColorOptionNullable extends StackPane {
 
         );
 
-        colorPicker.getStylesheets().add(ColorOptionNullable.class.getClassLoader().getResource("coloroption.css").toExternalForm());
+        colorPicker.getStylesheets().add(ColorOptionNullable.class.getResource("/tpv/fxcontrol/coloroption.css").toExternalForm());
 
 
         eventTaker.setWidth(getMaxWidth()-1);

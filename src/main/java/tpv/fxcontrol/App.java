@@ -26,13 +26,17 @@ public class App extends Application {
         Scene scene  = new Scene(root);
 
         TextAreaExtendable2 ta = new TextAreaExtendable2();
-//        Node ta = new TextAreaResizable();
+        Node ta2 = new TextAreaResizable();
 //        container.setScaleX(2);
 //        container.setScaleY(2);
         ta.setPrefWidth(100);
         container.getChildren().setAll(ta);
-        Node ta2 = new TextAreaExtendable2();
+
         container.getChildren().add(ta2);
+
+        ColorOptionNullable colorOptionNullable = new ColorOptionNullable();
+
+        container.getChildren().add(colorOptionNullable);
 
         ta2.setTranslateX(300);
         ta2.setTranslateY(500);
