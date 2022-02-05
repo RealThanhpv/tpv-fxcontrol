@@ -28,7 +28,6 @@ public class ColorOptionNullable extends StackPane {
         eventTaker.setWidth(getMaxWidth()-1);
         eventTaker.setHeight(getMaxHeight()-1);
         eventTaker.setStrokeWidth(4);
-  ;
         eventTaker.setStroke(Color.WHITE);
         eventTaker.setFill(Color.TRANSPARENT);
 
@@ -83,6 +82,7 @@ public class ColorOptionNullable extends StackPane {
         });
 
     }
+
 
     public ObjectProperty<Color> valueProperty() {
         return color;
