@@ -42,7 +42,7 @@ public class TextAreaResizable extends Control {
     }
 
     public String getUserAgentStylesheet() {
-        return TextAreaResizable.class.getResource("/tpv/fxcontrol/resizable-text-area.css").toExternalForm();
+        return getClass().getResource("/css/resizable-text-area.css").toExternalForm();
     }
 
     public final TextArea getEditor() {
