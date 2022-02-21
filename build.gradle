@@ -10,21 +10,24 @@ plugins {
     id 'java-library'
     id 'maven'
 //    id 'application'
-    id "org.openjfx.javafxplugin" version "0.0.11"
+    id "org.openjfx.javafxplugin" version "0.0.12"
 }
-
+projects {
+    group = 'tpv'
+    version = '1.0'
+}
 javafx {
     version = "18-ea+10"
     modules = ['javafx.controls']
 }
 
-projects {
-    group = 'tpv'
-    version = '1.0'
-}
+
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    jcenter()
+    maven { url 'https://jitpack.io' }
 
 }
 
@@ -35,10 +38,13 @@ compileJava {
 }
 
 dependencies {
-    implementation 'org.kordamp.ikonli:ikonli-javafx:12.2.0'
-    implementation 'org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0'
+    implementation ('org.kordamp.ikonli:ikonli-javafx:12.2.0')
+    implementation ('org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0')
+    implementation ('com.github.RealThanhpv:JFxSvgLoader:master-SNAPSHOT'){
+        transitive = false
+    }
 }
 
 //application {
-//    mainClassName = 'tpv.fxcontrol.App'
+//    mainClassName = 'tpv.fxcontrol.Main'
 //}
