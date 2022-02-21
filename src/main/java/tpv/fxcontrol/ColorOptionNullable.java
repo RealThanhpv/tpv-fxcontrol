@@ -82,7 +82,7 @@ public class ColorOptionNullable extends StackPane {
     }
     @Override
     public String getUserAgentStylesheet() {
-        return ColorOptionNullable.class.getResource("coloroption.css").toExternalForm();
+        return ColorOptionNullable.class.getResource("color-option.css").toExternalForm();
     }
 
     public ObjectProperty<Color> valueProperty() {

@@ -35,14 +35,17 @@ public class Main extends Application {
         container.getChildren().add(ta2);
 
         ColorOptionNullable colorOptionNullable = new ColorOptionNullable();
-
-        container.getChildren().add(colorOptionNullable);
         colorOptionNullable.setTranslateX(200);
         colorOptionNullable.setTranslateY(50);
         colorOptionNullable.setValue(null);
-
         ta2.setTranslateX(300);
         ta2.setTranslateY(500);
+
+        container.getChildren().add(colorOptionNullable);
+
+        SVGView svgView = new SVGView();
+        svgView.setSvgUrl("F:\\public repositories\\JFxSvgLoader\\tiger1.svg");
+        container.getChildren().add(svgView);
 
 
         stage.setScene(scene);

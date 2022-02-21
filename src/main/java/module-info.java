@@ -5,5 +5,6 @@ module tpv.fxcontrol {
     requires javafx.controls;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.materialdesign;
+    requires tpv.jfxsvg;
 
 }
