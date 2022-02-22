@@ -9,7 +9,7 @@
 plugins {
     id 'java-library'
     id 'maven'
-//    id 'application'
+    id 'application'
     id "org.openjfx.javafxplugin" version "0.0.11"
 }
 projects {
@@ -38,11 +38,9 @@ repositories {
 dependencies {
     implementation ('org.kordamp.ikonli:ikonli-javafx:12.2.0')
     implementation ('org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0')
-    implementation ('com.github.RealThanhpv:JFxSvgLoader:master-SNAPSHOT'){
-//        transitive = false
-    }
+    implementation ('com.github.RealThanhpv:JFxSvgLoader:master-SNAPSHOT')
 }
 
-//application {
-//    mainClassName = 'tpv.fxcontrol.Main'
-//}
+application {
+    mainClassName = 'tpv.fxcontrol.Main'
+}
