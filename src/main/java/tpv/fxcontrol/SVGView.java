@@ -65,13 +65,13 @@ public class SVGView extends StackPane {
     }
 
     public SVGView(){
-        if(!(getUrl() == null || getUrl().isEmpty() || getUrl().isBlank())) {
-            loadSVGNode(getUrl());
-        }
+        loadSVGNode(getUrl());
     }
 
     private void loadSVGNode(String urlString) {
-
+        if(urlString == null || urlString.isEmpty() || urlString.isBlank()){
+            return;
+        }
         try {
             URL url = new URL (urlString);
 
@@ -89,7 +89,7 @@ public class SVGView extends StackPane {
             getChildren().setAll(node);
 
         } catch (Exception e) {
-            System.out.println("Failed with url: "+ url);
+            System.out.println("Failed with url: "+ urlString);
             e.printStackTrace();
         }
 

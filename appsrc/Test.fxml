@@ -5,6 +5,6 @@
 
 <fx:root prefHeight="400.0" prefWidth="600.0" stylesheets="@test.css" type="AnchorPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <SVGView id="svg" stylesheets="@test.css" url="" />
+      <SVGView id="svg"  url="" />
    </children>
 </fx:root>
