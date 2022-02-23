@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import tpv.fxcontrol.SVGView?>
+
+<fx:root prefHeight="400.0" prefWidth="600.0" stylesheets="@test.css" type="AnchorPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <SVGView id="svg" stylesheets="@test.css" url="" />
+   </children>
+</fx:root>

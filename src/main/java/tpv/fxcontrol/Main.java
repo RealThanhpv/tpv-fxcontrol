@@ -44,7 +44,8 @@ public class Main extends Application {
         container.getChildren().add(colorOptionNullable);
 
         SVGView svgView = new SVGView();
-        svgView.setUrl("F:\\public repositories\\JFxSvgLoader\\tiger1.svg");
+//        svgView.setUrl("https://upload.wikimedia.org/wikipedia/commons/f/f7/Bananas.svg");
+        svgView.setUrl("file:F:\\public repositories\\fxcontrols\\src\\main\\resources\\tpv\\fxcontrol\\tiger.svg");
         container.getChildren().add(svgView);
 
 
