@@ -9,7 +9,7 @@
 plugins {
     id 'java-library'
     id 'maven'
-    id 'application'
+//    id 'application'
     id "org.openjfx.javafxplugin" version "0.0.11"
 }
 projects {
@@ -41,6 +41,6 @@ dependencies {
     implementation ('com.github.RealThanhpv:JFxSvgLoader:master-SNAPSHOT')
 }
 
-application {
-    mainClassName = 'tpv.fxcontrol.Main'
-}
+//application {
+//    mainClassName = 'tpv.fxcontrol.Main'
+//}

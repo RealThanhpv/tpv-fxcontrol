@@ -1,16 +1,17 @@
 package tpv.fxcontrol;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.css.Styleable;
+import javafx.css.*;
 import javafx.scene.Node;
-import javafx.scene.image.ImageView;
 import tpv.jfxsvg.SVGLoader;
 import javafx.scene.layout.StackPane;
 
 public class SVGView extends StackPane {
+    private static final StyleablePropertyFactory<SVGView> FACTORY =
+            new StyleablePropertyFactory<>(StackPane.getClassCssMetaData());
+    CssMetaData<SVGView, String> URL = FACTORY.createUrlCssMetaData("-url", s->s.url, null, false);
 
-    private final StringProperty svgUrlProp = new SimpleStringProperty(this, "url", null){
+    private final StyleableStringProperty url = new SimpleStyleableStringProperty(URL, this, "url"){
         @Override
         protected void invalidated() {
             loadSVGNode(get());
@@ -19,12 +20,12 @@ public class SVGView extends StackPane {
 
 
     public SVGView(String url){
-        setSvgUrl(url);
+        setUrl(url);
     }
 
     public SVGView(){
-        if(!(getSvgUrl() == null || getSvgUrl().isEmpty())) {
-            loadSVGNode(getSvgUrl());
+        if(!(getUrl() == null || getUrl().isEmpty())) {
+            loadSVGNode(getUrl());
         }
     }
 
@@ -39,16 +40,16 @@ public class SVGView extends StackPane {
     }
 
 
-    public StringProperty svgUrlProperty(){
-        return svgUrlProp;
+    public StringProperty urlProperty(){
+        return url;
     }
 
-    public String getSvgUrl(){
-        return svgUrlProperty().get();
+    public String getUrl(){
+        return urlProperty().get();
     }
 
-    public void setSvgUrl(String url){
-        svgUrlProperty().set(url);
+    public void setUrl(String url){
+        urlProperty().set(url);
     }
 
 
