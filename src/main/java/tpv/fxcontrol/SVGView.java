@@ -1,19 +1,12 @@
 package tpv.fxcontrol;
 
-import javafx.beans.property.StringProperty;
 import javafx.css.*;
 import javafx.scene.Node;
-import javafx.scene.image.ImageView;
-import tpv.jfxsvg.SVGLoader;
 import javafx.scene.layout.StackPane;
+import tpv.jfxsvg.SVGLoader;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
+import java.io.*;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,15 +16,8 @@ public class SVGView extends StackPane {
 
 
     private static final StyleablePropertyFactory<SVGView> FACTORY = new StyleablePropertyFactory<>(StackPane.getClassCssMetaData());
-    private static CssMetaData<SVGView, String> URL_CLASS_CSS_META_DATA = FACTORY.createUrlCssMetaData("-url", s->s.url, null, false);
-    private final StyleableStringProperty url = new SimpleStyleableStringProperty(URL_CLASS_CSS_META_DATA, this, "url"){
-        @Override
-        protected void invalidated() {
-            loadSVGNode(get());
-        }
-    };
-
     private final static List<CssMetaData<? extends Styleable, ?>> CLASS_CSS_META_DATA;
+    private static final CssMetaData<SVGView, String> URL_CLASS_CSS_META_DATA = FACTORY.createUrlCssMetaData("-url", s -> s.url, null, false);
 
     static {
         // combine already available properties in Rectangle with new properties
@@ -39,7 +25,7 @@ public class SVGView extends StackPane {
         List<CssMetaData<? extends Styleable, ?>> additional = Arrays.asList(URL_CLASS_CSS_META_DATA);
 
         // create arraylist with suitable capacity
-        List<CssMetaData<? extends Styleable, ?>> own = new ArrayList(parent.size()+ additional.size());
+        List<CssMetaData<? extends Styleable, ?>> own = new ArrayList(parent.size() + additional.size());
 
         // fill list with old and new metadata
         own.addAll(parent);
@@ -47,6 +33,21 @@ public class SVGView extends StackPane {
 
         // make sure the metadata list is not modifiable
         CLASS_CSS_META_DATA = Collections.unmodifiableList(own);
+    }
+
+    private final StyleableStringProperty url = new SimpleStyleableStringProperty(URL_CLASS_CSS_META_DATA, this, "url") {
+        @Override
+        protected void invalidated() {
+            loadSVGNode(get());
+        }
+    };
+
+    public SVGView(String url) {
+        setUrl(url);
+    }
+
+    public SVGView() {
+        loadSVGNode(getUrl());
     }
 
     // make metadata available for extending the class
@@ -60,55 +61,74 @@ public class SVGView extends StackPane {
         return CLASS_CSS_META_DATA;
     }
 
-    public SVGView(String url){
-        setUrl(url);
-    }
-
-    public SVGView(){
-        loadSVGNode(getUrl());
-    }
-
     private void loadSVGNode(String urlString) {
-        if(urlString == null || urlString.isEmpty() || urlString.isBlank()){
+        if (urlString == null || urlString.isEmpty() || urlString.isBlank()) {
             return;
         }
-        try {
-            URL url = new URL (urlString);
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-
-            StringBuffer sb = new StringBuffer();
-
-            String line;
-            while ((line = in.readLine()) != null) {
-               sb.append(line);
+        File file = new File(urlString);
+        if (file.exists()) {
+            try {
+                parseSVGFromFile(file);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
             }
-            in.close();
+        } else {
+            try {
+                URL url = new URL(urlString);
 
-            Node node = SVGLoader.parse(sb.toString());
-            getChildren().setAll(node);
+                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 
-        } catch (Exception e) {
-            System.out.println("Failed with url: "+ urlString);
-            e.printStackTrace();
+                StringBuffer sb = new StringBuffer();
+
+                String line;
+                while ((line = in.readLine()) != null) {
+                    sb.append(line);
+                }
+                in.close();
+
+                Node node = SVGLoader.parse(sb.toString());
+                getChildren().setAll(node);
+
+
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
+    private void parseSVGFromFile(File file) throws IOException {
+        byte[] buf = null;
+
+        try {
+            FileInputStream inFile = new FileInputStream(file);
+            buf = new byte[inFile.available()];
+            inFile.read(buf);
+
+            inFile.close();
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
+
+        Node node = SVGLoader.parse(new String(buf));
+        getChildren().setAll(node);
     }
 
 
-    public StyleableStringProperty urlProperty(){
+    public StyleableStringProperty urlProperty() {
         return url;
     }
 
-    public String getUrl(){
+    public String getUrl() {
         return urlProperty().get();
     }
 
-    public void setUrl(String url){
+    public void setUrl(String url) {
         urlProperty().set(url);
     }
-
-
 
 
 }

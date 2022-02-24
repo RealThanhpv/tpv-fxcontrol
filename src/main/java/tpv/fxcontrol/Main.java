@@ -45,7 +45,8 @@ public class Main extends Application {
 
 //        SVGView svgView = new SVGView();
 //        svgView.setUrl("https://upload.wikimedia.org/wikipedia/commons/f/f7/Bananas.svg");
-//        svgView.setUrl("file:F:\\public repositories\\fxcontrols\\src\\main\\resources\\tpv\\fxcontrol\\tiger.svg");
+//        svgView.setUrl("tiger.svg");
+//        container.getChildren().add(svgView);
         container.getChildren().add(new Test());
 
 
