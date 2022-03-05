@@ -89,7 +89,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     private StackPane root;
 
     /** The mode in which this control will be represented. */
-    private ComboBoxMode mode = ComboBoxMode.COMBOBOX;
 
 
     private final EventHandler<MouseEvent> mouseEnteredEventHandler  = e ->   getBehavior().mouseEntered(e);
@@ -196,16 +195,11 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     }
 
 
-
-
-
-
     PopupControl popup;
 
     private boolean popupNeedsReconfiguring = true;
 
 
-    private String initialTextFieldValue = null;
 
 
 
@@ -384,7 +378,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         getSkinnable().widthProperty().addListener(layoutPosListener);
         getSkinnable().heightProperty().addListener(layoutPosListener);
 
-        // RT-36966 - if skinnable's scene becomes null, ensure popup is closed
         getSkinnable().sceneProperty().addListener(o -> {
             if (((ObservableValue)o).getValue() == null) {
                 hide();
@@ -454,10 +447,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-    final ComboBoxMode getMode() { return mode; }
-    final void setMode(ComboBoxMode value) { mode = value; }
-
-
 
 
     /* *************************************************************************
@@ -485,12 +474,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      *                                                                         *
      **************************************************************************/
 
-
-
-
-    private boolean isButton() {
-        return getMode() == ComboBoxMode.BUTTON;
-    }
 
 
 
@@ -698,14 +681,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         return behavior;
     }
 
-    private void updateComboBoxMode() {
-        List<String> styleClass = getSkinnable().getStyleClass();
-        if (styleClass.contains(ColorPicker.STYLE_CLASS_BUTTON)) {
-            setMode(ComboBoxMode.BUTTON);
-        } else if (styleClass.contains(ColorPicker.STYLE_CLASS_SPLIT_BUTTON)) {
-            setMode(ComboBoxMode.SPLITBUTTON);
-        }
-    }
+
 
     // Translatable display names for the most common colors
     private static final Map<Color, String> COLOR_NAME_MAP = Map.ofEntries(
@@ -919,15 +895,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         }
     }
 
-    private void updateColor() {
-        final NullableColorPicker colorPicker = (NullableColorPicker)getSkinnable();
-        colorRect.setFill(colorPicker.getValue());
-//        if (colorLabelVisible.get()) {
-//            displayNode.setText(colorDisplayName(colorPicker.getValue()));
-//        } else {
-//            displayNode.setText("");
-//        }
-    }
 
 
 
