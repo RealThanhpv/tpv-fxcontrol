@@ -1,13 +1,11 @@
-StackPane {
-    visibility: false;
-}
 
+/*
 .arrow{
     visibility: false;
     -fx-background-color: transparent;
 }
 
-*{
+.nullable-color-picker *{
     -fx-border-color:transparent;
     -fx-border-width:0;
     -fx-background-insets: 0 0 0 0;
@@ -16,3 +14,8 @@ StackPane {
     -fx-margin: 0 0 0 0;
 
 }
+.nullable-color-picker .picker-color {
+    -fx-layoutX: 0;
+    -fx-layoutY: 0;
+}
+*/

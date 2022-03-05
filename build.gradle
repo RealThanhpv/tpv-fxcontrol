@@ -9,7 +9,7 @@
 plugins {
     id 'java-library'
     id 'maven'
-//    id 'application'
+    id 'application'
     id "org.openjfx.javafxplugin" version "0.0.11"
 }
 projects {
@@ -17,8 +17,8 @@ projects {
     version = '1.0'
 }
 javafx {
-    version = "17.0.2"
-    modules = ['javafx.controls', 'javafx.fxml']
+    version = "19-ea+3"
+    modules = ['javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.web', 'javafx.swing']
 }
 
 repositories {
@@ -27,23 +27,53 @@ repositories {
 
     maven { url 'https://jitpack.io' }
 
+
 }
 
-//compileJava {
-//
-//
-//        exclude "**/*.svg"
-////    options.compilerArgs = [
-//////            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
-////    ]
-//}
+compileJava {
+
+    options.compilerArgs = [
+            '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
+
+            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol'
+
+    ]
+}
+run {
+    jvmArgs = [
+//            "--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol",
+            '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
+            "--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol",
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol'
+//            "--add-exports=javafx.base/com.sun.javafx.binding=tpv.fxcontrol",
+//            "--add-exports=javafx.graphics/com.sun.javafx.stage=tpv.fxcontrol",
+//            "--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol"
+    ]
+}
 
 dependencies {
     implementation ('org.kordamp.ikonli:ikonli-javafx:12.2.0')
     implementation ('org.kordamp.ikonli:ikonli-materialdesign-pack:12.2.0')
     implementation ('com.github.RealThanhpv:JFxSvgLoader:master-SNAPSHOT')
+
+    implementation fileTree(dir: rootProject.rootDir.toString() + "/libs", include: '*.jar')
+
+    implementation "fr.brouillard.oss:cssfx:11.4.0"
 }
 
-//application {
-//    mainClassName = 'tpv.fxcontrol.Main'
-//}
+application {
+    mainClassName = 'tpv.fxcontrol.Main'
+}

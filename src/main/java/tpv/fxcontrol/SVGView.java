@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class SVGView extends StackPane {
-
-
     private static final StyleablePropertyFactory<SVGView> FACTORY = new StyleablePropertyFactory<>(StackPane.getClassCssMetaData());
     private final static List<CssMetaData<? extends Styleable, ?>> CLASS_CSS_META_DATA;
     private static final CssMetaData<SVGView, String> URL_CLASS_CSS_META_DATA = FACTORY.createUrlCssMetaData("-url", s -> s.url, null, false);
@@ -92,7 +90,7 @@ public class SVGView extends StackPane {
 
 
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
         }
     }
