@@ -236,9 +236,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     // See RT-30754 for more information.
     /** {@inheritDoc} */
     @Override protected double computeBaselineOffset(double topInset, double rightInset, double bottomInset, double leftInset) {
-//        if (displayNode == null) {
-            updateDisplayArea();
-//        }
+
 
 ////        if (displayNode != null) {
 //            return displayNode.getLayoutBounds().getMinY() + displayNode.getLayoutY() + displayNode.getBaselineOffset();
@@ -261,44 +259,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     }
 
 
-    private void updateArrowButtonListeners() {
-//        if (getSkinnable().isEditable()) {
-//            //
-//            // arrowButton behaves like a button.
-//            // This is strongly tied to the implementation in ComboBoxBaseBehavior.
-//            //
-//            displayNode.addEventHandler(MouseEvent.MOUSE_ENTERED,  mouseEnteredEventHandler);
-//            displayNode.addEventHandler(MouseEvent.MOUSE_PRESSED,  mousePressedEventHandler);
-//            displayNode.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseReleasedEventHandler);
-//            displayNode.addEventHandler(MouseEvent.MOUSE_EXITED,   mouseExitedEventHandler);
-//        } else {
-//            displayNode.removeEventHandler(MouseEvent.MOUSE_ENTERED,  mouseEnteredEventHandler);
-//            displayNode.removeEventHandler(MouseEvent.MOUSE_PRESSED,  mousePressedEventHandler);
-//            displayNode.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseReleasedEventHandler);
-//            displayNode.removeEventHandler(MouseEvent.MOUSE_EXITED,   mouseExitedEventHandler);
-//        }
-    }
 
-//    /** {@inheritDoc} */
-//     public Label getDisplayNode() {
-//        return displayNode;
-//    }
-
-    void updateDisplayArea() {
-        final List<Node> children = getChildren();
-//        final Node oldDisplayNode = displayNode;
-//        displayNode = getDisplayNode();
-//
-//        // don't remove displayNode if it hasn't changed.
-//        if (oldDisplayNode != null && oldDisplayNode != displayNode) {
-//            children.remove(oldDisplayNode);
-//        }
-//
-//        if (displayNode != null && !children.contains(displayNode)) {
-//            children.add(displayNode);
-//            displayNode.applyCss();
-//        }
-    }
 
 
     /* *************************************************************************
