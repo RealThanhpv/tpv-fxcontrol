@@ -85,10 +85,8 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      *                                                                         *
      **************************************************************************/
 
-//    private Label displayNode = new Label(); // this is normally either label or textField
 
     private StackPane root;
-//    private Region arrow;
 
     /** The mode in which this control will be represented. */
     private ComboBoxMode mode = ComboBoxMode.COMBOBOX;
@@ -123,14 +121,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         getChildren().clear();
 
-        // open button / arrow
-//        arrow = new Region();
-//        arrow.setFocusTraversable(false);
-//        arrow.getStyleClass().setAll("arrow");
-//        arrow.setId("arrow");
-//        arrow.setMaxWidth(Region.USE_PREF_SIZE);
-//        arrow.setMaxHeight(Region.USE_PREF_SIZE);
-//        arrow.setMouseTransparent(true);
 
         root = new StackPane();
         root.setFocusTraversable(false);
@@ -151,12 +141,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
             }
         });
 
-        // Register listeners
-        updateArrowButtonListeners();
-        registerChangeListener(control.editableProperty(), e -> {
-            updateArrowButtonListeners();
-            updateDisplayArea();
-        });
+
         registerChangeListener(control.showingProperty(), e -> {
             if (getSkinnable().isShowing()) {
                 show();
@@ -164,7 +149,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
                 hide();
             }
         });
-        registerChangeListener(control.valueProperty(), e -> updateDisplayArea());
     }
 
 
@@ -178,49 +162,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-
-    /** {@inheritDoc} */
-    @Override protected void layoutChildren(final double x, final double y,
-                                            final double w, final double h) {
-//        if (displayNode == null) {
-            updateDisplayArea();
-//        }
-
-//        final double arrowWidth = snapSizeX(arrow.prefWidth(-1));
-        final double arrowButtonWidth = (isButton()) ? 0 :
-                root.snappedLeftInset() + 0 +
-                        root.snappedRightInset();
-
-//        if (displayNode != null) {
-//            displayNode.resizeRelocate(x, y, w - arrowButtonWidth, h);
-//        }
-
-//        arrowButton.setVisible(! isButton());
-        if (! isButton()) {
-            root.resize(arrowButtonWidth, h);
-            positionInArea(root, (x + w) - arrowButtonWidth, y,
-                    arrowButtonWidth, h, 0, HPos.CENTER, VPos.CENTER);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-//        if (displayNode == null) {
-            updateDisplayArea();
-//        }
-
-        double ph;
-//        if (displayNode == null) {
-            final int DEFAULT_HEIGHT = 21;
-            double arrowHeight = 0;// (isButton()) ? 0 :
-                   // (root.snappedTopInset() + arrow.prefHeight(-1) + root.snappedBottomInset());
-            ph = Math.max(DEFAULT_HEIGHT, arrowHeight);
-//        } else {
-//            ph = displayNode.prefHeight(width);
-//        }
-
-        return topInset+ ph + bottomInset;
-    }
 
     /** {@inheritDoc} */
     @Override protected double computeMaxWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
@@ -237,10 +178,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     /** {@inheritDoc} */
     @Override protected double computeBaselineOffset(double topInset, double rightInset, double bottomInset, double leftInset) {
 
-
-////        if (displayNode != null) {
-//            return displayNode.getLayoutBounds().getMinY() + displayNode.getLayoutY() + displayNode.getBaselineOffset();
-//        }
 
         return super.computeBaselineOffset(topInset, rightInset, bottomInset, leftInset);
     }
@@ -262,17 +199,11 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-    /* *************************************************************************
-     *                                                                         *
-     * Private fields                                                          *
-     *                                                                         *
-     **************************************************************************/
 
     PopupControl popup;
 
     private boolean popupNeedsReconfiguring = true;
 
-    private TextField textField;
 
     private String initialTextFieldValue = null;
 
@@ -348,129 +279,11 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         return popup;
     }
 
-    TextField getEditableInputNode() {
-        if (textField == null && getEditor() != null) {
-            textField = getEditor();
-            textField.setFocusTraversable(false);
-//            textField.promptTextProperty().bind(comboBoxBase.promptTextProperty());
-            textField.tooltipProperty().bind(comboBoxBase.tooltipProperty());
-
-            // Fix for JDK-8145515 - in short the ComboBox was firing the event down to
-            // the TextField, and then the TextField was firing it back up to the
-            // ComboBox, resulting in stack overflows.
-            textField.getProperties().put(TextInputControlBehavior.DISABLE_FORWARD_TO_PARENT, true);
-
-            // Fix for RT-21406: ComboBox do not show initial text value
-            initialTextFieldValue = textField.getText();
-            // End of fix (see updateDisplayNode below for the related code)
-        }
-
-        return textField;
-    }
-
-    void setTextFromTextFieldIntoComboBoxValue() {
-        if (getEditor() != null) {
-            StringConverter<Color> c = getConverter();
-            if (c != null) {
-                Color oldValue = comboBoxBase.getValue();
-                Color value = oldValue;
-                String text = textField.getText();
-
-                // conditional check here added due to RT-28245
-                if (oldValue == null && (text == null || text.isEmpty())) {
-                    value = null;
-                } else {
-                    try {
-                        value = c.fromString(text);
-                    } catch (Exception ex) {
-                        // Most likely a parsing error, such as DateTimeParseException
-                    }
-                }
-
-                if ((value != null || oldValue != null) && (value == null || !value.equals(oldValue))) {
-                    // no point updating values needlessly if they are the same
-                    comboBoxBase.setValue(value);
-                }
-
-                updateDisplayNode();
-            }
-        }
-    }
 
     void updateDisplayNode() {
-        if (textField != null && getEditor() != null) {
-            Color value = comboBoxBase.getValue();
-            StringConverter<Color> c = getConverter();
 
-            if (initialTextFieldValue != null && ! initialTextFieldValue.isEmpty()) {
-                // Remainder of fix for RT-21406: ComboBox do not show initial text value
-                textField.setText(initialTextFieldValue);
-                initialTextFieldValue = null;
-                // end of fix
-            } else {
-                String stringValue = c.toString(value);
-                if (value == null || stringValue == null) {
-                    textField.setText("");
-                } else if (! stringValue.equals(textField.getText())) {
-                    textField.setText(stringValue);
-                }
-            }
-        }
     }
 
-    void updateEditable() {
-        TextField newTextField = getEditor();
-
-        if (getEditor() == null) {
-            // remove event filters
-            if (textField != null) {
-                textField.removeEventFilter(MouseEvent.DRAG_DETECTED, textFieldMouseEventHandler);
-                textField.removeEventFilter(DragEvent.ANY, textFieldDragEventHandler);
-
-                comboBoxBase.setInputMethodRequests(null);
-            }
-        } else if (newTextField != null) {
-            // add event filters
-
-            // Fix for RT-31093 - drag events from the textfield were not surfacing
-            // properly for the ComboBox.
-            newTextField.addEventFilter(MouseEvent.DRAG_DETECTED, textFieldMouseEventHandler);
-            newTextField.addEventFilter(DragEvent.ANY, textFieldDragEventHandler);
-
-            // RT-38978: Forward input method requests to TextField.
-            comboBoxBase.setInputMethodRequests(new ExtendedInputMethodRequests() {
-                 public Point2D getTextLocation(int offset) {
-                    return newTextField.getInputMethodRequests().getTextLocation(offset);
-                }
-
-                 public int getLocationOffset(int x, int y) {
-                    return newTextField.getInputMethodRequests().getLocationOffset(x, y);
-                }
-
-                 public void cancelLatestCommittedText() {
-                    newTextField.getInputMethodRequests().cancelLatestCommittedText();
-                }
-
-                 public String getSelectedText() {
-                    return newTextField.getInputMethodRequests().getSelectedText();
-                }
-
-                 public int getInsertPositionOffset() {
-                    return ((ExtendedInputMethodRequests)newTextField.getInputMethodRequests()).getInsertPositionOffset();
-                }
-
-                public String getCommittedText(int begin, int end) {
-                    return ((ExtendedInputMethodRequests)newTextField.getInputMethodRequests()).getCommittedText(begin, end);
-                }
-
-                 public int getCommittedTextLength() {
-                    return ((ExtendedInputMethodRequests)newTextField.getInputMethodRequests()).getCommittedTextLength();
-                }
-            });
-        }
-
-        textField = newTextField;
-    }
 
     private Point2D getPrefPopupPosition() {
         return com.sun.javafx.util.Utils.pointRelativeTo(getSkinnable(), getPopupContent(), HPos.CENTER, VPos.BOTTOM, 0, 0, true);
@@ -622,37 +435,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         }
     }
 
-    private void handleKeyEvent(KeyEvent ke, boolean doConsume) {
-        // When the user hits the enter key, we respond before
-        // ever giving the event to the TextField.
-        if (ke.getCode() == KeyCode.ENTER) {
-            if (ke.isConsumed() || ke.getEventType() != KeyEvent.KEY_RELEASED) {
-                return;
-            }
-            setTextFromTextFieldIntoComboBoxValue();
-
-            if (doConsume && comboBoxBase.getOnAction() != null) {
-                ke.consume();
-            } else if (textField != null) {
-                textField.fireEvent(ke);
-            }
-        } else if (ke.getCode() == KeyCode.F10 || ke.getCode() == KeyCode.ESCAPE) {
-            // RT-23275: The TextField fires F10 and ESCAPE key events
-            // up to the parent, which are then fired back at the
-            // TextField, and this ends up in an infinite loop until
-            // the stack overflows. So, here we consume these two
-            // events and stop them from going any further.
-            if (doConsume) ke.consume();
-        }
-    }
-
-
-
-    /* *************************************************************************
-     *                                                                         *
-     * Support classes                                                         *
-     *                                                                         *
-     **************************************************************************/
 
 
 
