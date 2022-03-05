@@ -28,9 +28,7 @@ package tpv.fxcontrol.skin;
 
 import com.sun.javafx.css.StyleManager;
 import com.sun.javafx.scene.control.Properties;
-import com.sun.javafx.scene.control.behavior.TextInputControlBehavior;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
@@ -48,15 +46,12 @@ import javafx.scene.control.*;
 import javafx.scene.control.skin.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.WindowEvent;
-import javafx.util.StringConverter;
 import tpv.fxcontrol.NullableColorPicker;
 import tpv.fxcontrol.behavior.NullableColorPickerBehavior;
 
@@ -76,8 +71,9 @@ import static javafx.scene.paint.Color.YELLOW;
  * @since 9
  */
 public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
-    private final NullableColorPicker comboBoxBase;
+    private final NullableColorPicker control;
     private  NullableColorPickerBehavior behavior;
+    private NullableColorPalette popupContent;
 
     /* *************************************************************************
      *                                                                         *
@@ -116,7 +112,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         behavior = new NullableColorPickerBehavior(control);
 
-        comboBoxBase = control;
+        this.control = control;
 
         getChildren().clear();
 
@@ -203,26 +199,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-    /* *************************************************************************
-     *                                                                         *
-     * TextField Listeners                                                     *
-     *                                                                         *
-     **************************************************************************/
 
-    private EventHandler<MouseEvent> textFieldMouseEventHandler = event -> {
-        NullableColorPicker comboBoxBase = getSkinnable();
-        if (!event.getTarget().equals(comboBoxBase)) {
-            comboBoxBase.fireEvent(event.copyFor(comboBoxBase, comboBoxBase));
-            event.consume();
-        }
-    };
-    private EventHandler<DragEvent> textFieldDragEventHandler = event -> {
-        NullableColorPicker comboBoxBase = getSkinnable();
-        if (!event.getTarget().equals(comboBoxBase)) {
-            comboBoxBase.fireEvent(event.copyFor(comboBoxBase, comboBoxBase));
-            event.consume();
-        }
-    };
 
 
 
@@ -238,7 +215,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     /** {@inheritDoc} */
     public void show() {
         if (getSkinnable() == null) {
-            throw new IllegalStateException("ComboBox is null");
+            throw new IllegalStateException("NullableColorPicker is null");
         }
 
         Node content = getPopupContent();
@@ -274,9 +251,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     }
 
 
-    void updateDisplayNode() {
 
-    }
 
 
     private Point2D getPrefPopupPosition() {
@@ -284,8 +259,8 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     }
 
     private void positionAndShowPopup() {
-        final NullableColorPicker comboBoxBase = getSkinnable();
-        if (comboBoxBase.getScene() == null) {
+        final NullableColorPicker control = getSkinnable();
+        if (control.getScene() == null) {
             return;
         }
 
@@ -301,7 +276,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         popupNeedsReconfiguring = true;
         reconfigurePopup();
 
-        _popup.show(comboBoxBase.getScene().getWindow(),
+        _popup.show(control.getScene().getWindow(),
                 snapPositionX(p.getX()),
                 snapPositionY(p.getY()));
 
@@ -433,27 +408,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-    /* *************************************************************************
-     *                                                                         *
-     * Stylesheet Handling                                                     *
-     *                                                                         *
-     **************************************************************************/
-
-    /* *************************************************************************
-     *                                                                         *
-     * Private Fields                                                          *
-     *                                                                         *
-     **************************************************************************/
-
-
-
-
-
-    /* *************************************************************************
-     *                                                                         *
-     * Constructors                                                            *
-     *                                                                         *
-     **************************************************************************/
 
 
 
@@ -468,26 +422,13 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-    /* *************************************************************************
-     *                                                                         *
-     * Private implementation                                                  *
-     *                                                                         *
-     **************************************************************************/
 
 
 
 
 
 
-    /* *************************************************************************
-     *                                                                         *
-     * Private fields                                                          *
-     *                                                                         *
-     **************************************************************************/
 
-    private StackPane pickerColorBox;
-    private Rectangle colorRect;
-    private NullableColorPalette popupContent;
 
 
 
@@ -535,13 +476,13 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
             super.applyStyle(origin, v);
             if (v == null) {
                 // remove old image view
-                if (pickerColorBox.getChildren().size() == 2) pickerColorBox.getChildren().remove(1);
+                if (root.getChildren().size() == 2) root.getChildren().remove(1);
             } else {
-                if (pickerColorBox.getChildren().size() == 2) {
-                    ImageView imageView = (ImageView)pickerColorBox.getChildren().get(1);
+                if (root.getChildren().size() == 2) {
+                    ImageView imageView = (ImageView)root.getChildren().get(1);
                     imageView.setImage(StyleManager.getInstance().getCachedImage(v));
                 } else {
-                    pickerColorBox.getChildren().add(new ImageView(StyleManager.getInstance().getCachedImage(v)));
+                    root.getChildren().add(new ImageView(StyleManager.getInstance().getCachedImage(v)));
                 }
             }
         }
@@ -559,7 +500,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     // --- color rect width
     private final StyleableDoubleProperty colorRectWidth =  new StyleableDoubleProperty(12) {
         @Override protected void invalidated() {
-            if(pickerColorBox!=null) pickerColorBox.requestLayout();
+            if(root!=null) root.requestLayout();
         }
         @Override public CssMetaData<NullableColorPicker,Number> getCssMetaData() {
             return NullableColorPickerSkin.StyleableProperties.COLOR_RECT_WIDTH;
@@ -575,7 +516,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     // --- color rect height
     private final StyleableDoubleProperty colorRectHeight =  new StyleableDoubleProperty(12) {
         @Override protected void invalidated() {
-            if(pickerColorBox!=null) pickerColorBox.requestLayout();
+            if(root!=null) root.requestLayout();
         }
         @Override public CssMetaData<NullableColorPicker,Number> getCssMetaData() {
             return NullableColorPickerSkin.StyleableProperties.COLOR_RECT_HEIGHT;
@@ -591,7 +532,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     // --- color rect X
     private final StyleableDoubleProperty colorRectX =  new StyleableDoubleProperty(0) {
         @Override protected void invalidated() {
-            if(pickerColorBox!=null) pickerColorBox.requestLayout();
+            if(root!=null) root.requestLayout();
         }
         @Override public CssMetaData<NullableColorPicker,Number> getCssMetaData() {
             return NullableColorPickerSkin.StyleableProperties.COLOR_RECT_X;
@@ -607,7 +548,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     // --- color rect Y
     private final StyleableDoubleProperty colorRectY =  new StyleableDoubleProperty(0) {
         @Override protected void invalidated() {
-            if(pickerColorBox!=null) pickerColorBox.requestLayout();
+            if(root!=null) root.requestLayout();
         }
         @Override public CssMetaData<NullableColorPicker,Number> getCssMetaData() {
             return NullableColorPickerSkin.StyleableProperties.COLOR_RECT_Y;
@@ -904,38 +845,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      *                                                                         *
      **************************************************************************/
 
-    private class PickerColorBox extends StackPane {
-        @Override protected void layoutChildren() {
-            final double top = snappedTopInset();
-            final double left = snappedLeftInset();
-            final double width = getWidth();
-            final double height = getHeight();
-            final double right = snappedRightInset();
-            final double bottom = snappedBottomInset();
-            colorRect.setX(snapPositionX(colorRectX.get()));
-            colorRect.setY(snapPositionY(colorRectY.get()));
-            colorRect.setWidth(snapSizeX(colorRectWidth.get()));
-            colorRect.setHeight(snapSizeY(colorRectHeight.get()));
-            if (getChildren().size() == 2) {
-                final ImageView icon = (ImageView) getChildren().get(1);
-                Pos childAlignment = StackPane.getAlignment(icon);
-                layoutInArea(icon, left, top,
-                        width - left - right, height - top - bottom,
-                        0, getMargin(icon),
-                        childAlignment != null? childAlignment.getHpos() : getAlignment().getHpos(),
-                        childAlignment != null? childAlignment.getVpos() : getAlignment().getVpos());
-                colorRect.setLayoutX(icon.getLayoutX());
-                colorRect.setLayoutY(icon.getLayoutY());
-            } else {
-                Pos childAlignment = StackPane.getAlignment(colorRect);
-                layoutInArea(colorRect, left, top,
-                        width - left - right, height - top - bottom,
-                        0, getMargin(colorRect),
-                        childAlignment != null? childAlignment.getHpos() : getAlignment().getHpos(),
-                        childAlignment != null? childAlignment.getVpos() : getAlignment().getVpos());
-            }
-        }
-    }
 
     /* *************************************************************************
      *                                                                         *
