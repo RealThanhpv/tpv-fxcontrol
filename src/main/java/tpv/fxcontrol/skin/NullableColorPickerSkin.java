@@ -73,6 +73,8 @@ import static javafx.scene.paint.Color.YELLOW;
  */
 public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     private static final int PICKER_SIZE = 15;
+    private static final int BOUNDARY_WIDTH = 4;
+    private static final double NULL_STROKE_WIDTH = 2;
     private final NullableColorPicker control;
     private  NullableColorPickerBehavior behavior;
     private NullableColorPalette popupContent;
@@ -121,12 +123,37 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         getChildren().add(root);
 
+        Rectangle boundary = new Rectangle();
+        boundary.setWidth(PICKER_SIZE+BOUNDARY_WIDTH);
+        boundary.setHeight(PICKER_SIZE+BOUNDARY_WIDTH);
+        boundary.setStrokeWidth(BOUNDARY_WIDTH);
+        boundary.setStroke(WHITE);
+        boundary.setMouseTransparent(true);
+        root.getChildren().add(boundary);
+
+
         colorRect = new Rectangle();
         colorRect.setWidth(PICKER_SIZE);
         colorRect.setHeight(PICKER_SIZE);
-        root.getChildren().add(colorRect);
         colorRect.setFill(control.getValue());
         colorRect.setMouseTransparent(true);
+        root.getChildren().add(colorRect);
+
+
+
+
+
+
+        nullLine = new Line();
+        nullLine.setStartY(PICKER_SIZE+BOUNDARY_WIDTH-NULL_STROKE_WIDTH/2);
+        nullLine.setEndX(PICKER_SIZE+BOUNDARY_WIDTH-NULL_STROKE_WIDTH/2);
+        nullLine.setStrokeWidth(NULL_STROKE_WIDTH);
+        nullLine.setStrokeLineCap(StrokeLineCap.ROUND);
+        nullLine.setStroke(RED);
+        nullLine.setMouseTransparent(true);
+        root.getChildren().add( nullLine);
+
+
         control.valueProperty().addListener(new ChangeListener<Color>() {
             @Override
             public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
@@ -141,15 +168,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
                 }
             }
         });
-
-        nullLine = new Line();
-        nullLine.setStartY(PICKER_SIZE);
-        nullLine.setEndX(PICKER_SIZE);
-        nullLine.setStrokeWidth(2);
-        nullLine.setStrokeLineCap(StrokeLineCap.ROUND);
-        nullLine.setStroke(RED);
-        nullLine.setMouseTransparent(true);
-        root.getChildren().add(nullLine);
 
 
         root.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
