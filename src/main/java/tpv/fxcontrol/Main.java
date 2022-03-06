@@ -40,14 +40,14 @@ public class Main extends Application {
 //        container.getChildren().add(ta2);
 
         NullableColorPicker colorOptionNullable = new NullableColorPicker();
-//        colorOptionNullable.setTranslateX(200);
-//        colorOptionNullable.setTranslateY(200);
+        colorOptionNullable.setTranslateX(200);
+        colorOptionNullable.setTranslateY(200);
 //        colorOptionNullable.setValue(null);
         ta2.setTranslateX(300);
         ta2.setTranslateY(500);
 
         container.getChildren().add(colorOptionNullable);
-        container.getChildren().add(new ColorPicker());
+//        container.getChildren().add(new ColorPicker());
 
 //        SVGView svgView = new SVGView();
 //        svgView.setUrl("https://upload.wikimedia.org/wikipedia/commons/f/f7/Bananas.svg");
