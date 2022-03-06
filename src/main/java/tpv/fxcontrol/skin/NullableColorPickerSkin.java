@@ -115,11 +115,17 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         getChildren().clear();
 
 
+
+
         root = new StackPane();
         root.setFocusTraversable(false);
         root.setId("arrow-button");
         root.getStyleClass().setAll("arrow-button");
-
+        root.addEventHandler(MouseEvent.ANY, event -> {
+            if(event.getClickCount() < 5){
+                event.consume();
+            }
+        });
         getChildren().add(root);
 
         colorRect = new Rectangle();
@@ -127,6 +133,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         colorRect.setHeight(PICKER_SIZE);
         root.getChildren().add(colorRect);
         colorRect.setFill(control.getValue());
+        colorRect.setMouseTransparent(true);
         control.valueProperty().addListener(new ChangeListener<Color>() {
             @Override
             public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
@@ -140,6 +147,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         nullLine.setStrokeWidth(2);
         nullLine.setStrokeLineCap(StrokeLineCap.ROUND);
         nullLine.setStroke(RED);
+        nullLine.setMouseTransparent(true);
         root.getChildren().add(nullLine);
 
         getSkinnable().focusedProperty().addListener((observable, oldValue, newValue) -> {
