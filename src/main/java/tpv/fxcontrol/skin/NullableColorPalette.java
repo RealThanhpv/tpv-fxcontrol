@@ -103,6 +103,7 @@ class NullableColorPalette extends Region {
                         Event.fireEvent(colorPicker, new ActionEvent());
                         colorPicker.hide();
                     });
+
                 }
                 customColorDialog.setCurrentColor(colorPicker.valueProperty().get());
                 if (popupControl != null) {

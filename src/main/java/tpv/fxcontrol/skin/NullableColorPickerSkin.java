@@ -33,24 +33,25 @@ import com.sun.javafx.scene.control.skin.Utils;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.css.*;
 import javafx.css.converter.BooleanConverter;
 import javafx.css.converter.SizeConverter;
-import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.WindowEvent;
 import tpv.fxcontrol.NullableColorPicker;
 import tpv.fxcontrol.behavior.NullableColorPickerBehavior;
@@ -71,6 +72,7 @@ import static javafx.scene.paint.Color.YELLOW;
  * @since 9
  */
 public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
+    private static final int PICKER_SIZE = 15;
     private final NullableColorPicker control;
     private  NullableColorPickerBehavior behavior;
     private NullableColorPalette popupContent;
@@ -80,17 +82,13 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      * Private Fields                                                          *
      *                                                                         *
      **************************************************************************/
+    private PopupControl popup;
 
+    private boolean popupNeedsReconfiguring = true;
 
     private StackPane root;
-
-    /** The mode in which this control will be represented. */
-
-
-    private final EventHandler<MouseEvent> mouseEnteredEventHandler  = e ->   getBehavior().mouseEntered(e);
-    private final EventHandler<MouseEvent> mousePressedEventHandler  = e -> { getBehavior().mousePressed(e);  e.consume(); };
-    private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> { getBehavior().mouseReleased(e); e.consume(); };
-    private final EventHandler<MouseEvent> mouseExitedEventHandler   = e ->   getBehavior().mouseExited(e);
+    private Rectangle colorRect;
+    private Line nullLine;
 
 
 
@@ -101,7 +99,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      **************************************************************************/
 
     /**
-     * Creates a new instance of ComboBoxBaseSkin, although note that this
+     * Creates a new instance of NullableColorPickerSkin, although note that this
      * instance does not handle any behavior / input mappings - this needs to be
      * handled appropriately by subclasses.
      *
@@ -124,12 +122,26 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         getChildren().add(root);
 
-        Rectangle rectangle = new Rectangle();
-        rectangle.setWidth(16);
-        rectangle.setHeight(16);
-        root.getChildren().add(rectangle);
+        colorRect = new Rectangle();
+        colorRect.setWidth(PICKER_SIZE);
+        colorRect.setHeight(PICKER_SIZE);
+        root.getChildren().add(colorRect);
+        colorRect.setFill(control.getValue());
+        control.valueProperty().addListener(new ChangeListener<Color>() {
+            @Override
+            public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+                colorRect.setFill(newValue);
+            }
+        });
 
-        // When ComboBoxBase focus shifts to another node, it should hide.
+        nullLine = new Line();
+        nullLine.setStartY(PICKER_SIZE);
+        nullLine.setEndX(PICKER_SIZE);
+        nullLine.setStrokeWidth(2);
+        nullLine.setStrokeLineCap(StrokeLineCap.ROUND);
+        nullLine.setStroke(RED);
+        root.getChildren().add(nullLine);
+
         getSkinnable().focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 focusLost();
@@ -172,8 +184,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     // See RT-30754 for more information.
     /** {@inheritDoc} */
     @Override protected double computeBaselineOffset(double topInset, double rightInset, double bottomInset, double leftInset) {
-
-
         return super.computeBaselineOffset(topInset, rightInset, bottomInset, leftInset);
     }
 
@@ -191,9 +201,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     }
 
 
-    PopupControl popup;
 
-    private boolean popupNeedsReconfiguring = true;
 
 
 
@@ -250,10 +258,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         return popup;
     }
 
-
-
-
-
     private Point2D getPrefPopupPosition() {
         return com.sun.javafx.util.Utils.pointRelativeTo(getSkinnable(), getPopupContent(), HPos.CENTER, VPos.BOTTOM, 0, 0, true);
     }
@@ -266,7 +270,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         final PopupControl _popup = getPopup();
         _popup.getScene().setNodeOrientation(getSkinnable().getEffectiveNodeOrientation());
-
 
         final Node popupContent = getPopupContent();
         sizePopup();
@@ -433,11 +436,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
 
-    /* *************************************************************************
-     *                                                                         *
-     * Constructors                                                            *
-     *                                                                         *
-     **************************************************************************/
 
 
 
@@ -447,55 +445,8 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      *                                                                         *
      **************************************************************************/
 
-    // --- color label visible
-    BooleanProperty colorLabelVisible = new StyleableBooleanProperty(true) {
-        @Override public void invalidated() {
-//            if (displayNode != null) {
-//                if (colorLabelVisible.get()) {
-//                    displayNode.setText(colorDisplayName(((NullableColorPicker)getSkinnable()).getValue()));
-//                } else {
-//                    displayNode.setText("");
-//                }
-//            }
-        }
-        @Override public Object getBean() {
-            return NullableColorPickerSkin.this;
-        }
-        @Override public String getName() {
-            return "colorLabelVisible";
-        }
-        @Override public CssMetaData<NullableColorPicker,Boolean> getCssMetaData() {
-            return NullableColorPickerSkin.StyleableProperties.COLOR_LABEL_VISIBLE;
-        }
-    };
 
-    // --- image url
-    private final StringProperty imageUrlProperty() { return imageUrl; }
-    private final StyleableStringProperty imageUrl = new StyleableStringProperty() {
-        @Override public void applyStyle(StyleOrigin origin, String v) {
-            super.applyStyle(origin, v);
-            if (v == null) {
-                // remove old image view
-                if (root.getChildren().size() == 2) root.getChildren().remove(1);
-            } else {
-                if (root.getChildren().size() == 2) {
-                    ImageView imageView = (ImageView)root.getChildren().get(1);
-                    imageView.setImage(StyleManager.getInstance().getCachedImage(v));
-                } else {
-                    root.getChildren().add(new ImageView(StyleManager.getInstance().getCachedImage(v)));
-                }
-            }
-        }
-        @Override public Object getBean() {
-            return NullableColorPickerSkin.this;
-        }
-        @Override public String getName() {
-            return "imageUrl";
-        }
-        @Override public CssMetaData<NullableColorPicker,String> getCssMetaData() {
-            return NullableColorPickerSkin.StyleableProperties.GRAPHIC;
-        }
-    };
+
 
     // --- color rect width
     private final StyleableDoubleProperty colorRectWidth =  new StyleableDoubleProperty(12) {
@@ -578,28 +529,12 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         }
     }
 
-    /** {@inheritDoc} */
-    @Override protected double computePrefWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-        if (!colorLabelVisible.get()) {
-            return super.computePrefWidth(height, topInset, rightInset, bottomInset, leftInset);
-        }
-//        String displayNodeText = displayNode.getText();
-        double width = 0;
-//        for (String name : COLOR_NAME_MAP.values()) {
-//            displayNode.setText(name);
-//            width = Math.max(width, super.computePrefWidth(height, topInset, rightInset, bottomInset, leftInset));
-//        }
-//        displayNode.setText(Utils.formatHexString(Color.BLACK)); // #000000
-//        width = Math.max(width, super.computePrefWidth(height, topInset, rightInset, bottomInset, leftInset));
-//        displayNode.setText(displayNodeText);
-        return width;
-    }
+
 
     /** {@inheritDoc} */
      protected Node getPopupContent() {
         if (popupContent == null) {
-//            popupContent = new ColorPalette(colorPicker.getValue(), colorPicker);
-            popupContent = new NullableColorPalette((NullableColorPicker)getSkinnable());
+            popupContent = new NullableColorPalette(getSkinnable());
             popupContent.setPopupControl(getPopup());
         }
         return popupContent;
@@ -804,17 +739,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
             Map.entry(YELLOW,               "yellow"),
             Map.entry(YELLOWGREEN,          "yellowgreen"));
 
-    static String colorDisplayName(Color c) {
-        if (c != null) {
-            String displayName = COLOR_NAME_MAP.get(c);
-            if (displayName == null) {
-                displayName = Utils.formatHexString(c);
-            }
-            return displayName;
-        } else {
-            return null;
-        }
-    }
+
 
     static String tooltipString(Color c) {
         if (c != null) {
@@ -837,15 +762,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
     }
 
 
-
-
-    /* *************************************************************************
-     *                                                                         *
-     *                         picker-color-cell                               *
-     *                                                                         *
-     **************************************************************************/
-
-
     /* *************************************************************************
      *                                                                         *
      *                         Stylesheet Handling                             *
@@ -853,20 +769,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
      **************************************************************************/
 
     private static class StyleableProperties {
-        private static final CssMetaData<NullableColorPicker,Boolean> COLOR_LABEL_VISIBLE =
-                new CssMetaData<NullableColorPicker,Boolean>("-fx-color-label-visible",
-                        BooleanConverter.getInstance(), Boolean.TRUE) {
 
-                    @Override public boolean isSettable(NullableColorPicker n) {
-                        final NullableColorPickerSkin skin = (NullableColorPickerSkin) n.getSkin();
-                        return skin.colorLabelVisible == null || !skin.colorLabelVisible.isBound();
-                    }
-
-                    @Override public StyleableProperty<Boolean> getStyleableProperty(NullableColorPicker n) {
-                        final NullableColorPickerSkin skin = (NullableColorPickerSkin) n.getSkin();
-                        return (StyleableProperty<Boolean>)(WritableValue<Boolean>)skin.colorLabelVisible;
-                    }
-                };
         private static final CssMetaData<NullableColorPicker,Number> COLOR_RECT_WIDTH =
                 new CssMetaData<NullableColorPicker,Number>("-fx-color-rect-width", SizeConverter.getInstance(), 12d) {
                     @Override public boolean isSettable(NullableColorPicker n) {
@@ -911,27 +814,15 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
                         return skin.colorRectY;
                     }
                 };
-        private static final CssMetaData<NullableColorPicker,String> GRAPHIC =
-                new CssMetaData<NullableColorPicker,String>("-fx-graphic", javafx.css.converter.StringConverter.getInstance()) {
-                    @Override public boolean isSettable(NullableColorPicker n) {
-                        final NullableColorPickerSkin skin = (NullableColorPickerSkin) n.getSkin();
-                        return !skin.imageUrl.isBound();
-                    }
-                    @Override public StyleableProperty<String> getStyleableProperty(NullableColorPicker n) {
-                        final NullableColorPickerSkin skin = (NullableColorPickerSkin) n.getSkin();
-                        return skin.imageUrl;
-                    }
-                };
+
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
         static {
             final List<CssMetaData<? extends Styleable, ?>> styleables =
                     new ArrayList<CssMetaData<? extends Styleable, ?>>(ComboBoxBaseSkin.getClassCssMetaData());
-            styleables.add(COLOR_LABEL_VISIBLE);
             styleables.add(COLOR_RECT_WIDTH);
             styleables.add(COLOR_RECT_HEIGHT);
             styleables.add(COLOR_RECT_X);
             styleables.add(COLOR_RECT_Y);
-            styleables.add(GRAPHIC);
             STYLEABLES = Collections.unmodifiableList(styleables);
         }
     }
@@ -954,16 +845,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         return getClassCssMetaData();
     }
 
-    /** {@inheritDoc} */
-     protected javafx.util.StringConverter<Color> getConverter() {
-        return null;
-    }
 
-    /**
-     * ColorPicker does not use a main text field, so this method has been
-     * overridden to return null.
-     */
-     protected TextField getEditor() {
-        return null;
-    }
+
 }

@@ -153,24 +153,6 @@ public class NullableColorPicker extends Control {
     public final Color getValue() { return valueProperty().get(); }
 
 
-    // --- editable
-    /**
-     * Specifies whether the ComboBox allows for user input. When editable is
-     * true, the ComboBox has a text input area that a user may type in to. This
-     * input is then available via the {@link #valueProperty() value} property.
-     *
-     * <p>Note that when the editable property changes, the value property is
-     * reset, along with any other relevant state.
-     * @return the editable property
-     */
-    public BooleanProperty editableProperty() { return editable; }
-    public final void setEditable(boolean value) { editableProperty().set(value); }
-    public final boolean isEditable() { return editableProperty().get(); }
-    private BooleanProperty editable = new SimpleBooleanProperty(this, "editable", false) {
-        @Override protected void invalidated() {
-            pseudoClassStateChanged(PSEUDO_CLASS_EDITABLE, get());
-        }
-    };
 
 
     // --- showing
@@ -419,8 +401,7 @@ public class NullableColorPicker extends Control {
 
     private static final String DEFAULT_STYLE_CLASS = "nullable-color-picker";
 
-    private static final PseudoClass PSEUDO_CLASS_EDITABLE =
-            PseudoClass.getPseudoClass("editable");
+
     private static final PseudoClass PSEUDO_CLASS_SHOWING =
             PseudoClass.getPseudoClass("showing");
     private static final PseudoClass PSEUDO_CLASS_ARMED =
@@ -438,7 +419,6 @@ public class NullableColorPicker extends Control {
     public Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters) {
         switch (attribute) {
             case EXPANDED: return isShowing();
-            case EDITABLE: return isEditable();
             default: return super.queryAccessibleAttribute(attribute, parameters);
         }
     }
@@ -452,15 +432,7 @@ public class NullableColorPicker extends Control {
             default: super.executeAccessibleAction(action); break;
         }
     }
-    /**
-     * The style class to specify a Button like appearance of ColorPicker control.
-     */
-    public static final String STYLE_CLASS_BUTTON = "button";
 
-    /**
-     * The style class to specify a SplitMenuButton like appearance of ColorPicker control.
-     */
-    public static final String STYLE_CLASS_SPLIT_BUTTON = "split-button";
 
     /**
      * The custom colors added to the Color Palette by the user.
