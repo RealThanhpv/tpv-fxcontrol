@@ -157,7 +157,7 @@ public class NullableColorPicker extends Control {
 
     // --- showing
     /**
-     * Represents the current state of the ComboBox popup, and whether it is
+     * Represents the current state of the NullableColorPicker popup, and whether it is
      * currently visible on screen (although it may be hidden behind other windows).
      */
     private ReadOnlyBooleanWrapper showing;
@@ -297,7 +297,7 @@ public class NullableColorPicker extends Control {
     public final void setOnHiding(EventHandler<Event> value) { onHidingProperty().set(value); }
     public final EventHandler<Event> getOnHiding() { return onHidingProperty().get(); }
     /**
-     * Called just prior to the {@link ComboBox} popup/display being hidden.
+     * Called just prior to the {@link NullableColorPicker} popup/display being hidden.
      * @since JavaFX 2.2
      */
     private ObjectProperty<EventHandler<Event>> onHiding = new ObjectPropertyBase<EventHandler<Event>>() {
@@ -417,8 +417,10 @@ public class NullableColorPicker extends Control {
     /** {@inheritDoc} */
     @Override
     public Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters) {
+
         switch (attribute) {
             case EXPANDED: return isShowing();
+
             default: return super.queryAccessibleAttribute(attribute, parameters);
         }
     }
@@ -461,7 +463,7 @@ public class NullableColorPicker extends Control {
         setValue(color);
         getStyleClass().add(DEFAULT_STYLE_CLASS);
 
-        // Fix for RT-29885
+
         getProperties().addListener((MapChangeListener<Object, Object>) change -> {
             if (change.wasAdded()) {
                 if (change.getKey() == "FOCUSED") {

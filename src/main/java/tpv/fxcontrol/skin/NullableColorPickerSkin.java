@@ -149,6 +149,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         });
 
 
+
         registerChangeListener(control.showingProperty(), e -> {
             if (getSkinnable().isShowing()) {
                 show();

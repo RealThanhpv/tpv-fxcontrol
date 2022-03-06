@@ -48,8 +48,7 @@ class NullableColorPalette extends Region {
 
     private static final int SQUARE_SIZE = 15;
 
-    // package protected for testing purposes
-    private ColorPickerGrid colorPickerGrid;
+    private final ColorPickerGrid colorPickerGrid;
     final Hyperlink customColorLink = new Hyperlink(getColorPickerString("customColorLink"));
     private CustomColorDialog customColorDialog = null;
 
@@ -88,6 +87,7 @@ class NullableColorPalette extends Region {
             public void handle(ActionEvent t) {
                 if (customColorDialog == null) {
                     customColorDialog = new CustomColorDialog(popupControl);
+
                     customColorDialog.customColorProperty().addListener((ov, t1, t2) -> {
                         colorPicker.setValue(customColorDialog.customColorProperty().get());
                     });
@@ -109,11 +109,13 @@ class NullableColorPalette extends Region {
                 if (popupControl != null) {
                     popupControl.setAutoHide(false);
                 }
-
-                customColorDialog.show();
+//                colorPicker.show();
+                 customColorDialog.show();
                  customColorDialog.setOnHidden(event -> {
                     if (popupControl != null) popupControl.setAutoHide(true);
                  });
+
+
             }
         });
 
@@ -388,12 +390,12 @@ class NullableColorPalette extends Region {
                 return false;
             }
 
-//            @Override
+            @Override
             public Node selectFirst(TraversalContext context) {
                 return standardColorGrid.getChildren().get(0);
             }
 
-//            @Override
+            @Override
             public Node selectLast(TraversalContext context) {
                 return customColorLink;
             }
