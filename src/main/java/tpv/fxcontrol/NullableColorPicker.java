@@ -167,6 +167,7 @@ public class NullableColorPicker extends Control {
         // these events will not fire if the showing property is bound
         Event.fireEvent(this, value ? new Event(NullableColorPicker.ON_SHOWING) :
                 new Event(NullableColorPicker.ON_HIDING));
+
         showingPropertyImpl().set(value);
         Event.fireEvent(this, value ? new Event(NullableColorPicker.ON_SHOWN) :
                 new Event(NullableColorPicker.ON_HIDDEN));

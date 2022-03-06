@@ -85,6 +85,7 @@ class NullableColorPalette extends Region {
         customColorLink.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
+
                 if (customColorDialog == null) {
                     customColorDialog = new CustomColorDialog(popupControl);
 
@@ -109,7 +110,6 @@ class NullableColorPalette extends Region {
                 if (popupControl != null) {
                     popupControl.setAutoHide(false);
                 }
-//                colorPicker.show();
                  customColorDialog.show();
                  customColorDialog.setOnHidden(event -> {
                     if (popupControl != null) popupControl.setAutoHide(true);

@@ -144,11 +144,13 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         getSkinnable().focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
-                focusLost();
+                if(!popupContent.isCustomColorDialogShowing()){
+                    focusLost();
+                }
+
+
             }
         });
-
-
 
         registerChangeListener(control.showingProperty(), e -> {
             if (getSkinnable().isShowing()) {
