@@ -27,7 +27,6 @@ package tpv.fxcontrol.skin;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.Control;
-import javafx.scene.control.IndexedCell;
 import javafx.scene.control.ScrollToEvent;
 import javafx.scene.control.SkinBase;
 import tpv.fxcontrol.FlowIndexedCell;

@@ -376,7 +376,7 @@ public class FlowCell<T> extends FlowIndexedCell<T> {
         // Inform the ListView of the edit starting.
         if (list != null) {
             list.fireEvent(new FlowView.EditEvent<T>(list,
-                    FlowView.<T>editStartEvent(),
+                    FlowView.editStartEvent(),
                     null,
                     indexAtStartEdit));
             list.edit(indexAtStartEdit);
@@ -401,7 +401,7 @@ public class FlowCell<T> extends FlowIndexedCell<T> {
         if (list != null) {
             // Inform the ListView of the edit being ready to be committed.
             list.fireEvent(new FlowView.EditEvent<T>(list,
-                    FlowView.<T>editCommitEvent(),
+                    FlowView.editCommitEvent(),
                     newValue,
                     list.getEditingIndex()));
         }

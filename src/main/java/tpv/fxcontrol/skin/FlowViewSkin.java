@@ -196,7 +196,6 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
 
         // install default input map for the ListView control
         behavior = new FlowViewBehavior<>(control);
-//        control.setInputMap(behavior.getInputMap());
 
         // init the behavior 'closures'
         behavior.setOnFocusPreviousRow(() -> onFocusPreviousCell());
@@ -495,7 +494,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
     }
 
     private static <T> FlowCell<T> createDefaultCellImpl() {
-        return new FlowCell<T>() {
+        return new FlowCell<>() {
             @Override public void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);
 

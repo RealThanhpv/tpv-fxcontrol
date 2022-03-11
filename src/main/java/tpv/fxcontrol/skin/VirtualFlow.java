@@ -84,6 +84,7 @@ import java.util.List;
  */
 public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
+
     /* *************************************************************************
      *                                                                         *
      * Static fields                                                           *
@@ -324,7 +325,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // --- sheet
         sheet = new Group();
         sheet.getStyleClass().add("sheet");
-        sheet.setAutoSizeChildren(false);
+        sheet.setAutoSizeChildren(true);
 
         sheetChildren = sheet.getChildren();
 
@@ -1051,7 +1052,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     /** {@inheritDoc} */
-    @Override protected void layoutChildren() {
+    @Override
+    protected void layoutChildren() {
+
+
         double origAbsoluteOffset = absoluteOffset;
         recalculateEstimatedSize();
         // if the last modification to the position was done via scrollPixels,

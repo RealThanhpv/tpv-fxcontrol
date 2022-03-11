@@ -53,9 +53,9 @@ public class Main extends Application {
         AnchorPane.setBottomAnchor(flView, 0.0);
         AnchorPane.setLeftAnchor(flView, 0.0);
 //        flView.setPrefWidth(800);
-
+        Random random = new Random();
         for (int i = 0; i < 50; i++) {
-            flView.getItems().add("ABCD");
+            flView.getItems().add("Number "+random.nextInt() );
         }
         flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
