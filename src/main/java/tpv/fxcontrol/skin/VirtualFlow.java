@@ -1972,14 +1972,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void positionCell(T cell, double position) {
         updateCellSize(cell);
-        if (isVertical()) {
-            cell.setLayoutX(0);
-            cell.setLayoutY(snapSpaceY(position));
-        } else {
-            cell.setLayoutX(snapSpaceX(position));
-            cell.setLayoutY(0);
-        }
+        cell.setLayoutX(snapSpaceX(position));
+        cell.setLayoutY(snapSpaceY(position));
+
     }
+
 
     /**
      * Resizes the given cell. If {@link #isVertical()} is set to {@code true}, the cell width will be the maximum
@@ -1991,6 +1988,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     protected void resizeCell(T cell) {
+
         if (cell == null) return;
 
         if (isVertical()) {
@@ -2000,6 +1998,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             double height = Math.max(getMaxPrefBreadth(), getViewportBreadth());
             cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
         }
+
+
     }
 
     /**
