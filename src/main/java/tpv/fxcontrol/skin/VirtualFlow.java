@@ -1649,7 +1649,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             for (int i = 0; i < cells.size(); i++) {
                 T cell = cells.get(i);
                 assert cell != null;
-                positionCell(cell, 0,getCellPositionY(cell) - delta);
+                positionCell(cell, getCellPositionX(cell),getCellPositionY(cell) - delta);
             }
 
             // Fix for RT-32908
@@ -1661,7 +1661,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 double actualLayoutY = getCellPositionY(cell);
                 if (Math.abs(actualLayoutY - layoutY) > 0.001) {
                     // we need to shift the cell to layoutY
-                    positionCell(cell, 0, layoutY);
+                    positionCell(cell, getCellPositionX(cell), layoutY);
                 }
 
                 layoutY += getCellLength(cell);
@@ -1707,7 +1707,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     double emptySize = viewportLength - cellEnd;
                     for (int i = 0; i < cells.size(); i++) {
                         T cell = cells.get(i);
-                        positionCell(cell, 0,getCellPositionY(cell) + emptySize);
+                        positionCell(cell, getCellPositionX(cell),getCellPositionY(cell) + emptySize);
                     }
                     setPosition(1.0f);
                     // fill the leading empty space
@@ -1729,6 +1729,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // notify
         return answer;
     }
+
+
 
     /** {@inheritDoc} */
     @Override protected double computePrefWidth(double height) {
@@ -1957,6 +1959,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 cell.prefWidth(-1);
     }
 
+    private double getCellPositionX(T cell) {
+        return cell.prefWidth(-1);
+    }
+
     /**
      * Gets the layout position of the cell along the length axis
      */
@@ -2112,7 +2118,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 offset -= getCellLength(cell);
             }
             // Position the cell, and update the maxPrefBreadth variable as we go.
-            positionCell(cell, 0, offset);
+            positionCell(cell, getCellPositionX(cell), offset);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
             cell.setVisible(true);
             --index;
@@ -2132,7 +2138,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 offset = 0;
                 for (int i = 0; i < cells.size(); i++) {
                     cell = cells.get(i);
-                    positionCell(cell, 0, offset);
+                    positionCell(cell, getCellPositionX(cell), offset);
                     offset += getCellLength(cell);
                 }
             }
@@ -2195,7 +2201,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             resizeCell(cell); // resize happens after config!
             cells.addLast(cell);
             // Position the cell and update the max pref
-            positionCell(cell, 0, offset);
+            positionCell(cell, getCellPositionX(cell), offset);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
 
             offset += getCellLength(cell);
@@ -2229,7 +2235,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 double cellLength = getCellLength(cell);
                 start -= cellLength;
                 prospectiveEnd += cellLength;
-                positionCell(cell, 0, start);
+                positionCell(cell, getCellPositionX(cell), start);
                 setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
                 cell.setVisible(true);
             }
@@ -2244,7 +2250,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Move things
             for (int i = 0; i < cells.size(); i++) {
                 T cell = cells.get(i);
-                positionCell(cell, 0,getCellPositionY(cell) + delta);
+                positionCell(cell, getCellPositionX(cell),getCellPositionY(cell) + delta);
             }
 
             // Check whether the first cell, subsequent to our adjustments, is
@@ -2474,14 +2480,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
                 offset -= getCellLength(cell);
 
-                positionCell(cell, 0, offset);
+                positionCell(cell, getCellPositionX(cell), offset);
             }
 
             // position trailing cells
             offset = currOffset;
             for (int i = currIndex; i >= 0 && i < size; i++) {
                 final T cell = cells.get(i);
-                positionCell(cell, 0, offset);
+                positionCell(cell, getCellPositionX(cell), offset);
 
                 offset += getCellLength(cell);
             }
