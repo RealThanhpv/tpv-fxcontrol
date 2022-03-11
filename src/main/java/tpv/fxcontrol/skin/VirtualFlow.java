@@ -1954,9 +1954,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Gets the breadth of a specific cell
      */
     double getCellBreadth(Cell cell) {
-        return isVertical() ?
-                cell.prefWidth(-1)
-                : cell.prefHeight(-1);
+        return
+                cell.prefWidth(-1);
     }
 
     /**
