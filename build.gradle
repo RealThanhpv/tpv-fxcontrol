@@ -33,9 +33,14 @@ repositories {
 compileJava {
 
     options.compilerArgs = [
+            '--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol',
+            '--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol',
+            '--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
             '--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol',
+
             '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol',
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
@@ -48,9 +53,12 @@ compileJava {
 }
 run {
     jvmArgs = [
-//            "--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol",
+            '--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol',
+            '--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol',
+            '--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
             "--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol",
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
@@ -58,9 +66,7 @@ run {
             '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol'
-//            "--add-exports=javafx.base/com.sun.javafx.binding=tpv.fxcontrol",
-//            "--add-exports=javafx.graphics/com.sun.javafx.stage=tpv.fxcontrol",
-//            "--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol"
+
     ]
 }
 

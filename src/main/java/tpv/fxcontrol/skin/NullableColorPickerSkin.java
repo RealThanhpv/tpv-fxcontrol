@@ -140,10 +140,6 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         root.getChildren().add(colorRect);
 
 
-
-
-
-
         nullLine = new Line();
         nullLine.setStartY(PICKER_SIZE+BOUNDARY_WIDTH-NULL_STROKE_WIDTH/2);
         nullLine.setEndX(PICKER_SIZE+BOUNDARY_WIDTH-NULL_STROKE_WIDTH/2);
@@ -151,20 +147,18 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         nullLine.setStrokeLineCap(StrokeLineCap.ROUND);
         nullLine.setStroke(RED);
         nullLine.setMouseTransparent(true);
-        root.getChildren().add( nullLine);
+        if(control.getValue() == null) {
+            root.getChildren().add(nullLine);
+        }
 
-
-        control.valueProperty().addListener(new ChangeListener<Color>() {
-            @Override
-            public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-                if(newValue != null) {
-                    colorRect.setFill(newValue);
-                    root.getChildren().remove(nullLine);
-                }
-                else {
-                    if(!root.getChildren().contains(nullLine)) {
-                        root.getChildren().add(nullLine);
-                    }
+        control.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null) {
+                colorRect.setFill(newValue);
+                root.getChildren().remove(nullLine);
+            }
+            else {
+                if(!root.getChildren().contains(nullLine)) {
+                    root.getChildren().add(nullLine);
                 }
             }
         });

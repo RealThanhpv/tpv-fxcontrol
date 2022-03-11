@@ -2,15 +2,21 @@ package tpv.fxcontrol;
 
 import fr.brouillard.oss.cssfx.CSSFX;
 import javafx.application.Application;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
-import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SelectionModel;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
+import java.util.Random;
 
 public class Main extends Application {
 
@@ -21,14 +27,11 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
 
-        HBox container = new HBox();
-        container.setSpacing(10);
+        AnchorPane root = new AnchorPane();
 
 
-        SubScene subScene = new SubScene(container, 800, 600);
-        Group root = new Group();
-        root.getChildren().setAll(subScene);
-        Scene scene  = new Scene(root);
+
+        Scene scene  = new Scene(root, 800, 600);
 
         TextAreaExtendable2 ta = new TextAreaExtendable2();
         Node ta2 = new TextAreaResizable();
@@ -42,11 +45,27 @@ public class Main extends Application {
         NullableColorPicker colorOptionNullable = new NullableColorPicker();
         colorOptionNullable.setTranslateX(200);
         colorOptionNullable.setTranslateY(200);
-//        colorOptionNullable.setValue(null);
         ta2.setTranslateX(300);
         ta2.setTranslateY(500);
+        FlowView<String> flView = new FlowView<>();
+        AnchorPane.setTopAnchor(flView,  0.0);
+        AnchorPane.setRightAnchor(flView,  0.0);
+        AnchorPane.setBottomAnchor(flView, 0.0);
+        AnchorPane.setLeftAnchor(flView, 0.0);
+//        flView.setPrefWidth(800);
 
-        container.getChildren().add(colorOptionNullable);
+        for (int i = 0; i < 50; i++) {
+            flView.getItems().add("ABCD");
+        }
+        flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        System.out.println(flView.getItems().size());
+
+        root.getChildren().add(flView);
+        flView.prefWidthProperty().bind(scene.widthProperty());
+
+
+//        container.getChildren().add(colorOptionNullable);
 //        container.getChildren().add(new ColorPicker());
 
 //        SVGView svgView = new SVGView();
@@ -55,12 +74,21 @@ public class Main extends Application {
 //        container.getChildren().add(svgView);
 //        container.getChildren().add(new Test());
 
-        subScene.setFill(Color.DARKGRAY);
+        scene.setFill(Color.DARKGRAY);
 
         stage.setScene(scene);
-//        org.scenicview.ScenicView.show(scene);
+        org.scenicview.ScenicView.show(scene);
         CSSFX.start(scene);
         stage.show();
 
+    }
+
+    static class  Rect extends Rectangle {
+        private static Random random = new Random();
+        Rect() {
+            setWidth(120);
+            setHeight(100);
+            setFill(Color.rgb((int) (random.nextDouble()*225), (int) (random.nextDouble()*225), (int) (random.nextDouble()*225)));
+        }
     }
 }

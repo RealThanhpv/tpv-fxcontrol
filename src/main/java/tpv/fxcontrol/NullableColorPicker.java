@@ -37,7 +37,6 @@ import javafx.event.EventType;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.ColorPickerSkin;
 import javafx.scene.paint.Color;
 import tpv.fxcontrol.skin.NullableColorPickerSkin;
 
