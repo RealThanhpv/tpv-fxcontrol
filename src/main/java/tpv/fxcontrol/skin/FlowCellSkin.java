@@ -66,10 +66,7 @@ public class FlowCellSkin<T> extends CellSkinBase<FlowCell<T>> {
      */
     public FlowCellSkin(FlowCell<T> control) {
         super(control);
-
-        // install default input map for the ListCell control
         behavior = new FlowCellBehavior(control);
-//        control.setInputMap(behavior.getInputMap());
     }
 
     /* *************************************************************************
@@ -92,7 +89,7 @@ public class FlowCellSkin<T> extends CellSkinBase<FlowCell<T>> {
         double pref = super.computePrefWidth(height, topInset, rightInset, bottomInset, leftInset);
         FlowView<T> listView = getSkinnable().getListView();
         return listView == null ? 0 :
-                listView.getOrientation() == Orientation.VERTICAL ? pref : Math.max(pref, getCellSize());
+                 Math.max(pref, getCellSize());
     }
 
     /** {@inheritDoc} */

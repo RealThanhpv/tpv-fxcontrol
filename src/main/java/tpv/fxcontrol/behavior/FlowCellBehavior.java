@@ -27,9 +27,6 @@ package tpv.fxcontrol.behavior;
 
 import com.sun.javafx.scene.control.behavior.CellBehaviorBase;
 import javafx.scene.control.*;
-
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import tpv.fxcontrol.FlowCell;
 import tpv.fxcontrol.FlowIndexedCell;
 import tpv.fxcontrol.FlowView;
