@@ -31,7 +31,7 @@ public class Main extends Application {
 
 
 
-        Scene scene  = new Scene(root, 800, 600);
+        Scene scene  = new Scene(root, 100, 300);
 
         TextAreaExtendable2 ta = new TextAreaExtendable2();
         Node ta2 = new TextAreaResizable();
@@ -51,7 +51,7 @@ public class Main extends Application {
         AnchorPane.setLeftAnchor(flView, 0.0);
 
         Random random = new Random();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 500; i++) {
             flView.getItems().add("Number "+random.nextInt() );
         }
         flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
