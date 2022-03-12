@@ -35,12 +35,9 @@ public class Main extends Application {
 
         TextAreaExtendable2 ta = new TextAreaExtendable2();
         Node ta2 = new TextAreaResizable();
-//        container.setScaleX(2);
-//        container.setScaleY(2);
-        ta.setPrefWidth(100);
-//        container.getChildren().setAll(ta);
 
-//        container.getChildren().add(ta2);
+        ta.setPrefWidth(100);
+
 
         NullableColorPicker colorOptionNullable = new NullableColorPicker();
         colorOptionNullable.setTranslateX(200);
@@ -52,7 +49,7 @@ public class Main extends Application {
         AnchorPane.setRightAnchor(flView,  0.0);
         AnchorPane.setBottomAnchor(flView, 0.0);
         AnchorPane.setLeftAnchor(flView, 0.0);
-//        flView.setPrefWidth(800);
+
         Random random = new Random();
         for (int i = 0; i < 50; i++) {
             flView.getItems().add("Number "+random.nextInt() );

@@ -28,7 +28,6 @@ package tpv.fxcontrol.skin;
 import com.sun.javafx.util.Utils;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.IndexedCell;
 import javafx.scene.control.ScrollBar;
 import tpv.fxcontrol.FlowIndexedCell;
 
