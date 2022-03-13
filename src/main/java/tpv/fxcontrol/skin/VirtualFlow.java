@@ -1378,7 +1378,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         for (int i = 0, max = pile.size(); i < max; i++) {
             T _cell = pile.get(i);
             assert _cell != null;
-            if (getCellIndex(_cell) == prefIndex) {
+            if (_cell.getIndex() == prefIndex) {
                 cell = _cell;
                 pile.remove(i);
                 break;
@@ -1427,18 +1427,18 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         // check the last index
         T lastCell = cells.getLast();
-        int lastIndex = getCellIndex(lastCell);
+        int lastIndex = lastCell.getIndex();
         if (index == lastIndex) return lastCell;
 
         // check the first index
         T firstCell = cells.getFirst();
-        int firstIndex = getCellIndex(firstCell);
+        int firstIndex = firstCell.getIndex();
         if (index == firstIndex) return firstCell;
 
         // if index is > firstIndex and < lastIndex then we can get the index
         if (index > firstIndex && index < lastIndex) {
             T cell = cells.get(index - firstIndex);
-            if (getCellIndex(cell) == index) return cell;
+            if (cell.getIndex() == index) return cell;
         }
 
         // there is no visible cell for the specified index
@@ -1637,7 +1637,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         recalculateEstimatedSize();
 
-
         double answer = adjustByPixelAmount(delta);
 
         // Now move stuff around. Translating by pixels fundamentally means
@@ -1682,7 +1681,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             // Add any necessary leading cells
             if (firstCell != null) {
-                int firstIndex = getCellIndex(firstCell);
+                int firstIndex = firstCell.getIndex();
                 double prevIndexSize = getCellLength(firstIndex - 1);
                 Point2D p = getCellPosition(firstCell);
                 addLeadingCells(firstIndex - 1, p.getY() - prevIndexSize);
@@ -1724,7 +1723,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     setPosition(1.0f);
                     // fill the leading empty space
                     firstCell = cells.getFirst();
-                    int firstIndex = getCellIndex(firstCell);
+                    int firstIndex = firstCell.getIndex();
                     double prevIndexSize = getCellLength(firstIndex - 1);
                     addLeadingCells(firstIndex - 1, getCellPosition(firstCell).getY() - prevIndexSize);
                 }
@@ -1776,7 +1775,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // check the pile
         for (int i = 0; i < pile.size(); i++) {
             T cell = pile.get(i);
-            if (getCellIndex(cell) == index) {
+            if (cell.getIndex() == index) {
                 // Note that we don't remove from the pile: if we do it leads
                 // to a severe performance decrease. This seems to be OK, as
                 // getCell() is only used for cell measurement purposes.
@@ -1837,15 +1836,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-    /**
-     * Return the index for a given cell. This allows subclasses to customise
-     * how cell indices are retrieved.
-     * @param cell the cell
-     * @return the index
-     */
-    protected int getCellIndex(T cell){
-        return cell.getIndex();
-    }
+
 
 
 
@@ -2173,7 +2164,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // removed at the top or when the viewport size increased.
         if (cells.size() > 0) {
             cell = cells.getFirst();
-            int firstIndex = getCellIndex(cell);
+            int firstIndex = cell.getIndex();
             double firstCellPos = getCellPosition(cell).getY();
             if (firstIndex == 0 && firstCellPos > 0) {
                 setPosition(0.0f);
@@ -2211,7 +2202,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         Point2D pos = getCellPosition(startCell);
         double offsetX = pos.getX() + getCellBreadth(startCell);
         double offsetY = pos.getY() + getCellLength(startCell);
-        int index = getCellIndex(startCell) + 1;
+        int index = startCell.getIndex() + 1;
         final int cellCount = getCellCount();
         boolean filledWithNonEmpty = index <= cellCount;
 
@@ -2277,13 +2268,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // with the bottom OR we have laid out cell index #0 at the first
         // position.
         T firstCell = cells.getFirst();
-        index = getCellIndex(firstCell);
+        index = firstCell.getIndex();
         T lastNonEmptyCell = getLastVisibleCell();
 
         double start = getCellPosition(firstCell).getY();
         double end = getCellPosition(lastNonEmptyCell).getY() + getCellLength(lastNonEmptyCell);
         if ((index != 0 || (index == 0 && start < 0)) && fillEmptyCells &&
-                lastNonEmptyCell != null && getCellIndex(lastNonEmptyCell) == cellCount - 1 && end < viewportLength) {
+                lastNonEmptyCell != null && lastNonEmptyCell.getIndex() == cellCount - 1 && end < viewportLength) {
 
             double prospectiveEnd = end;
             double distance = viewportLength - end;
@@ -2307,7 +2298,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             Point2D cellPos = getCellPosition(firstCell);
             start = cellPos.getY();
             double delta = viewportLength - end;
-            if (getCellIndex(firstCell) == 0 && delta > (-start)) {
+            if (firstCell.getIndex() == 0 && delta > (-start)) {
                 delta = (-start);
             }
             // Move things
@@ -2322,7 +2313,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // to be at 0 instead of 1.
             Point2D p = getCellPosition(firstCell);
             start = p.getY();
-            if (getCellIndex(firstCell) == 0 && start == 0) {
+            if (firstCell.getIndex() == 0 && start == 0) {
                 setPosition(0);
             } else if (getPosition() != 1) {
                 setPosition(1);
@@ -2774,7 +2765,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (cell == null) {
             for (int i = 0; i < sheetChildren.size(); i++) {
                 T _cell = (T) sheetChildren.get(i);
-                if (getCellIndex(_cell) == index) {
+                if (_cell.getIndex() == index) {
                     return _cell;
                 }
             }
@@ -2981,7 +2972,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return absoluteOffset - origAbsoluteOffset;
 
     }
-    //TO DO need to re-implement
+    //TODO need to re-implement
     private int computeCurrentIndex() {
         double total = 0;
         int currentCellCount = getCellCount();
