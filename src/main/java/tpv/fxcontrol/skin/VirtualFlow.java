@@ -1610,24 +1610,35 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param delta the delta value
      * @return the number of pixels actually moved
      */
+    private boolean scrollAtEightExtremity(final double delta){
+        final boolean isVertical = isVertical();
+        if (((isVertical && (tempVisibility ? !needLengthBar : !vbar.isVisible())) ||
+                (! isVertical && (tempVisibility ? !needLengthBar : !hbar.isVisible())))) return true;
+
+        double pos = getPosition();
+        if (pos == 0.0f && delta < 0) return true;
+        if (pos == 1.0f && delta > 0) return true;
+
+        if (pos == getPosition()) {
+            // The pos hasn't changed, there's nothing to do. This is likely
+            // to occur when we hit either extremity
+            return true;
+        }
+
+        return false;
+    }
     public double scrollPixels(final double delta) {
         // Short cut this method for cases where nothing should be done
         if (delta == 0) return 0;
 
-        final boolean isVertical = isVertical();
-        if (((isVertical && (tempVisibility ? !needLengthBar : !vbar.isVisible())) ||
-                (! isVertical && (tempVisibility ? !needLengthBar : !hbar.isVisible())))) return 0;
+       if(scrollAtEightExtremity(delta)){
+           return  0;
+       }
 
-        double pos = getPosition();
-        if (pos == 0.0f && delta < 0) return 0;
-        if (pos == 1.0f && delta > 0) return 0;
         recalculateEstimatedSize();
+
+
         double answer = adjustByPixelAmount(delta);
-        if (pos == getPosition()) {
-            // The pos hasn't changed, there's nothing to do. This is likely
-            // to occur when we hit either extremity
-            return 0;
-        }
 
         // Now move stuff around. Translating by pixels fundamentally means
         // moving the cells by the delta. However, after having
