@@ -1627,6 +1627,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         return false;
     }
+    private void layoutCells(){
+        for (int i = 0; i < cells.size(); i++) {
+            T cell = cells.get(i);
+            assert cell != null;
+            Point2D p = getCellPosition(cell);
+            positionCell(cell,p.getX(), p.getY());
+        }
+    }
     public double scrollPixels(final double delta) {
         // Short cut this method for cases where nothing should be done
         if (delta == 0) return 0;
@@ -1653,12 +1661,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // then we will be sure to show the breadthBar and update it
         // accordingly.
         if (cells.size() > 0) {
-            for (int i = 0; i < cells.size(); i++) {
-                T cell = cells.get(i);
-                assert cell != null;
-                Point2D p = getCellPosition(cell);
-                positionCell(cell,p.getX(), p.getY());
-            }
+
+            layoutCells();
 
             // Fix for RT-32908
             T firstCell = cells.getFirst();
@@ -1670,10 +1674,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 double actualLayoutY = p.getY();
                 if (Math.abs(actualLayoutY - layoutY) > 0.001) {
                     // we need to shift the cell to layoutY
-                    positionCell(cell, p.getX(), p.getY());
+                    positionCell(cell, p.getX(), p.getY() - layoutY);
                 }
 
-                layoutY += getCellLength(cell);
+//                layoutY += getCellLength(cell);
             }
             // end of fix for RT-32908
             cull();
