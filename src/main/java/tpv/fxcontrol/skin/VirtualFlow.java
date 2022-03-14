@@ -2030,8 +2030,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param cell the cell to resize
      * @since 12
      */
+    @Deprecated
     protected void resizeCell(T cell) {
-
+        /*
         if (cell == null) return;
 
         if (isVertical()) {
@@ -2041,7 +2042,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             double height = Math.max(getMaxPrefBreadth(), getViewportBreadth());
             cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
         }
-
+    */
 
     }
 
