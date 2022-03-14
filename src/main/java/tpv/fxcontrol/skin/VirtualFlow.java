@@ -847,7 +847,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * the cells change, but the count has not changed, you must call the
      * reconfigureCells() function to update the visuals.
      */
-    private IntegerProperty cellCount = new SimpleIntegerProperty(this, "cellCount", 0) {
+    private IntegerProperty itemCount = new SimpleIntegerProperty(this, "cellCount", 0) {
         private int oldCount = 0;
 
         @Override protected void invalidated() {
@@ -895,11 +895,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // the view remains "stable".
         }
     };
-    public final int getCellCount() { return cellCount.get(); }
-    public final void setCellCount(int value) {
-        cellCount.set(value);
+    public final int getItemsCount() { return itemCount.get(); }
+    public final void setItemsCount(int value) {
+        itemCount.set(value);
     }
-    public final IntegerProperty cellCountProperty() { return cellCount; }
+    public final IntegerProperty itemCountProperty() { return itemCount; }
 
 
     // --- position
@@ -1060,7 +1060,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // There is an exception to this: if cells are added/removed, we want
         // to keep the absoluteOffset constant, hence we need to adjust the position.
 
-        if (lastCellCount != getCellCount()) {
+        if (lastCellCount != getItemsCount()) {
             absoluteOffset = origAbsoluteOffset;
             adjustPosition();
         } else {
@@ -1172,7 +1172,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
 
-        final int cellCount = getCellCount();
+        final int cellCount = getItemsCount();
         final T firstCell = getFirstVisibleCell();
 
         // If no cells need layout, we check other criteria to see if this
@@ -1337,7 +1337,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         lastWidth = getWidth();
         lastHeight = getHeight();
-        lastCellCount = getCellCount();
+        lastCellCount = getItemsCount();
         lastVertical = isVertical();
         lastPosition = getPosition();
         recalculateEstimatedSize();
@@ -1581,7 +1581,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     public void scrollToTop(int index) {
         boolean posSet = false;
 
-        if (index > getCellCount() - 1) {
+        if (index > getItemsCount() - 1) {
             setPosition(1);
             posSet = true;
         } else if (index < 0) {
@@ -1635,9 +1635,23 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             positionCell(cell,p.getX(), p.getY());
         }
     }
+    private void shiftCellsVertical(double layoutY){
+        for (int i = 0; i < cells.size(); i++) {
+            T cell = cells.get(i);
+            assert cell != null;
+            Point2D p = getCellPosition(cell);
+            double actualLayoutY = p.getY();
+            if (Math.abs(actualLayoutY - layoutY) > 0.001) {
+                // we need to shift the cell to layoutY
+                positionCell(cell, p.getX(), p.getY() - layoutY);
+            }
+
+            layoutY += getCellLength(cell);
+        }
+    }
     public double scrollPixels(final double delta) {
         // Short cut this method for cases where nothing should be done
-        if (delta == 0) return 0;
+        if (delta == 0) {return 0;}
 
        if(scrollAtEightExtremity(delta)){
            return  0;
@@ -1660,91 +1674,83 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // if we find that the maxPrefBreadth exceeds the viewportBreadth,
         // then we will be sure to show the breadthBar and update it
         // accordingly.
-        if (cells.size() > 0) {
-
-            layoutCells();
-
-            // Fix for RT-32908
-            T firstCell = cells.getFirst();
-            double layoutY = firstCell == null ? 0 : getCellPosition(firstCell).getY();
-            for (int i = 0; i < cells.size(); i++) {
-                T cell = cells.get(i);
-                assert cell != null;
-                Point2D p = getCellPosition(cell);
-                double actualLayoutY = p.getY();
-                if (Math.abs(actualLayoutY - layoutY) > 0.001) {
-                    // we need to shift the cell to layoutY
-                    positionCell(cell, p.getX(), p.getY() - layoutY);
-                }
-
-//                layoutY += getCellLength(cell);
-            }
-            // end of fix for RT-32908
-            cull();
-            firstCell = cells.getFirst();
-
-            // Add any necessary leading cells
-            if (firstCell != null) {
-                int firstIndex = firstCell.getIndex();
-                double prevIndexSize = getCellLength(firstIndex - 1);
-                Point2D p = getCellPosition(firstCell);
-                addLeadingCells(firstIndex - 1, p.getY() - prevIndexSize);
-            } else {
-                int currentIndex = computeCurrentIndex();
-
-                // The distance from the top of the viewport to the top of the
-                // cell for the current index.
-                double offset = -computeViewportOffset(getPosition());
-
-                // Add all the leading and trailing cells (the call to add leading
-                // cells will add the current cell as well -- that is, the one that
-                // represents the current position on the mapper).
-                addLeadingCells(currentIndex, offset);
-            }
-            // Starting at the tail of the list, loop adding cells until
-            // all the space on the table is filled up. We want to make
-            // sure that we DO NOT add empty trailing cells (since we are
-            // in the full virtual case and so there are no trailing empty
-            // cells).
-            if (! addTrailingCells(false)) {
-                // Reached the end, but not enough cells to fill up to
-                // the end. So, remove the trailing empty space, and translate
-                // the cells down
-
-                final T lastCell = getLastVisibleCell();
-                final double lastCellSize = getCellLength(lastCell);
-                final double cellEnd = getCellPosition(lastCell).getY() + lastCellSize;
-                final double viewportLength = getViewportLength();
-
-                if (cellEnd < viewportLength) {
-                    // Reposition the nodes
-                    double emptySize = viewportLength - cellEnd;
-                    for (int i = 0; i < cells.size(); i++) {
-                        T cell = cells.get(i);
-                        Point2D p = getCellPosition(cell);
-                        positionCell(cell, p.getX(), p.getY() );
-                    }
-                    setPosition(1.0f);
-                    // fill the leading empty space
-                    firstCell = cells.getFirst();
-                    int firstIndex = firstCell.getIndex();
-                    double prevIndexSize = getCellLength(firstIndex - 1);
-                    addLeadingCells(firstIndex - 1, getCellPosition(firstCell).getY() - prevIndexSize);
-                }
-            }
-        }
+//        if (cells.size() > 0) {
+//
+//            layoutCells();
+//
+//            // Fix for RT-32908
+//            T firstCell = cells.getFirst();
+//            double layoutY = firstCell == null ? 0 : getCellPosition(firstCell).getY();
+//            shiftCellsVertical(layoutY);
+//            // end of fix for RT-32908
+//            cull();
+//            addLeadingCellsIfNecessary();
+//            // Starting at the tail of the list, loop adding cells until
+//            // all the space on the table is filled up. We want to make
+//            // sure that we DO NOT add empty trailing cells (since we are
+//            // in the full virtual case and so there are no trailing empty
+//            // cells).
+//            if (! addTrailingCells(false)) {
+//                // Reached the end, but not enough cells to fill up to
+//                // the end. So, remove the trailing empty space, and translate
+//                // the cells down
+//
+//                final T lastCell = getLastVisibleCell();
+//                final double lastCellSize = getCellLength(lastCell);
+//                final double cellEnd = getCellPosition(lastCell).getY() + lastCellSize;
+//                final double viewportLength = getViewportLength();
+//
+//                if (cellEnd < viewportLength) {
+//                    // Reposition the nodes
+//                    double emptySize = viewportLength - cellEnd;
+//                    for (int i = 0; i < cells.size(); i++) {
+//                        T cell = cells.get(i);
+//                        Point2D p = getCellPosition(cell);
+//                        positionCell(cell, p.getX(), p.getY() );
+//                    }
+//                    setPosition(1.0f);
+//                    // fill the leading empty space
+//                    firstCell = cells.getFirst();
+//                    int firstIndex = firstCell.getIndex();
+//                    double prevIndexSize = getCellLength(firstIndex - 1);
+//                    addLeadingCells(firstIndex - 1, getCellPosition(firstCell).getY() - prevIndexSize);
+//                }
+//            }
+//        }
 
         // Now throw away any cells that don't fit
-        cull();
+//        cull();
 
         // Finally, update the scroll bars
-        updateScrollBarsAndCells(false);
-        lastPosition = getPosition();
+//        updateScrollBarsAndCells(false);
+//        lastPosition = getPosition();
 
         // notify
         return answer;
     }
 
+    private void addLeadingCellsIfNecessary() {
+        T firstCell = cells.getFirst();
+
+        // Add any necessary leading cells
+        if (firstCell != null) {
+            int firstIndex = firstCell.getIndex();
+            double prevIndexSize = getCellLength(firstIndex - 1);
+            Point2D p = getCellPosition(firstCell);
+            addLeadingCells(firstIndex - 1, p.getY() - prevIndexSize);
+        } else {
+            int currentIndex = computeCurrentIndex();
+
+            // The distance from the top of the viewport to the top of the
+            // cell for the current index.
+            double offset = -computeViewportOffset(getPosition());
+
+            // Add all the leading and trailing cells (the call to add leading
+            // cells will add the current cell as well -- that is, the one that
+            // represents the current position on the mapper).
+            addLeadingCells(currentIndex, offset);
+        }
+    }
 
 
     /** {@inheritDoc} */
@@ -2132,7 +2138,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T cell = null;
 
         // special case for the position == 1.0, skip adding last invisible cell
-        if (index == getCellCount() && offset == getViewportLength()) {
+        if (index == getItemsCount() && offset == getViewportLength()) {
             index--;
             first = false;
         }
@@ -2207,7 +2213,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         double offsetX = pos.getX() + getCellBreadth(startCell);
         double offsetY = pos.getY() + getCellLength(startCell);
         int index = startCell.getIndex() + 1;
-        final int cellCount = getCellCount();
+        final int cellCount = getItemsCount();
         boolean filledWithNonEmpty = index <= cellCount;
 
         final double viewportLength = getViewportLength();
@@ -2443,7 +2449,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final double viewportBreadth = getViewportBreadth();
 
         final int cellsSize = cells.size();
-        final int cellCount = getCellCount();
+        final int cellCount = getItemsCount();
         for (int i = 0; i < 2; i++) {
             Point2D pos = getCellPosition(cells.getLast());
             final boolean lengthBarVisible = getPosition() > 0
@@ -2605,7 +2611,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // determine how many cells there are on screen so that the scrollbar
         // thumb can be appropriately sized
         if (recreate && (lengthBar.isVisible() || Properties.IS_TOUCH_SUPPORTED)) {
-            final int cellCount = getCellCount();
+            final int cellCount = getItemsCount();
             int numCellsVisibleOnScreen = 0;
             for (int i = 0, max = cells.size(); i < max; i++) {
                 T cell = cells.get(i);
@@ -2862,7 +2868,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private double getPrefLength() {
         double sum = 0.0;
-        int rows = Math.min(10, getCellCount());
+        int rows = Math.min(10, getItemsCount());
         for (int i = 0; i < rows; i++) {
             sum += getCellLength(i);
         }
@@ -2873,7 +2879,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         double max = 0.0;
 
         // we always measure at least one row
-        int rows = Math.max(1, rowsToCount == -1 ? getCellCount() : rowsToCount);
+        int rows = Math.max(1, rowsToCount == -1 ? getItemsCount() : rowsToCount);
         for (int i = 0; i < rows; i++) {
             max = Math.max(max, getCellBreadth(i));
         }
@@ -2897,9 +2903,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private double computeViewportOffset(double position) {
         double p = com.sun.javafx.util.Utils.clamp(0, position, 1);
         double bound = 0d;
-        double estSize = estimatedSize / getCellCount();
+        double estSize = estimatedSize / getItemsCount();
 
-        for (int i = 0; i < getCellCount(); i++) {
+        for (int i = 0; i < getItemsCount(); i++) {
             double[] size = getCellSize(i);
             if (size == null){
                 size = new double[2];
@@ -2914,7 +2920,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
     //TODO need to re-implement
     private void adjustPositionToIndex(int index) {
-        int cellCount = getCellCount();
+        int cellCount = getItemsCount();
         if (cellCount <= 0) {
             setPosition(0.0f);
         } else {
@@ -2961,7 +2967,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // an estimated size anymore.
         if (newPosition > .95) {
             int cci = computeCurrentIndex();
-            while (cci < getCellCount()) {
+            while (cci < getItemsCount()) {
                 getOrCreateCellSize(cci); cci++;
             }
             recalculateEstimatedSize();
@@ -2979,7 +2985,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     //TODO need to re-implement
     private int computeCurrentIndex() {
         double total = 0;
-        int currentCellCount = getCellCount();
+        int currentCellCount = getItemsCount();
         double estSize = estimatedSize / currentCellCount;
         for (int i = 0; i < currentCellCount; i++) {
             double[] nextSize = getCellSize(i);
@@ -3002,7 +3008,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * calculation.
      */
     private double computeOffsetForCell(int itemIndex) {
-        double cellCount = getCellCount();
+        double cellCount = getItemsCount();
         double p = com.sun.javafx.util.Utils.clamp(0, itemIndex, cellCount) / cellCount;
         return -(getViewportLength() * p);
     }
@@ -3093,14 +3099,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     private void recalculateAndImproveEstimatedSize(int improve) {
-        int itemCount = getCellCount();
-        int cacheCount = itemSizeCache.size();
+        int itemCount = getItemsCount();
+        System.out.println(itemCount);
         int added = 0;
         while ((itemCount > itemSizeCache.size()) && (added < improve)) {
             getOrCreateCellSize(itemSizeCache.size());
             added++;
         }
-        cacheCount = itemSizeCache.size();
+        int cacheCount = itemSizeCache.size();
         double totalX = 0d;
         double totalY = 0d;
         final double viewportBreadth = getViewportBreadth();
@@ -3115,10 +3121,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 }
             }
         }
-
-        //i -> totalY;
-        //itemCount -> totalY*itemCount/i;
-
 
         this.estimatedSize = i == 0 ? 1d: totalY * itemCount / i;
 

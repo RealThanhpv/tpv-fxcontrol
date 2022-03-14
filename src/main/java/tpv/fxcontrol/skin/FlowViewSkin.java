@@ -44,13 +44,11 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.FocusModel;
-import javafx.scene.control.IndexedCell;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionModel;
-import com.sun.javafx.scene.control.behavior.ListViewBehavior;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
@@ -342,7 +340,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
 
         itemCount = newCount;
 
-        flow.setCellCount(newCount);
+        flow.setItemsCount(newCount);
 
         updatePlaceholderRegionVisibility();
         if (newCount == oldCount) {
