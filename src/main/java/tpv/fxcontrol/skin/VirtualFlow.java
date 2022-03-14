@@ -1363,10 +1363,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-    T getAndRemoveCellFromPile(int prefIndex){
+    private T getAndRemoveCellFromPile(int prefIndex){
         T cell = null;
-        // Fix for RT-12822. We try to retrieve the cell from the pile rather
-        // than just grab a random cell from the pile (or create another cell).
+
         for (int i = 0, max = pile.size(); i < max; i++) {
             T _cell = pile.get(i);
             assert _cell != null;
@@ -1830,7 +1829,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
         setCellIndex(accumCell, index);
-        resizeCell(accumCell);
         return accumCell;
     }
 
@@ -2041,21 +2039,21 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param cell the cell to resize
      * @since 12
      */
-    @Deprecated
-    protected void resizeCell(T cell) {
-        /*
-        if (cell == null) return;
-
-        if (isVertical()) {
-            double width = Math.max(getMaxPrefBreadth(), getViewportBreadth());
-            cell.resize(width, fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
-        } else {
-            double height = Math.max(getMaxPrefBreadth(), getViewportBreadth());
-            cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
-        }
-    */
-
-    }
+//    @Deprecated
+//    protected void resizeCell(T cell) {
+//        /*
+//        if (cell == null) return;
+//
+//        if (isVertical()) {
+//            double width = Math.max(getMaxPrefBreadth(), getViewportBreadth());
+//            cell.resize(width, fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
+//        } else {
+//            double height = Math.max(getMaxPrefBreadth(), getViewportBreadth());
+//            cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
+//        }
+//    */
+//
+//    }
 
     /**
      * Returns the list of cells displayed in the current viewport.
@@ -2158,7 +2156,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             cell = getAvailableCell(index);
             setCellIndex(cell, index);
-            resizeCell(cell); // resize must be after config
+//            resizeCell(cell); // resize must be after config
             cells.addFirst(cell);
 
             // A little gross but better than alternatives because it reduces
@@ -2306,7 +2304,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 index--;
                 T cell = getAvailableCell(index);
                 setCellIndex(cell, index);
-                resizeCell(cell); // resize must be after config
+//                resizeCell(cell); // resize must be after config
                 cells.addFirst(cell);
                 double cellLength = getCellLength(cell);
                 start -= cellLength;
@@ -2802,7 +2800,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (cell != null) {
             setCellIndex(cell, index);
-            resizeCell(cell);
+//            resizeCell(cell);
             cell.setVisible(false);
             sheetChildren.add(cell);
             privateCells.add(cell);
