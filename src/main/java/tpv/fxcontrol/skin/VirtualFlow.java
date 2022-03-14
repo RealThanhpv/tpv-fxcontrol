@@ -28,7 +28,6 @@ package tpv.fxcontrol.skin;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.Logging;
 import com.sun.javafx.scene.control.Properties;
-import com.sun.javafx.scene.control.skin.Utils;
 import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
@@ -1364,14 +1363,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-    /**
-     * Get a cell which can be used in the layout. This function will reuse
-     * cells from the pile where possible, and will create new cells when
-     * necessary.
-     * @param prefIndex the preferred index
-     * @return the available cell
-     */
-    protected T getAvailableCell(int prefIndex) {
+    T getAndRemoveCellFromPile(int prefIndex){
         T cell = null;
         // Fix for RT-12822. We try to retrieve the cell from the pile rather
         // than just grab a random cell from the pile (or create another cell).
@@ -1384,15 +1376,32 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 break;
             }
         }
-
         if (cell == null && !pile.isEmpty()) {
             cell = pile.removeLast();
         }
 
-        if (cell == null) {
-            cell = getCellFactory().call(this);
-            cell.getProperties().put(NEW_CELL, null);
+        return  cell;
+    }
+
+    /**
+     * Get a cell which can be used in the layout. This function will reuse
+     * cells from the pile where possible, and will create new cells when
+     * necessary.
+     * @param prefIndex the preferred index
+     * @return the available cell
+     */
+    protected T getAvailableCell(int prefIndex) {
+        T cell  = getAndRemoveCellFromPile(prefIndex);
+        if(cell == null){
+            cell =  createNewCellAndAddToSheet();
         }
+        setCellIndex(cell, prefIndex);
+        return cell;
+    }
+
+    private T createNewCellAndAddToSheet(){
+        T cell = getCellFactory().call(this);
+        cell.getProperties().put(NEW_CELL, null);
 
         if (cell.getParent() == null) {
             sheetChildren.add(cell);
@@ -1534,9 +1543,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             scrollTo(cell);
         } else {
             // see JDK-8197536
-            if (tryScrollOneCell(index, true)) {
+            if (scrollOneCell(index, true)) {
                 return;
-            } else if (tryScrollOneCell(index, false)) {
+            } else if (scrollOneCell(index, false)) {
                 return;
             }
 
@@ -1547,7 +1556,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     // will return true if scroll is successful
-    private boolean tryScrollOneCell(int targetIndex, boolean downOrRight) {
+    private boolean scrollOneCell(int targetIndex, boolean downOrRight) {
         // if going down, cell diff is -1, because it will get the target cell index and check if previous
         // cell is visible to base the position
         int indexDiff = downOrRight ? -1 : 1;
@@ -1555,8 +1564,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T targetCell = getVisibleCell(targetIndex + indexDiff);
         if (targetCell != null) {
             T cell = getAvailableCell(targetIndex);
-            setCellIndex(cell, targetIndex);
-            resizeCell(cell);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
             cell.setVisible(true);
             if (downOrRight) {
@@ -1795,6 +1802,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         // We need to use the accumCell and return that
+        return createOrUseAccumCell(index);
+
+    }
+    private T createOrUseAccumCell(int index){
         if (accumCell == null) {
             Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
             if (cellFactory != null) {
@@ -2203,7 +2214,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // If cells is empty then addLeadingCells bailed for some reason and
         // we're hosed, so just punt
 
-        if (cells.isEmpty()) return false;
+        if (cells.isEmpty()) {
+            return false;
+        }
 
         // While we have not yet laid out so many cells that they would fall
         // off the flow, so we will continue to create and add cells. When the
@@ -2231,7 +2244,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // then offset is not incrementing fast enough, or at all, which means
         // there is something wrong with the cell size calculation.
         //
-        final double maxCellCount = viewportLength;
+        final double maxCellCount = viewportLength;//cell size = 1
         final double viewPortWidth = getViewportBreadth();
 
         while (offsetY < viewportLength) {
@@ -2254,7 +2267,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             T cell = getAvailableCell(index);
             setCellIndex(cell, index);
-            resizeCell(cell); // resize happens after config!
+//            resizeCell(cell); // resize happens after config!
             cells.addLast(cell);
             // Position the cell and update the max pref
             Point2D p = getCellPosition(cell);
