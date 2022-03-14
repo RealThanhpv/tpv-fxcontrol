@@ -213,7 +213,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     final Sheet<T> sheet;
 
-    final ObservableList<Node> sheetChildren;
+
 
     /**
      * The scroll bar used for scrolling horizontally. This has package access
@@ -327,7 +327,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         sheet.getStyleClass().add("sheet");
         sheet.setAutoSizeChildren(true);
 
-        sheetChildren = sheet.getChildren();
 
         // --- clipView
         clipView = new ClippedContainer(this);
@@ -798,7 +797,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             vertical = new BooleanPropertyBase(true) {
                 @Override protected void invalidated() {
                     pile.clear();
-                    sheetChildren.clear();
+                    sheet.getChildren().clear();
                     cells.clear();
                     lastWidth = lastHeight = -1;
                     setMaxPrefBreadth(-1);
@@ -1407,7 +1406,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         cell.getProperties().put(NEW_CELL, null);
 
         if (cell.getParent() == null) {
-            sheetChildren.add(cell);
+            sheet.getChildren().add(cell);
         }
 
         return cell;
@@ -2791,8 +2790,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         // check the existing sheet children
         if (cell == null) {
-            for (int i = 0; i < sheetChildren.size(); i++) {
-                T _cell = (T) sheetChildren.get(i);
+            for (int i = 0; i < sheet.getChildren().size(); i++) {
+                T _cell = (T) sheet.getChildren().get(i);
                 if (_cell.getIndex() == index) {
                     return _cell;
                 }
@@ -2808,7 +2807,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             setCellIndex(cell, index);
 //            resizeCell(cell);
             cell.setVisible(false);
-            sheetChildren.add(cell);
+            sheet.getChildren().add(cell);
             privateCells.add(cell);
         }
 
@@ -2818,7 +2817,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private final List<T> privateCells = new ArrayList<>();
 
     private void releaseAllPrivateCells() {
-        sheetChildren.removeAll(privateCells);
+        sheet.getChildren().removeAll(privateCells);
         privateCells.clear();
     }
 
