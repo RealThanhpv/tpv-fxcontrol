@@ -211,7 +211,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      * The group which holds the cells.
      */
-    final Group sheet;
+    final Sheet<T> sheet;
 
     final ObservableList<Node> sheetChildren;
 
@@ -323,7 +323,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         // initContent
         // --- sheet
-        sheet = new Group();
+        sheet = new Sheet<>();
         sheet.getStyleClass().add("sheet");
         sheet.setAutoSizeChildren(true);
 
