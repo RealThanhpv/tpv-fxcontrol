@@ -581,8 +581,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         corner.getStyleClass().setAll("corner");
         getChildren().add(corner);
 
-
-
         // initBinds
         // clipView binds
         InvalidationListener listenerX = valueModel -> {
@@ -894,6 +892,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // the view remains "stable".
         }
     };
+
+    /**
+     * All items
+     * @return
+     */
     public final int getItemsCount() { return itemCount.get(); }
     public final void setItemsCount(int value) {
         itemCount.set(value);
@@ -917,6 +920,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     };
     public final double getPosition() { return position.get(); }
+    //Value will be clamped between [0, 1]
     public final void setPosition(double value) {
         position.set(value);
         // When the position is changed explicitly, we need to make sure
@@ -1436,12 +1440,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // check the last index
         T lastCell = cells.getLast();
         int lastIndex = lastCell.getIndex();
-        if (index == lastIndex) return lastCell;
+        if (index == lastIndex) {
+            return lastCell;
+        }
 
         // check the first index
         T firstCell = cells.getFirst();
         int firstIndex = firstCell.getIndex();
-        if (index == firstIndex) return firstCell;
+        if (index == firstIndex) {
+            return firstCell;
+        }
 
         // if index is > firstIndex and < lastIndex then we can get the index
         if (index > firstIndex && index < lastIndex) {
@@ -1665,7 +1673,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         recalculateEstimatedSize();
 
-        double answer = adjustByPixelAmount(delta);
+        double adjusted = adjustPositionByPixelAmount(delta);
 
         // Now move stuff around. Translating by pixels fundamentally means
         // moving the cells by the delta. However, after having
@@ -1732,7 +1740,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 //        lastPosition = getPosition();
 
         // notify
-        return answer;
+        return adjusted;
     }
 
     private void addLeadingCellsIfNecessary() {
@@ -2954,7 +2962,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * strictly between 0 and 1
      * @return the actual number of pixels that have been applied
      */
-    private double adjustByPixelAmount(double numPixels) {
+    private double adjustPositionByPixelAmount(double numPixels) {
         if (numPixels == 0) return 0;
         // When we're at the top already, we can't move back further, unless we
         // want to allow for gravity-alike effects.
@@ -2984,9 +2992,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         // if we are at or beyond the edge, correct the absoluteOffset
-        if (newPosition >= 1.d) {
-            absoluteOffset = estimatedSize - viewportLength;
-        }
+//        if (newPosition >= 1.d) {
+//            absoluteOffset = estimatedSize - viewportLength;
+//        }
 
         setPosition(newPosition);
         return absoluteOffset - origAbsoluteOffset;

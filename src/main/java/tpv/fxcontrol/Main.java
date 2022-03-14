@@ -30,8 +30,7 @@ public class Main extends Application {
         AnchorPane root = new AnchorPane();
 
 
-
-        Scene scene  = new Scene(root, 100, 300);
+        Scene scene = new Scene(root, 100, 300);
 
         TextAreaExtendable2 ta = new TextAreaExtendable2();
         Node ta2 = new TextAreaResizable();
@@ -45,14 +44,14 @@ public class Main extends Application {
         ta2.setTranslateX(300);
         ta2.setTranslateY(500);
         FlowView<String> flView = new FlowView<>();
-        AnchorPane.setTopAnchor(flView,  0.0);
-        AnchorPane.setRightAnchor(flView,  0.0);
+        AnchorPane.setTopAnchor(flView, 0.0);
+        AnchorPane.setRightAnchor(flView, 0.0);
         AnchorPane.setBottomAnchor(flView, 0.0);
         AnchorPane.setLeftAnchor(flView, 0.0);
 
         Random random = new Random();
         for (int i = 0; i < 500; i++) {
-            flView.getItems().add("Number "+random.nextInt() );
+            flView.getItems().add("Number " + random.nextInt());
         }
         flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
@@ -80,12 +79,5 @@ public class Main extends Application {
 
     }
 
-    static class  Rect extends Rectangle {
-        private static Random random = new Random();
-        Rect() {
-            setWidth(120);
-            setHeight(100);
-            setFill(Color.rgb((int) (random.nextDouble()*225), (int) (random.nextDouble()*225), (int) (random.nextDouble()*225)));
-        }
-    }
+
 }
