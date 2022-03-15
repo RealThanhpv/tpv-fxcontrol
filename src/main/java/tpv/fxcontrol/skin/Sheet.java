@@ -51,6 +51,11 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         }
     }
 
+    void clearCompletely() {
+        clearChildren();
+        clear();
+    }
+
     /**
      * A List-like implementation that is exceedingly efficient for the purposes
      * of the VirtualFlow. Typically there is not much variance in the number of

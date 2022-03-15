@@ -1050,9 +1050,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             lastWidth = -1;
             lastHeight = -1;
             releaseCell(accumCell);
-
-            sheet.clearChildren();
-            sheet.clear();
+            sheet.clearCompletely();
             releaseAllPrivateCells();
         } else if (needsRebuildCells) {
             lastWidth = -1;
@@ -1065,25 +1063,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             lastWidth = -1;
             lastHeight = -1;
         }
+        updateDirtyCells();
 
-        if (!dirtyCells.isEmpty()) {
-            int index;
-            final int cellsSize = sheet.size();
-            while ((index = dirtyCells.nextSetBit(0)) != -1 && index < cellsSize) {
-                T cell = sheet.get(index);
-                // updateIndex(-1) works for TableView, but breaks ListView.
-                // For now, the TableView just does not use the dirtyCells API
-//                cell.updateIndex(-1);
-                if (cell != null) {
-                    cell.requestLayout();
-                }
-                dirtyCells.clear(index);
-            }
-
-            setMaxPrefBreadth(-1);
-            lastWidth = -1;
-            lastHeight = -1;
-        }
 
         final boolean hasSizeChange = sizeChanged;
         boolean recreatedOrRebuilt = needsRebuildCells || needsRecreateCells || sizeChanged;
@@ -1303,6 +1284,28 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         lastPosition = getPosition();
         recalculateEstimatedSize();
         sheet.cleanPile();
+    }
+
+    private void updateDirtyCells() {
+        if (!dirtyCells.isEmpty()) {
+            int index;
+            final int cellsSize = sheet.size();
+            while ((index = dirtyCells.nextSetBit(0)) != -1 && index < cellsSize) {
+                T cell = sheet.get(index);
+                // updateIndex(-1) works for TableView, but breaks ListView.
+                // For now, the TableView just does not use the dirtyCells API
+//                cell.updateIndex(-1);
+                if (cell != null) {
+                    cell.requestLayout();
+                    updateCellSize(cell);
+                }
+                dirtyCells.clear(index);
+            }
+
+            setMaxPrefBreadth(-1);
+            lastWidth = -1;
+            lastHeight = -1;
+        }
     }
 
     /** {@inheritDoc} */
