@@ -305,7 +305,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // --- sheet
         sheet = new Sheet<>();
         sheet.getStyleClass().add("sheet");
-        sheet.setAutoSizeChildren(true);
+//
 
 
         // --- clipView
@@ -776,18 +776,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (vertical == null) {
             vertical = new BooleanPropertyBase(true) {
                 @Override protected void invalidated() {
-                    sheet.clearChildren();
-                    sheet.clear();
-                    lastWidth = lastHeight = -1;
-                    setMaxPrefBreadth(-1);
-                    sheet.setWidth(0);
-                    sheet.setHeight(0);
-                    lastPosition = 0;
-                    hbar.setValue(0);
-                    vbar.setValue(0);
-                    setPosition(0.0f);
-                    setNeedsLayout(true);
-                    requestLayout();
+                   relayoutAll();
                 }
 
                 @Override
@@ -802,6 +791,21 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             };
         }
         return vertical;
+    }
+
+    private void relayoutAll() {
+        sheet.clearChildren();
+        sheet.clear();
+        lastWidth = lastHeight = -1;
+        setMaxPrefBreadth(-1);
+        sheet.setWidth(0);
+        sheet.setHeight(0);
+        lastPosition = 0;
+        hbar.setValue(0);
+        vbar.setValue(0);
+        setPosition(0.0f);
+        setNeedsLayout(true);
+        requestLayout();
     }
 
     // --- pannable
@@ -862,7 +866,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 Parent parent = getParent();
                 if (parent != null) parent.requestLayout();
 
-                adjustAbsoluteOffset();
+                synchronizeAbsoluteOffsetWithPosition();
             }
             // TODO suppose I had 100 cells and I added 100 more. Further
             // suppose I was scrolled to the bottom when that happened. I
@@ -903,7 +907,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         position.set(value);
         // When the position is changed explicitly, we need to make sure
         // the absolute offset is changed accordingly.
-        adjustAbsoluteOffset();
+        synchronizeAbsoluteOffsetWithPosition();
     }
     public final DoubleProperty positionProperty() { return position; }
 
@@ -1010,7 +1014,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Keep the position constant and adjust the absoluteOffset to
      * match the (new) position.
      */
-    void adjustAbsoluteOffset() {
+    void synchronizeAbsoluteOffsetWithPosition() {
         absoluteOffset  = (estimatedSize - sheet.getViewportLength()) * getPosition();
     }
 
@@ -1018,7 +1022,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Keep the absoluteOffset constant and adjust the position to match
      * the (new) absoluteOffset.
      */
-    void adjustPosition() {
+    void synchronizePositionWithAbsoluteOffset() {
         if (sheet.getViewportLength() >= estimatedSize) {
             setPosition(0d);
         } else {
@@ -1029,9 +1033,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /** {@inheritDoc} */
     @Override
     protected void layoutChildren() {
-
-
-        double origAbsoluteOffset = absoluteOffset;
         recalculateEstimatedSize();
         // if the last modification to the position was done via scrollPixels,
         // the absoluteOffset and position are already in sync.
@@ -1041,10 +1042,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // to keep the absoluteOffset constant, hence we need to adjust the position.
 
         if (lastCellCount != getItemsCount()) {
-            absoluteOffset = origAbsoluteOffset;
-            adjustPosition();
+            synchronizePositionWithAbsoluteOffset();
         } else {
-            adjustAbsoluteOffset();
+            synchronizeAbsoluteOffsetWithPosition();
         }
         if (needsRecreateCells) {
             lastWidth = -1;
@@ -2365,11 +2365,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             sheet.setWidth((isVertical ? getWidth() : getHeight()));
             sheet.setHeight((isVertical ? getHeight() : getWidth()));
         }
-        synchronizeAbsoluteOffset();
-    }
-
-    private void synchronizeAbsoluteOffset(){
-        this.absoluteOffset = getPosition() * (estimatedSize - sheet.getViewportLength());
+        synchronizeAbsoluteOffsetWithPosition();
     }
 
 
@@ -2744,7 +2740,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 targetOffset = targetOffset+ cz[1];
             }
             this.absoluteOffset = targetOffset;
-            adjustPosition();
+            synchronizePositionWithAbsoluteOffset();
         }
 
     }
@@ -2912,7 +2908,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void recalculateAndImproveEstimatedSize(int improve) {
         int itemCount = getItemsCount();
-        System.out.println(itemCount);
         int added = 0;
         while ((itemCount > itemSizeCache.size()) && (added < improve)) {
             getOrCreateCellSize(itemSizeCache.size());
