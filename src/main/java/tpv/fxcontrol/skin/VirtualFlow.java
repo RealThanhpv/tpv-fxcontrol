@@ -275,7 +275,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private boolean needsReconfigureCells = false; // when cell contents are the same
     private boolean needsRecreateCells = false; // when cell factory changed
     private boolean needsRebuildCells = false; // when cell contents have changed
-    private boolean needsCellsLayout = false;
     private boolean sizeChanged = false;
     private final BitSet dirtyCells = new BitSet();
 
@@ -917,7 +916,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private DoubleProperty fixedCellSize = new SimpleDoubleProperty(this, "fixedCellSize") {
         @Override protected void invalidated() {
             fixedCellSizeEnabled = get() > 0;
-            needsCellsLayout = true;
             layoutChildren();
         }
     };
@@ -1101,18 +1099,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         needsRebuildCells = false;
         sizeChanged = false;
 
-        if (needsCellsLayout) {
-            for (int i = 0, max = sheet.size(); i < max; i++) {
-                Cell<?> cell = sheet.get(i);
-                if (cell != null) {
-                    cell.requestLayout();
-                }
-            }
-            needsCellsLayout = false;
-            // yes, we return here - if needsCellsLayout was set to true, we
-            // only did it to do the above - not rerun the entire layout.
-            return;
-        }
 
         final double width = getWidth();
         final double height = getHeight();
@@ -1311,7 +1297,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         } else if (needTrailingCells) {
             addTrailingCells(true);
         }
-        computeBarVisiblity();
+        computeBarVisibility();
 
         recreatedOrRebuilt = recreatedOrRebuilt || rebuild;
         updateScrollBarsAndCells(recreatedOrRebuilt);
@@ -2256,15 +2242,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         requestLayout();
     }
 
-    /**
-     * Informs the {@code VirtualFlow} that a layout pass should be done and only the cell layout will be requested.
-     *
-     * @since 12
-     */
-    protected void requestCellLayout() {
-        needsCellsLayout = true;
-        requestLayout();
-    }
+
 
     void setCellDirty(int index) {
         dirtyCells.set(index);
@@ -2321,7 +2299,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      * @return true if bar visibility changed
      */
-    private boolean computeBarVisiblity() {
+    private boolean computeBarVisibility() {
         if (sheet.isEmpty()) {
             // In case no cells are set yet, we assume no bars are needed
             needLengthBar = false;
@@ -2589,27 +2567,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-    /**
-     * Adjusts the cells location and size if necessary. The breadths of all
-     * cells will be adjusted to fit the viewportWidth or maxPrefBreadth, and
-     * the layout position will be updated if necessary based on index and
-     * offset.
-     */
-    private void fitCells() {
-        double size = Math.max(getMaxPrefBreadth(), sheet.getWidth());
-        boolean isVertical = isVertical();
 
-        // Note: Do not optimise this loop by pre-calculating the cells size and
-        // storing that into a int value - this can lead to RT-32828
-        for (int i = 0; i < sheet.size(); i++) {
-            Cell<?> cell = sheet.get(i);
-            if (isVertical) {
-                cell.resize(size, cell.prefHeight(size));
-            } else {
-                cell.resize(cell.prefWidth(size), size);
-            }
-        }
-    }
 
     private void cull() {
         final double viewportLength = sheet.getViewportLength();
