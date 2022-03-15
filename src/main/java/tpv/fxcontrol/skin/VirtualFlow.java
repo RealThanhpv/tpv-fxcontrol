@@ -1375,17 +1375,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return cell;
     }
 
-    /**
-     * This method will remove all cells from the VirtualFlow and remove them,
-     * adding them to the 'pile' (that is, a place from where cells can be used
-     * at a later date). This method is protected to allow subclasses to clean up
-     * appropriately.
-     */
-    protected void addAllToPile() {
-        for (int i = 0, max = sheet.size(); i < max; i++) {
-            sheet.addToPile(sheet.removeFirst());
-        }
-    }
+
 
 
     /**

@@ -266,6 +266,18 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         pile.addLast(cell);
     }
 
+    /**
+     * This method will remove all cells from the VirtualFlow and remove them,
+     * adding them to the 'pile' (that is, a place from where cells can be used
+     * at a later date). This method is protected to allow subclasses to clean up
+     * appropriately.
+     */
+     void addAllToPile() {
+        for (int i = 0, max = size(); i < max; i++) {
+            addToPile(removeFirst());
+        }
+    }
+
     void cleanPile() {
         boolean wasFocusOwner = false;
 
