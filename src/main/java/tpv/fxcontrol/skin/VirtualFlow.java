@@ -2078,15 +2078,24 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // off the flow, so we will continue to create and add cells. When the
         // offset becomes greater than the width/height of the flow, then we
         // know we cannot add any more cells.
+        final double viewPortWidth = sheet.getWidth();
+        final double viewHeight = sheet.getHeight();
         T lastCell = sheet.getLast();
+
         Point2D pos = getCellPosition(lastCell);
-        double offsetX = pos.getX() + getCellWidth(lastCell);
-        double offsetY = pos.getY() + getCellHeight(lastCell);
+        double offsetX = pos.getX();
+        double offsetY = pos.getY();
+        if(offsetX + getCellWidth(lastCell) > viewPortWidth ){
+            offsetX = 0;
+            offsetY = pos.getY() + getCellHeight(lastCell);
+        }
+        else {
+            offsetX = offsetX + getCellWidth(lastCell);
+        }
+
         int index = lastCell.getIndex() + 1;
         final int cellCount = getItemsCount();
         boolean isEmptyCell = index <= cellCount;
-
-        final double viewHeight = sheet.getHeight();
 
         // Fix for RT-37421, which was a regression caused by RT-36556
         if (offsetY < 0 && !fillEmptyCells) {
@@ -2101,7 +2110,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // there is something wrong with the cell size calculation.
         //
         final double maxCellCount = viewHeight;//cell size = 1
-        final double viewPortWidth = sheet.getWidth();
+
 
         while (offsetY < viewHeight) {
             if (index >= cellCount) {
@@ -2122,9 +2131,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 }
             }
             T cell = getAvailableOrCreateCell(index);
-//            resizeCell(cell); // resize happens after config!
             sheet.addLast(cell);
-            // Position the cell and update the max pref
             Point2D p = getCellPosition(cell);
             positionCell(cell, p.getX(), p.getY());
             updateCellCacheSize(cell);
