@@ -28,6 +28,7 @@ package tpv.fxcontrol.skin;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.Logging;
 import com.sun.javafx.scene.control.Properties;
+import com.sun.javafx.scene.control.skin.Utils;
 import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
@@ -1015,7 +1016,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * match the (new) position.
      */
     void synchronizeAbsoluteOffsetWithPosition() {
-        absoluteOffset  = (estimatedSize - sheet.getViewportLength()) * getPosition();
+        absoluteOffset  = (estimatedSize - sheet.getHeight()) * getPosition();
     }
 
     /**
@@ -1023,10 +1024,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * the (new) absoluteOffset.
      */
     void synchronizePositionWithAbsoluteOffset() {
-        if (sheet.getViewportLength() >= estimatedSize) {
+        if (sheet.getHeight() >= estimatedSize) {
             setPosition(0d);
         } else {
-            setPosition(absoluteOffset / (estimatedSize - sheet.getViewportLength()));
+            setPosition(absoluteOffset / (estimatedSize - sheet.getHeight()));
         }
     }
 
@@ -1265,7 +1266,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Add all the leading and trailing cells (the call to add leading
             // cells will add the current cell as well -- that is, the one that
             // represents the current position on the mapper).
-            addLeadingCells(currentIndex, offset);
+            addLeadingCells(currentIndex);
 
             // Force filling of space with empty cells if necessary
             addTrailingCells(true);
@@ -1366,7 +1367,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the last visible cell
      */
     public T getLastVisibleCell() {
-        if (sheet.isEmpty() || sheet.getViewportLength() <= 0) return null;
+        if (sheet.isEmpty() || sheet.getHeight() <= 0) return null;
 
         T cell;
         for (int i = sheet.size() - 1; i >= 0; i--) {
@@ -1386,7 +1387,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the first visible cell
      */
     public T getFirstVisibleCell() {
-        if (sheet.isEmpty() || sheet.getViewportLength() <= 0) {
+        if (sheet.isEmpty() || sheet.getHeight() <= 0) {
             return null;
         }
         T cell = sheet.getFirst();
@@ -1413,7 +1414,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToBottom(T lastCell) {
         if (lastCell != null) {
-            scrollPixels(getCellPosition(lastCell).getY() + getCellHeight(lastCell) - sheet.getViewportLength());
+            scrollPixels(getCellPosition(lastCell).getY() + getCellHeight(lastCell) - sheet.getHeight());
         }
     }
 
@@ -1427,7 +1428,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             final double start = getCellPosition(cell).getY();
             final double length = getCellHeight(cell);
             final double end = start + length;
-            final double viewportLength = sheet.getViewportLength();
+            final double viewportLength = sheet.getHeight();
 
             if (start < 0) {
                 scrollPixels(start);
@@ -1651,7 +1652,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             int firstIndex = firstCell.getIndex();
             double prevIndexSize = getCellHeight(firstIndex - 1);
             Point2D p = getCellPosition(firstCell);
-            addLeadingCells(firstIndex - 1, p.getY() - prevIndexSize);
+            addLeadingCells(firstIndex - 1);
         } else {
             int currentIndex = computeCurrentIndex();
 
@@ -1662,7 +1663,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Add all the leading and trailing cells (the call to add leading
             // cells will add the current cell as well -- that is, the one that
             // represents the current position on the mapper).
-            addLeadingCells(currentIndex, offset);
+            addLeadingCells(currentIndex);
         }
     }
 
@@ -1847,11 +1848,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private Point2D getCellPosition(T cell) {
         //vertical layout
         double viewPortWidth = sheet.getWidth();
-        double viewPortHeight = sheet.getViewportLength();
         int index = cell.getIndex();
         double layoutX = 0;
         double layoutY = 0;
-        double maxCellHeight = -1;
+        double maxCellHeight = 0;
 
         int start = sheet.getFirst().getIndex();
         for (int i = start; i < index; i++) {
@@ -1859,7 +1859,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if(calCel == null){
                 continue;
             }
-            double prefWidth = calCel.prefWidth(-1);
+            double prefWidth = Math.round(calCel.prefWidth(-1) + 0.5);
             double prefHeight = calCel.prefHeight(-1);
 
             if(maxCellHeight < prefHeight){
@@ -1873,7 +1873,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             else { //new row
                 layoutX = 0;
                 layoutY = layoutY + maxCellHeight;
-                maxCellHeight = -1;
+                maxCellHeight = 0;
             }
         }
 
@@ -1899,21 +1899,22 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param cell the cell to resize
      * @since 12
      */
-//    @Deprecated
-//    protected void resizeCell(T cell) {
-//        /*
-//        if (cell == null) return;
-//
-//        if (isVertical()) {
-//            double width = Math.max(getMaxPrefBreadth(), getViewportBreadth());
-//            cell.resize(width, fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
-//        } else {
-//            double height = Math.max(getMaxPrefBreadth(), getViewportBreadth());
-//            cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
-//        }
-//    */
-//
-//    }
+    @Deprecated
+    protected void resizeCell(T cell) {
+
+        if (cell == null) return;
+
+        if (isVertical()) {
+            double width = Math.max(getMaxPrefBreadth(), sheet.getWidth());
+
+            cell.resize(width, fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
+        } else {
+            double height = Math.max(getMaxPrefBreadth(), sheet.getHeight());
+            cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
+        }
+
+
+    }
 
     /**
      * Returns the list of cells displayed in the current viewport.
@@ -1934,10 +1935,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     public T getLastVisibleCellWithinViewport() {
-        if (sheet.isEmpty() || sheet.getViewportLength() <= 0) return null;
+        if (sheet.isEmpty() || sheet.getHeight() <= 0) return null;
 
         T cell;
-        final double max = sheet.getViewportLength();
+        final double max = sheet.getHeight();
         for (int i = sheet.size() - 1; i >= 0; i--) {
             cell = sheet.get(i);
             if (cell.isEmpty()) continue;
@@ -1963,7 +1964,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     public T getFirstVisibleCellWithinViewport() {
-        if (sheet.isEmpty() || sheet.getViewportLength() <= 0) return null;
+        if (sheet.isEmpty() || sheet.getHeight() <= 0) return null;
 
         T cell;
         for (int i = 0; i < sheet.size(); i++) {
@@ -1985,11 +1986,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * indicates the distance from the leading edge (top) of the viewport to
      * the leading edge (top) of the currentIndex.
      */
-    void addLeadingCells(int currentIndex, double startOffset) {
+    void addLeadingCells(int currentIndex) {
         // The offset will keep track of the distance from the top of the
         // viewport to the top of the current index. We will increment it
         // as we lay out leading cells.
-        double offset = startOffset;
+//        double offset = startOffset;
         // The index is the absolute index of the cell being laid out
         int index = currentIndex;
 
@@ -2005,11 +2006,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T cell = null;
 
         // special case for the position == 1.0, skip adding last invisible cell
-        if (index == getItemsCount() && offset == sheet.getViewportLength()) {
+        if (index == getItemsCount() ) {
             index--;
             first = false;
         }
-        while (index >= 0 && (offset > 0 || first)) {
+        while (index >= 0 && ( first)) {
 
             cell = getAvailableCell(index);
             setCellIndex(cell, index);
@@ -2024,7 +2025,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if (first) {
                 first = false;
             } else {
-                offset -= getCellHeight(cell);
+//                offset -= getCellHeight(cell);
             }
             // Position the cell, and update the maxPrefBreadth variable as we go.
             Point2D p = getCellPosition(cell);
@@ -2087,7 +2088,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final int cellCount = getItemsCount();
         boolean filledWithNonEmpty = index <= cellCount;
 
-        final double viewportLength = sheet.getViewportLength();
+        final double viewportLength = sheet.getHeight();
 
         // Fix for RT-37421, which was a regression caused by RT-36556
         if (offsetY < 0 && !fillEmptyCells) {
@@ -2320,7 +2321,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             Point2D pos = getCellPosition(sheet.getLast());
             final boolean lengthBarVisible = getPosition() > 0
                     || cellCount > cellsSize
-                    || (cellCount == cellsSize && (pos.getY() + getCellHeight(sheet.getLast())) > sheet.getViewportLength())
+                    || (cellCount == cellsSize && (pos.getY() + getCellHeight(sheet.getLast())) > sheet.getHeight())
                     || (cellCount == cellsSize - 1 && barVisibilityChanged && needBreadthBar);
 
             if (lengthBarVisible ^ needLengthBar) {
@@ -2435,7 +2436,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 (breadthBar.isVisible() ? breadthBar.prefHeight(-1) : 0);
 
         final double viewportBreadth = sheet.getWidth();
-        final double viewportLength = sheet.getViewportLength();
+        final double viewportLength = sheet.getHeight();
 
         // Now position and update the scroll bars
         if (breadthBar.isVisible()) {
@@ -2567,7 +2568,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     private void cull() {
-        final double viewportLength = sheet.getViewportLength();
+        final double viewportLength = sheet.getHeight();
         for (int i = sheet.size() - 1; i >= 0; i--) {
             T cell = sheet.get(i);
             double cellSize = getCellHeight(cell);
@@ -2702,7 +2703,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * That is, if the return value of this function where used as a translation
      * factor for a sheet that contained all the items, then the current
      * item would end up positioned correctly.
-     * We calculate the total size until the absoluteoffset is reached.
+     * We calculate the total size until the absoluteOffset is reached.
      * For this calculation, we use the cached sizes for each item, or an
      * educated guess in case we don't have a cached size yet. While we could
      * fill the cache with the size here, we do not do it as it will affect
@@ -2762,7 +2763,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // start with applying the requested modification
         double origAbsoluteOffset = this.absoluteOffset;
         this.absoluteOffset = Math.max(0.d, this.absoluteOffset + numPixels);
-        double newPosition = Math.min(1.0d, absoluteOffset / (estimatedSize - sheet.getViewportLength()));
+        double newPosition = Math.min(1.0d, absoluteOffset / (estimatedSize - sheet.getHeight()));
         // estimatedSize changes may result in opposite effect on position
         // in that case, modify current position 1% in the requested direction
         if ((numPixels > 0) && (newPosition < getPosition())) {
@@ -2819,7 +2820,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private double computeOffsetForCell(int itemIndex) {
         double cellCount = getItemsCount();
         double p = com.sun.javafx.util.Utils.clamp(0, itemIndex, cellCount) / cellCount;
-        return -(sheet.getViewportLength() * p);
+        return -(sheet.getHeight() * p);
     }
 
     double[] getCellSize(int idx) {

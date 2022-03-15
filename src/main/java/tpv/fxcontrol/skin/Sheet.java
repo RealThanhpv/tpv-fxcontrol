@@ -36,7 +36,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         this.viewportLength = value;
 
     }
-    double getViewportLength() {
+    double getHeight() {
         return viewportLength;
     }
      void clearChildren() {
