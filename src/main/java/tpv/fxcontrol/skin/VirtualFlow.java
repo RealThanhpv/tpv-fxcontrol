@@ -87,6 +87,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Static fields                                                           *
      *                                                                         *
      **************************************************************************/
+    private static double MAGIC_X = 2;
+    private static double MAGIC_Y = 2;
+
 
     /**
      * Scroll events may request to scroll about a number of "lines". We first
@@ -2083,22 +2086,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T lastCell = sheet.getLast();
 
         Point2D pos = getCellPosition(lastCell);
-        double offsetX = pos.getX();
-        double offsetY = pos.getY();
-        if(offsetX + getCellWidth(lastCell) > viewPortWidth ){
-            offsetX = 0;
-            offsetY = pos.getY() + getCellHeight(lastCell);
-        }
-        else {
-            offsetX = offsetX + getCellWidth(lastCell);
-        }
+        double offsetX = pos.getX() + getCellWidth(lastCell);
+        double offsetY = pos.getY() + getCellHeight(lastCell);
 
         int index = lastCell.getIndex() + 1;
         final int cellCount = getItemsCount();
         boolean isEmptyCell = index <= cellCount;
 
         // Fix for RT-37421, which was a regression caused by RT-36556
-        if (offsetY < 0 && !fillEmptyCells) {
+        if ((offsetY < 0 && !fillEmptyCells)|| offsetY  > viewHeight) {
             return false;
         }
 
@@ -2158,24 +2154,24 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         index = firstCell.getIndex();
         T lastNonEmptyCell = getLastVisibleCell();
 
-        double start = getCellPosition(firstCell).getY();
-        double end = getCellPosition(lastNonEmptyCell).getY() + getCellHeight(lastNonEmptyCell);
-        if ((index != 0 || (index == 0 && start < 0)) && fillEmptyCells &&
-                lastNonEmptyCell != null && lastNonEmptyCell.getIndex() == cellCount - 1 && end < viewHeight) {
+        double startY = getCellPosition(firstCell).getY();
+        double endY = getCellPosition(lastNonEmptyCell).getY() + getCellHeight(lastNonEmptyCell);
+        if ((index != 0 || (index == 0 && startY < 0)) && fillEmptyCells &&
+                lastNonEmptyCell != null && lastNonEmptyCell.getIndex() == cellCount - 1 && endY < viewHeight) {
 
-            double prospectiveEnd = end;
-            double distance = viewHeight - end;
-            while (prospectiveEnd < viewHeight && index != 0 && (-start) < distance) {
+            double prospectiveEnd = endY;
+            double distance = viewHeight - endY;
+            while (prospectiveEnd < viewHeight && index != 0 && (-startY) < distance) {
                 index--;
                 T cell = getAvailableOrCreateCell(index);
                 setCellIndex(cell, index);
 //                resizeCell(cell); // resize must be after config
                 sheet.addFirst(cell);
                 double cellLength = getCellHeight(cell);
-                start -= cellLength;
+                startY -= cellLength;
                 prospectiveEnd += cellLength;
 
-                positionCell(cell, getCellPosition(cell).getX(), start);
+                positionCell(cell, getCellPosition(cell).getX(), startY);
                 updateCellCacheSize(cell);
                 setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
                 cell.setVisible(true);
@@ -2184,10 +2180,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // The amount by which to translate the cells down
             firstCell = sheet.getFirst();
             Point2D cellPos = getCellPosition(firstCell);
-            start = cellPos.getY();
-            double delta = viewHeight - end;
-            if (firstCell.getIndex() == 0 && delta > (-start)) {
-                delta = (-start);
+            startY = cellPos.getY();
+            double delta = viewHeight - endY;
+            if (firstCell.getIndex() == 0 && delta > (-startY)) {
+                delta = (-startY);
             }
             // Move things
             for (int i = 0; i < sheet.size(); i++) {
@@ -2201,8 +2197,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // now index #0 and aligned with the top. If so, change the position
             // to be at 0 instead of 1.
             Point2D p = getCellPosition(firstCell);
-            start = p.getY();
-            if (firstCell.getIndex() == 0 && start == 0) {
+            startY = p.getY();
+            if (firstCell.getIndex() == 0 && startY == 0) {
                 setPosition(0);
             } else if (getPosition() != 1) {
                 setPosition(1);
