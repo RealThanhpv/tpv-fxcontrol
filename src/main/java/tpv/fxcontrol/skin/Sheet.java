@@ -11,6 +11,34 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
+    /**
+     * The breadth of the viewport portion of the VirtualFlow as computed during
+     * the layout pass. In a vertical flow this would be the same as the clip
+     * view width. In a horizontal flow this is the clip view height.
+     * The access on this variable is package ONLY FOR TESTING.
+     */
+    private double viewportBreadth;
+    final void setViewportBreadth(double value) {
+        this.viewportBreadth = value;
+    }
+
+    final double getViewportBreadth() {
+        return viewportBreadth;
+    }
+    /**
+     * The length of the viewport portion of the VirtualFlow as computed
+     * during the layout pass. In a vertical flow this would be the same as the
+     * clip view height. In a horizontal flow this is the clip view width.
+     * The access on this variable is package ONLY FOR TESTING.
+     */
+    private double viewportLength;
+    void setViewportLength(double value) {
+        this.viewportLength = value;
+
+    }
+    double getViewportLength() {
+        return viewportLength;
+    }
      void clearChildren() {
         getChildren().clear();
     }
