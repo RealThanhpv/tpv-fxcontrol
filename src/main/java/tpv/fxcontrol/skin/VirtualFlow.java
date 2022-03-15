@@ -1272,9 +1272,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             addLeadingCells(currentIndex);
 
             // Force filling of space with empty cells if necessary
-            addTrailingCells(true);
+            addTrailingCells();
         } else if (needTrailingCells) {
-            addTrailingCells(true);
+            addTrailingCells();
         }
         computeBarVisibility();
 
@@ -1544,6 +1544,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return false;
     }
     private void layoutCells(){
+
+
         for (int i = 0; i < sheet.size(); i++) {
             T cell = sheet.get(i);
             assert cell != null;
@@ -2017,7 +2019,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             cell = getAvailableOrCreateCell(index);
             setCellIndex(cell, index);
-//            resizeCell(cell); // resize must be after config
             sheet.addFirst(cell);
 
             // A little gross but better than alternatives because it reduces
@@ -2069,7 +2070,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * the cells ObservableList.
      */
     //TODO re-implement
-    boolean addTrailingCells(boolean fillEmptyCells) {
+    boolean addTrailingCells() {
         // If cells is empty then addLeadingCells bailed for some reason and
         // we're hosed, so just punt
 
@@ -2094,7 +2095,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         boolean isEmptyCell = index <= cellCount;
 
         // Fix for RT-37421, which was a regression caused by RT-36556
-        if ((offsetY < 0 && !fillEmptyCells)|| offsetY  > viewHeight) {
+        if ((offsetY < 0 )|| offsetY  > viewHeight) {
             return false;
         }
 
@@ -2110,29 +2111,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         while (offsetY < viewHeight) {
             if (index >= cellCount) {
-
-                isEmptyCell = false;
-
-                if (!fillEmptyCells) {
-                    return false;
-                }
-
-                // RT-36507 - return if we've exceeded the maximum
-                if (index > maxCellCount) {
-                    final PlatformLogger logger = Logging.getControlsLogger();
-                    if (logger.isLoggable(PlatformLogger.Level.INFO)) {
-                        logger.info("index exceeds maxCellCount. Check size calculations for " + lastCell.getClass());
-                    }
+                if(index > maxCellCount) {
+                    notifyIndexExceedsMaximum();
                     return false;
                 }
             }
             T cell = getAvailableOrCreateCell(index);
-            sheet.addLast(cell);
-            Point2D p = getCellPosition(cell);
-            positionCell(cell, p.getX(), p.getY());
-            updateCellCacheSize(cell);
+            addLastCellToSheet(cell);
             double cellBreadth = getCellWidth(cell);
-            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), cellBreadth));
+
+//            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), cellBreadth));
             offsetX += cellBreadth;
             if(offsetX > viewPortWidth) {
                 offsetY += getCellHeight(cell);
@@ -2156,7 +2144,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         double startY = getCellPosition(firstCell).getY();
         double endY = getCellPosition(lastNonEmptyCell).getY() + getCellHeight(lastNonEmptyCell);
-        if ((index != 0 || (index == 0 && startY < 0)) && fillEmptyCells &&
+        if ((index != 0 || (index == 0 && startY < 0))  &&
                 lastNonEmptyCell != null && lastNonEmptyCell.getIndex() == cellCount - 1 && endY < viewHeight) {
 
             double prospectiveEnd = endY;
@@ -2164,14 +2152,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             while (prospectiveEnd < viewHeight && index != 0 && (-startY) < distance) {
                 index--;
                 T cell = getAvailableOrCreateCell(index);
-                setCellIndex(cell, index);
+
 //                resizeCell(cell); // resize must be after config
                 sheet.addFirst(cell);
+                Point2D p =getCellPosition(cell);
                 double cellLength = getCellHeight(cell);
                 startY -= cellLength;
                 prospectiveEnd += cellLength;
 
-                positionCell(cell, getCellPosition(cell).getX(), startY);
+                positionCell(cell, p.getX(), p.getY());
                 updateCellCacheSize(cell);
                 setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
                 cell.setVisible(true);
@@ -2186,12 +2175,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 delta = (-startY);
             }
             // Move things
-            for (int i = 0; i < sheet.size(); i++) {
-                T cell = sheet.get(i);
-                cellPos = getCellPosition(cell);
-                positionCell(cell, cellPos.getX(), cellPos.getY());
-                updateCellCacheSize(cell);
-            }
+            layoutCells();
+
 
             // Check whether the first cell, subsequent to our adjustments, is
             // now index #0 and aligned with the top. If so, change the position
@@ -2206,6 +2191,22 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         return isEmptyCell;
+    }
+
+    private void addLastCellToSheet(T cell) {
+        sheet.addLast(cell);
+        Point2D p = getCellPosition(cell);
+        positionCell(cell, p.getX(), p.getY());
+        updateCellCacheSize(cell);
+    }
+
+    private void notifyIndexExceedsMaximum() {
+
+            final PlatformLogger logger = Logging.getControlsLogger();
+            if (logger.isLoggable(PlatformLogger.Level.INFO)) {
+                logger.info("index exceeds maxCellCount. Check size calculations " );
+            }
+
     }
 
     /**
