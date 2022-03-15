@@ -54,7 +54,6 @@ import javafx.scene.AccessibleRole;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Cell;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.MouseEvent;
@@ -67,7 +66,6 @@ import javafx.util.Duration;
 import com.sun.javafx.logging.PlatformLogger;
 import tpv.fxcontrol.FlowIndexedCell;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -783,8 +781,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     sheet.clear();
                     lastWidth = lastHeight = -1;
                     setMaxPrefBreadth(-1);
-                    sheet.setViewportBreadth(0);
-                    sheet.setViewportLength(0);
+                    sheet.setWidth(0);
+                    sheet.setHeight(0);
                     lastPosition = 0;
                     hbar.setValue(0);
                     vbar.setValue(0);
@@ -1867,7 +1865,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private Point2D getCellPosition(T cell) {
         //vertical layout
-        double viewPortWidth = sheet.getViewportBreadth();
+        double viewPortWidth = sheet.getWidth();
         double viewPortHeight = sheet.getViewportLength();
         int index = cell.getIndex();
         double layoutX = 0;
@@ -2122,7 +2120,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // there is something wrong with the cell size calculation.
         //
         final double maxCellCount = viewportLength;//cell size = 1
-        final double viewPortWidth = sheet.getViewportBreadth();
+        final double viewPortWidth = sheet.getWidth();
 
         while (offsetY < viewportLength) {
             if (index >= cellCount) {
@@ -2337,7 +2335,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
         VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
 
-        final double viewportBreadth = sheet.getViewportBreadth();
+        final double viewportBreadth = sheet.getWidth();
 
         final int cellsSize = sheet.size();
         final int cellCount = getItemsCount();
@@ -2383,14 +2381,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final double lengthBarBreadth = isVertical ? snapSizeX(vbar.prefWidth(-1)) : snapSizeY(hbar.prefHeight(-1));
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
-            sheet.setViewportBreadth((isVertical ? getWidth() : getHeight()) - (needLengthBar ? lengthBarBreadth : 0));
-            sheet.setViewportLength((isVertical ? getHeight() : getWidth()) - (needBreadthBar ? breadthBarLength : 0));
-            this.absoluteOffset = getPosition() * (estimatedSize - sheet.getViewportLength());
+            sheet.setWidth((isVertical ? getWidth() : getHeight()) - (needLengthBar ? lengthBarBreadth : 0));
+            sheet.setHeight((isVertical ? getHeight() : getWidth()) - (needBreadthBar ? breadthBarLength : 0));
         } else {
-            sheet.setViewportBreadth((isVertical ? getWidth() : getHeight()));
-            sheet.setViewportLength((isVertical ? getHeight() : getWidth()));
-            this.absoluteOffset = getPosition() * (estimatedSize - sheet.getViewportLength());
+            sheet.setWidth((isVertical ? getWidth() : getHeight()));
+            sheet.setHeight((isVertical ? getHeight() : getWidth()));
         }
+        synchronizeAbsoluteOffset();
+    }
+
+    private void synchronizeAbsoluteOffset(){
+        this.absoluteOffset = getPosition() * (estimatedSize - sheet.getViewportLength());
     }
 
 
@@ -2424,7 +2425,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // viewport. Note that the prospective viewport size is always >= the
         // final viewport size, so we don't have to worry about adding
         // cells during this cleanup phase.
-        fitCells();
+//        fitCells();
 
         // Update cell positions.
         // When rebuilding the cells, we add the cells and along the way compute
@@ -2458,7 +2459,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         double flowLength = (isVertical ? getHeight() : getWidth()) -
                 (breadthBar.isVisible() ? breadthBar.prefHeight(-1) : 0);
 
-        final double viewportBreadth = sheet.getViewportBreadth();
+        final double viewportBreadth = sheet.getWidth();
         final double viewportLength = sheet.getViewportLength();
 
         // Now position and update the scroll bars
@@ -2595,7 +2596,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * offset.
      */
     private void fitCells() {
-        double size = Math.max(getMaxPrefBreadth(), sheet.getViewportBreadth());
+        double size = Math.max(getMaxPrefBreadth(), sheet.getWidth());
         boolean isVertical = isVertical();
 
         // Note: Do not optimise this loop by pre-calculating the cells size and
@@ -2962,7 +2963,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         int cacheCount = itemSizeCache.size();
         double totalX = 0d;
         double totalY = 0d;
-        final double viewportBreadth = sheet.getViewportBreadth();
+        final double viewportBreadth = sheet.getWidth();
         int i = 0;
         for (; (i < itemCount && i < cacheCount); i++) {
             double[] size = itemSizeCache.get(i);

@@ -18,11 +18,11 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * The access on this variable is package ONLY FOR TESTING.
      */
     private double viewportBreadth;
-    final void setViewportBreadth(double value) {
+    final void setWidth(double value) {
         this.viewportBreadth = value;
     }
 
-    final double getViewportBreadth() {
+    final double getWidth() {
         return viewportBreadth;
     }
     /**
@@ -32,7 +32,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * The access on this variable is package ONLY FOR TESTING.
      */
     private double viewportLength;
-    void setViewportLength(double value) {
+    void setHeight(double value) {
         this.viewportLength = value;
 
     }
