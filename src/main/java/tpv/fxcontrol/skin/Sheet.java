@@ -43,6 +43,14 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         getChildren().clear();
     }
 
+    void dumpAllToPile() {
+        for (int i = 0, max = size(); i < max; i++) {
+            T cell  = removeFirst();
+            cell.updateIndex(-1);
+            addToPile(cell);
+        }
+    }
+
     /**
      * A List-like implementation that is exceedingly efficient for the purposes
      * of the VirtualFlow. Typically there is not much variance in the number of

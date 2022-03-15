@@ -1051,20 +1051,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             lastHeight = -1;
             releaseCell(accumCell);
 
-            sheet.getChildren().clear();
-            for (int i = 0, max = sheet.size(); i < max; i++) {
-                sheet.get(i).updateIndex(-1);
-            }
+            sheet.clearChildren();
             sheet.clear();
             releaseAllPrivateCells();
         } else if (needsRebuildCells) {
             lastWidth = -1;
             lastHeight = -1;
             releaseCell(accumCell);
-            for (int i = 0, max = sheet.size(); i < max; i++) {
-                sheet.get(i).updateIndex(-1);
-            }
-            sheet.addAllToPile();
+            sheet.dumpAllToPile();
             releaseAllPrivateCells();
         } else if (needsReconfigureCells) {
             setMaxPrefBreadth(-1);
@@ -1148,7 +1142,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (! cellNeedsLayout && !thumbNeedsLayout) {
             boolean cellSizeChanged = false;
             if (firstCell != null) {
-                double breadth = getCellBreadth(firstCell);
+                double breadth = getCellWidth(firstCell);
                 double length = getCellHeight(firstCell);
                 cellSizeChanged = (breadth != lastCellBreadth) || (length != lastCellLength);
                 lastCellBreadth = breadth;
@@ -1241,7 +1235,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             double maxPrefBreadth = getMaxPrefBreadth();
             boolean foundMax = false;
             for (int i = 0; i < sheet.size(); ++i) {
-                double breadth = getCellBreadth(sheet.get(i));
+                double breadth = getCellWidth(sheet.get(i));
                 if (maxPrefBreadth == breadth) {
                     foundMax = true;
                 } else if (breadth > maxPrefBreadth) {
@@ -1472,7 +1466,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
         if (targetCell != null) {
             T cell = getAvailableCell(targetIndex);
-            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
+            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             if (downOrRight) {
                 sheet.addLast(cell);
@@ -1548,6 +1542,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             assert cell != null;
             Point2D p = getCellPosition(cell);
             positionCell(cell,p.getX(), p.getY());
+            updateCellSize(cell);
         }
     }
     private void shiftCellsVertical(double layoutY){
@@ -1559,6 +1554,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if (Math.abs(actualLayoutY - layoutY) > 0.001) {
                 // we need to shift the cell to layoutY
                 positionCell(cell, p.getX(), p.getY() - layoutY);
+                updateCellSize(cell);
             }
 
             layoutY += getCellHeight(cell);
@@ -1799,10 +1795,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return maxPrefBreadth;
     }
 
-
-
-
-
     /**
      * Compute and return the length of the cell for the given index. This is
      * called both internally when adjusting by pixels, and also at times
@@ -1825,9 +1817,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     /**
      */
-    double getCellBreadth(int index) {
+    double getCellWidth(int index) {
         T cell = getCell(index);
-        double b = getCellBreadth(cell);
+        double b = getCellWidth(cell);
         releaseCell(cell);
         return b;
     }
@@ -1845,7 +1837,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      * Gets the breadth of a specific cell
      */
-    double getCellBreadth(Cell cell) {
+    double getCellWidth(Cell cell) {
         return cell.prefWidth(-1);
     }
 
@@ -1889,7 +1881,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     private void positionCell(T cell, double positionX,  double positionY) {
-        updateCellSize(cell);
         cell.setLayoutX(snapSpaceX(positionX));
         cell.setLayoutY(snapSpaceY(positionY));
 
@@ -2035,7 +2026,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Position the cell, and update the maxPrefBreadth variable as we go.
             Point2D p = getCellPosition(cell);
             positionCell(cell, p.getX(), p.getY());
-            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
+            updateCellSize(cell);
+            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             --index;
         }
@@ -2056,6 +2048,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     cell = sheet.get(i);
                     Point2D p = getCellPosition(cell);
                     positionCell(cell, p.getX(), p.getY());
+                    updateCellSize(cell);
 
                 }
             }
@@ -2085,7 +2078,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // know we cannot add any more cells.
         T startCell = sheet.getLast();
         Point2D pos = getCellPosition(startCell);
-        double offsetX = pos.getX() + getCellBreadth(startCell);
+        double offsetX = pos.getX() + getCellWidth(startCell);
         double offsetY = pos.getY() + getCellHeight(startCell);
         int index = startCell.getIndex() + 1;
         final int cellCount = getItemsCount();
@@ -2133,7 +2126,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Position the cell and update the max pref
             Point2D p = getCellPosition(cell);
             positionCell(cell, p.getX(), p.getY());
-            double cellBreadth = getCellBreadth(cell);
+            updateCellSize(cell);
+            double cellBreadth = getCellWidth(cell);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), cellBreadth));
             offsetX += cellBreadth;
             if(offsetX > viewPortWidth) {
@@ -2174,7 +2168,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 prospectiveEnd += cellLength;
 
                 positionCell(cell, getCellPosition(cell).getX(), start);
-                setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellBreadth(cell)));
+                updateCellSize(cell);
+                setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
                 cell.setVisible(true);
             }
 
@@ -2191,6 +2186,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 T cell = sheet.get(i);
                 cellPos = getCellPosition(cell);
                 positionCell(cell, cellPos.getX(), cellPos.getY());
+                updateCellSize(cell);
             }
 
             // Check whether the first cell, subsequent to our adjustments, is
@@ -2415,6 +2411,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 final T cell = sheet.get(i);
                 Point2D pos = getCellPosition(cell);
                 positionCell(cell, pos.getX(), pos.getY());
+                updateCellSize(cell);
             }
 
             // position trailing cells
@@ -2422,6 +2419,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 final T cell = sheet.get(i);
                 Point2D pos = getCellPosition(cell);
                 positionCell(cell, pos.getX(), pos.getY());
+                updateCellSize(cell);
 
             }
         }
@@ -2689,7 +2687,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // we always measure at least one row
         int rows = Math.max(1, rowsToCount == -1 ? getItemsCount() : rowsToCount);
         for (int i = 0; i < rows; i++) {
-            max = Math.max(max, getCellBreadth(i));
+            max = Math.max(max, getCellWidth(i));
         }
         return max;
     }
