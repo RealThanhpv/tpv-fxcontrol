@@ -76,6 +76,23 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         return x < (getWidth() - MAGIC_X);
     }
 
+    T getFirstVisibleCellWithinViewport() {
+        if (isEmpty() || getHeight() <= 0) {return null;}
+
+        T cell;
+        for (int i = 0; i < size(); i++) {
+            cell = get(i);
+            if (cell.isEmpty()) continue;
+
+            final double cellStartY = getCellPosition(cell).getY();
+            if (cellStartY >= 0) {
+                return cell;
+            }
+        }
+
+        return null;
+    }
+
 
 
     double getHeight() {

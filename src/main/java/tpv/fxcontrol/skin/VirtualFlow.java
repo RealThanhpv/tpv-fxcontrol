@@ -1821,29 +1821,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return null;
     }
 
-    /**
-     * Returns the first visible cell whose bounds are entirely within the viewport. When manually inserting rows, one
-     * may need to know which cell indices are visible in the viewport.
-     *
-     * @return first visible cell whose bounds are entirely within the viewport
-     * @since 12
-     */
-    public T getFirstVisibleCellWithinViewport() {
-        if (sheet.isEmpty() || sheet.getHeight() <= 0) return null;
 
-        T cell;
-        for (int i = 0; i < sheet.size(); i++) {
-            cell = sheet.get(i);
-            if (cell.isEmpty()) continue;
 
-            final double cellStartY = sheet.getCellPosition(cell).getY();
-            if (cellStartY >= 0) {
-                return cell;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Adds all the cells prior to and including the given currentIndex, until
@@ -2666,6 +2645,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void resetSizeEstimates() {
         itemSizeCache.clear();
         this.estimatedSize = 1d;
+    }
+
+    T getFirstVisibleCellWithinViewport() {
+        return sheet.getFirstVisibleCellWithinViewport();
     }
 
 
