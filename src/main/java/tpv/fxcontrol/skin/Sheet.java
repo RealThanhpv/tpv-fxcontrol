@@ -308,6 +308,18 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      */
     final ArrayLinkedList<T> pile = new ArrayLinkedList<T>();
 
+    private void cull() {
+        final double viewportLength = getHeight();
+        for (int i = size() - 1; i >= 0; i--) {
+            T cell = get(i);
+            double cellSize = cell.getLayoutBounds().getHeight();
+            Point2D cellStart = getCellPosition(cell);
+            double cellEnd = cellStart.getY() + cellSize;
+            if (cellStart.getY() >= viewportLength || cellEnd < 0) {
+                addToPile(remove(i));
+            }
+        }
+    }
 
 
      T get(int i) {
