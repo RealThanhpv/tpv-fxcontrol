@@ -556,8 +556,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         visibleProperty().addListener(listenerX);
         sceneProperty().addListener(listenerX);
 
-
-
         ChangeListener<Number> listenerY = (ov, t, t1) -> {
             clipView.setClipY(isVertical() ? 0 : vbar.getValue());
         };
@@ -1484,72 +1482,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         return adjustPositionByPixelAmount(delta);
 
-        // Now move stuff around. Translating by pixels fundamentally means
-        // moving the cells by the delta. However, after having
-        // done that, we need to go through the cells and see which cells,
-        // after adding in the translation factor, now fall off the viewport.
-        // Also, we need to add cells as appropriate to the end (or beginning,
-        // depending on the direction of travel).
-        //
-        // One simplifying assumption (that had better be true!) is that we
-        // will only make it this far in the function if the virtual scroll
-        // bar is visible. Otherwise, we never will pixel scroll. So as we go,
-        // if we find that the maxPrefBreadth exceeds the viewportBreadth,
-        // then we will be sure to show the breadthBar and update it
-        // accordingly.
-//        if (cells.size() > 0) {
-//
-//            layoutCells();
-//
-//            // Fix for RT-32908
-//            T firstCell = cells.getFirst();
-//            double layoutY = firstCell == null ? 0 : getCellPosition(firstCell).getY();
-//            shiftCellsVertical(layoutY);
-//            // end of fix for RT-32908
-//            cull();
-//            addLeadingCellsIfNecessary();
-//            // Starting at the tail of the list, loop adding cells until
-//            // all the space on the table is filled up. We want to make
-//            // sure that we DO NOT add empty trailing cells (since we are
-//            // in the full virtual case and so there are no trailing empty
-//            // cells).
-//            if (! addTrailingCells(false)) {
-//                // Reached the end, but not enough cells to fill up to
-//                // the end. So, remove the trailing empty space, and translate
-//                // the cells down
-//
-//                final T lastCell = getLastVisibleCell();
-//                final double lastCellSize = getCellLength(lastCell);
-//                final double cellEnd = getCellPosition(lastCell).getY() + lastCellSize;
-//                final double viewportLength = getViewportLength();
-//
-//                if (cellEnd < viewportLength) {
-//                    // Reposition the nodes
-//                    double emptySize = viewportLength - cellEnd;
-//                    for (int i = 0; i < cells.size(); i++) {
-//                        T cell = cells.get(i);
-//                        Point2D p = getCellPosition(cell);
-//                        positionCell(cell, p.getX(), p.getY() );
-//                    }
-//                    setPosition(1.0f);
-//                    // fill the leading empty space
-//                    firstCell = cells.getFirst();
-//                    int firstIndex = firstCell.getIndex();
-//                    double prevIndexSize = getCellLength(firstIndex - 1);
-//                    addLeadingCells(firstIndex - 1, getCellPosition(firstCell).getY() - prevIndexSize);
-//                }
-//            }
-//        }
-
-        // Now throw away any cells that don't fit
-//        cull();
-
-        // Finally, update the scroll bars
-//        updateScrollBarsAndCells(false);
-//        lastPosition = getPosition();
-
-        // notify
-//        return adjusted;
     }
 
 
@@ -1623,10 +1555,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         assert cell != null;
         cell.updateIndex(index);
 
-        // make sure the cell is sized correctly. This is important for both
-        // general layout of cells in a VirtualFlow, but also in cases such as
-        // RT-34333, where the sizes were being reported incorrectly to the
-        // ComboBox popup.
         if ((cell.isNeedsLayout() && cell.getScene() != null) || cell.getProperties().containsKey(NEW_CELL)) {
             cell.applyCss();
             cell.getProperties().remove(NEW_CELL);
@@ -1751,11 +1679,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (cell == null) return;
 
         if (isVertical()) {
-            double width = Math.max(getMaxPrefBreadth(), sheet.getWidth());
+            double width = sheet.getWidth();
 
             cell.resize(width,  Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
         } else {
-            double height = Math.max(getMaxPrefBreadth(), sheet.getHeight());
+            double height =  sheet.getHeight();
             cell.resize( Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
         }
 
