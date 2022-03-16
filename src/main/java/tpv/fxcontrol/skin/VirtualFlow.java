@@ -1116,11 +1116,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // layout call is even necessary. If it is found that no layout is
         // needed, we just punt.
         if (! cellNeedsLayout && !thumbNeedsLayout) {
-            boolean cellSizeChanged = false;
             if (firstCell != null) {
                 double breadth = getCellWidth(firstCell);
                 double length = getCellHeight(firstCell);
-                cellSizeChanged = (breadth != lastCellBreadth) || (length != lastCellLength);
                 lastCellBreadth = breadth;
                 lastCellLength = length;
             }
@@ -1128,8 +1126,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if (width == lastWidth &&
                 height == lastHeight &&
                 cellCount == lastCellCount &&
-                position == lastPosition &&
-                ! cellSizeChanged)
+                position == lastPosition
+                )
             {
                 // TODO this happens to work around the problem tested by
                 // testCellLayout_LayoutWithoutChangingThingsUsesCellsInSameOrderAsBefore
