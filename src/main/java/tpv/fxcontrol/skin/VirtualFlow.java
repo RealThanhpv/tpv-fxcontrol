@@ -1543,7 +1543,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         recalculateEstimatedSize();
 
-        double adjusted = adjustPositionByPixelAmount(delta);
+        return adjustPositionByPixelAmount(delta);
 
         // Now move stuff around. Translating by pixels fundamentally means
         // moving the cells by the delta. However, after having
@@ -1610,7 +1610,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 //        lastPosition = getPosition();
 
         // notify
-        return adjusted;
+//        return adjusted;
     }
 
     private void addLeadingCellsIfNecessary() {
@@ -1827,7 +1827,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if(calCel == null){
                 continue;
             }
-            double prefWidth = Math.round(calCel.prefWidth(-1) + 0.5);
+            double prefWidth = calCel.prefWidth(-1) ;
             double prefHeight = calCel.prefHeight(-1);
 
             if(maxCellHeight < prefHeight){
@@ -2543,20 +2543,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (cell != null) {
             setCellIndex(cell, index);
-//            resizeCell(cell);
             cell.setVisible(false);
             sheet.getChildren().add(cell);
-            privateCells.add(cell);
         }
 
         return cell;
     }
 
-    private final List<T> privateCells = new ArrayList<>();
 
     private void releaseAllPrivateCells() {
-        sheet.getChildren().removeAll(privateCells);
-        privateCells.clear();
+        sheet.getChildren().clear();
     }
 
 

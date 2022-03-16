@@ -52,7 +52,6 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
 
     void clearCompletely() {
-        clearChildren();
         clear();
     }
 
