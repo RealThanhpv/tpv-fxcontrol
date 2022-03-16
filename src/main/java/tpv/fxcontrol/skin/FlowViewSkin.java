@@ -213,7 +213,6 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
         flow.setPannable(IS_PANNABLE);
         flow.setVertical(control.getOrientation() == Orientation.VERTICAL);
         flow.setCellFactory(flow -> createCell());
-        flow.setFixedCellSize(control.getFixedCellSize());
         getChildren().add(flow);
 
         EventHandler<MouseEvent> ml = event -> {
@@ -249,9 +248,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
             }
         });
         registerChangeListener(control.placeholderProperty(), o -> updatePlaceholderRegionVisibility());
-        registerChangeListener(control.fixedCellSizeProperty(), o ->
-                flow.setFixedCellSize(control.getFixedCellSize())
-        );
+
     }
 
 

@@ -86,8 +86,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Static fields                                                           *
      *                                                                         *
      **************************************************************************/
-    private static double MAGIC_X = 2;
-    private static double MAGIC_Y = 2;
+
 
 
     /**
@@ -258,7 +257,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private double lastY;
     private boolean isPanning = false;
 
-    private boolean fixedCellSizeEnabled = false;
+//    private boolean fixedCellSizeEnabled = false;
 
     private boolean needsReconfigureCells = false; // when cell contents are the same
     private boolean needsRecreateCells = false; // when cell factory changed
@@ -359,9 +358,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                             break;
                         case LINES:
                             double lineSize;
-                            if (fixedCellSizeEnabled) {
-                                lineSize = getFixedCellSize();
-                            } else {
+                            {
                                 // For the scrolling to be reasonably consistent
                                 // we set the lineSize to the average size
                                 // of all currently loaded lines.
@@ -899,20 +896,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     public final DoubleProperty positionProperty() { return position; }
 
     // --- fixed cell size
-    /**
-     * For optimisation purposes, some use cases can trade dynamic cell length
-     * for speed - if fixedCellSize is greater than zero we'll use that rather
-     * than determine it by querying the cell itself.
-     */
-    private DoubleProperty fixedCellSize = new SimpleDoubleProperty(this, "fixedCellSize") {
-        @Override protected void invalidated() {
-            fixedCellSizeEnabled = get() > 0;
-            layoutChildren();
-        }
-    };
-    public final void setFixedCellSize(final double value) { fixedCellSize.set(value); }
-    public final double getFixedCellSize() { return fixedCellSize.get(); }
-    public final DoubleProperty fixedCellSizeProperty() { return fixedCellSize; }
+
 
 
     // --- Cell Factory
@@ -1092,7 +1076,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         boolean cellNeedsLayout = cellNeedsLayout();
 
 
-        final int itemCount = getItemsCount();
 
         // If no cells need layout, we check other criteria to see if this
         // layout call is even necessary. If it is found that no layout is
@@ -1710,9 +1693,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * to use a cell as a helper for computing cell size in some cases.
      */
     double getCellHeight(int index) {
-        if (fixedCellSizeEnabled) {
-            return getFixedCellSize();
-        }
+
 
         T cell = getCell(index);
         double length = getCellHeight(cell);
@@ -1736,7 +1717,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     double getCellHeight(T cell) {
         if (cell == null)
         {return 0;}
-        if (fixedCellSizeEnabled) {return getFixedCellSize();};
+
         return cell.getLayoutBounds().getHeight();
     }
 
@@ -1772,10 +1753,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (isVertical()) {
             double width = Math.max(getMaxPrefBreadth(), sheet.getWidth());
 
-            cell.resize(width, fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
+            cell.resize(width,  Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
         } else {
             double height = Math.max(getMaxPrefBreadth(), sheet.getHeight());
-            cell.resize(fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
+            cell.resize( Utils.boundedSize(cell.prefWidth(height), cell.minWidth(height), cell.maxWidth(height)), height);
         }
 
 
