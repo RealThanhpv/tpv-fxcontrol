@@ -2564,38 +2564,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return max;
     }
 
-    // Old PositionMapper
-    /**
-     * Given a position value between 0 and 1, compute and return the viewport
-     * offset from the "current" cell associated with that position value.
-     * That is, if the return value of this function where used as a translation
-     * factor for a sheet that contained all the items, then the current
-     * item would end up positioned correctly.
-     * We calculate the total size until the absoluteOffset is reached.
-     * For this calculation, we use the cached sizes for each item, or an
-     * educated guess in case we don't have a cached size yet. While we could
-     * fill the cache with the size here, we do not do it as it will affect
-     * performance.
-     */
-    //TODO need to re-implement
-    private double computeViewportOffset(double position) {
-        double p = com.sun.javafx.util.Utils.clamp(0, position, 1);
-        double bound = 0d;
-        double estSize = estimatedSize / getItemsCount();
 
-        for (int i = 0; i < getItemsCount(); i++) {
-            double[] size = getCellSize(i);
-            if (size == null){
-                size = new double[2];
-                size[1] = estSize;
-            }
-            if (bound + size[1] > absoluteOffset) {
-                return absoluteOffset - bound;
-            }
-            bound += size[1];
-        }
-        return 0d;
-    }
     //TODO need to re-implement
     private void adjustPositionToIndex(int index) {
         int cellCount = getItemsCount();
@@ -2679,18 +2648,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return index;
     }
 
-    /**
-     * Given an item index, this function will compute and return the viewport
-     * offset from the beginning of the specified item. Notice that because each
-     * item has the same percentage of the position dedicated to it, and since
-     * we are measuring from the start of each item, this is a very simple
-     * calculation.
-     */
-    private double computeOffsetForCell(int itemIndex) {
-        double cellCount = getItemsCount();
-        double p = com.sun.javafx.util.Utils.clamp(0, itemIndex, cellCount) / cellCount;
-        return -(sheet.getHeight() * p);
-    }
+
 
     double[] getCellSize(int idx) {
         return getOrCreateCellSize(idx, false);
