@@ -588,7 +588,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             Node selectNextAfterIndex(int index, TraversalContext context) {
                 T nextCell;
-                while ((nextCell = sheet.getVisibleCell(++index)) != null) {
+                while ((nextCell = getVisibleCell(++index)) != null) {
                     if (nextCell.isFocusTraversable()) {
                         return nextCell;
                     }
@@ -602,7 +602,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             Node selectPreviousBeforeIndex(int index, TraversalContext context) {
                 T prevCell;
-                while ((prevCell = sheet.getVisibleCell(--index)) != null) {
+                while ((prevCell = getVisibleCell(--index)) != null) {
                     Node prev = context.selectLastInParent(prevCell);
                     if (prev != null) {
                         return prev;
