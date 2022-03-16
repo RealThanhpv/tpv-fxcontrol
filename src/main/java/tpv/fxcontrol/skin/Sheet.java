@@ -93,6 +93,28 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         return null;
     }
 
+    T getLastVisibleCellWithinViewport() {
+        if (isEmpty() || getHeight() <= 0) return null;
+
+        T cell;
+        final double max = getHeight();
+        for (int i = size() - 1; i >= 0; i--) {
+            cell = get(i);
+            if (cell.isEmpty()) continue;
+
+            final double cellStart = getCellPosition(cell).getY();
+            final double cellEnd = cellStart + cell.getLayoutBounds().getHeight();
+
+            // we use the magic +2 to allow for a little bit of fuzziness,
+            // this is to help in situations such as RT-34407
+            if (cellEnd <= (max + 2)) {
+                return cell;
+            }
+        }
+
+        return null;
+    }
+
 
 
     double getHeight() {
