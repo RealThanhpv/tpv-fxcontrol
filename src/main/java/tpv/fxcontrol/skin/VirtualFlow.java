@@ -157,15 +157,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     double lastPosition;
 
-    /**
-     * The breadth of the first visible cell last time we laid out.
-     */
-    double lastCellBreadth = -1;
 
-    /**
-     * The length of the first visible cell last time we laid out.
-     */
-    double lastCellLength = -1;
 
 
 
@@ -1116,12 +1108,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // layout call is even necessary. If it is found that no layout is
         // needed, we just punt.
         if (! cellNeedsLayout && !thumbNeedsLayout) {
-            if (firstCell != null) {
-                double breadth = getCellWidth(firstCell);
-                double length = getCellHeight(firstCell);
-                lastCellBreadth = breadth;
-                lastCellLength = length;
-            }
+
 
             if (width == lastWidth &&
                 height == lastHeight &&
@@ -1200,7 +1187,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 cellCount != lastCellCount ||
                 lastHeight != height ||
                 lastWidth != width||
-//                hasSizeChange ||
                 (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
 
         if (!rebuild) {
@@ -1290,7 +1276,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     @Override protected void setWidth(double value) {
         if (value != lastWidth) {
             super.setWidth(value);
-//            sizeChanged = true;
             setNeedsLayout(true);
             requestLayout();
         }
@@ -1300,7 +1285,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     @Override protected void setHeight(double value) {
         if (value != lastHeight) {
             super.setHeight(value);
-//            sizeChanged = true;
             setNeedsLayout(true);
             requestLayout();
         }
