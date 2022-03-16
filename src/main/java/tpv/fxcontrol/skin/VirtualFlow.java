@@ -1085,7 +1085,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // we may not perform a layout here, meaning that the cell will likely
         // 'jump' (in height normally) when the user drags the virtual thumb as
         // that is the first time the layout would occur otherwise.
-        boolean cellNeedsLayout = false;
+
         boolean thumbNeedsLayout = false;
 
         if (Properties.IS_TOUCH_SUPPORTED) {
@@ -1094,12 +1094,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 thumbNeedsLayout = true;
             }
         }
+        boolean cellNeedsLayout = cellNeedsLayout();
 
-        for (int i = 0; i < sheet.size(); i++) {
-            Cell<?> cell = sheet.get(i);
-            cellNeedsLayout = cell.isNeedsLayout();
-            if (cellNeedsLayout) break;
-        }
 
         final int cellCount = getItemsCount();
         final T firstCell = getFirstVisibleCell();
@@ -1248,6 +1244,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         lastPosition = getPosition();
         recalculateEstimatedSize();
         sheet.cleanPile();
+    }
+
+    private boolean cellNeedsLayout() {
+        boolean cellNeedsLayout = false;
+        for (int i = 0; i < sheet.size(); i++) {
+            Cell<?> cell = sheet.get(i);
+            cellNeedsLayout = cell.isNeedsLayout();
+            if (cellNeedsLayout) break;
+        }
+
+        return cellNeedsLayout;
     }
 
     private void updateDirtyCells() {
@@ -1809,7 +1816,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private Point2D getCellPosition(T cell) {
         //vertical layout
-        double viewPortWidth = sheet.getWidth();
         int index = cell.getIndex();
         double layoutX = 0;
         double layoutY = 0;
@@ -1828,15 +1834,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 maxCellHeight = prefHeight;
             }
 
-            if((layoutX + prefWidth) < viewPortWidth) {
-                //in the same row
-                layoutX = layoutX + prefWidth;
-            }
-            else { //new row
+            layoutX = layoutX + prefWidth;
+            if(!isInRow(layoutX )) {
                 layoutX = 0;
                 layoutY = layoutY + maxCellHeight;
                 maxCellHeight = 0;
             }
+
         }
 
         Point2D p =  new Point2D(layoutX, layoutY);
