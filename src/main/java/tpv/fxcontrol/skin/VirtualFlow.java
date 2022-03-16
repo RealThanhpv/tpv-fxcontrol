@@ -1063,13 +1063,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         updateDirtyCells();
 
 
-        final boolean hasSizeChange = sizeChanged;
+//        final boolean hasSizeChange = sizeChanged;
         boolean recreatedOrRebuilt = needsRebuildCells || needsRecreateCells || sizeChanged;
 
         needsRecreateCells = false;
         needsReconfigureCells = false;
         needsRebuildCells = false;
-        sizeChanged = false;
+//        sizeChanged = false;
 
 
         final double width = getWidth();
@@ -1198,7 +1198,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 getMaxPrefBreadth() == -1  ||
                 position != lastPosition   ||
                 cellCount != lastCellCount ||
-                hasSizeChange ||
+                lastHeight != height ||
+                lastWidth != width||
+//                hasSizeChange ||
                 (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
 
         if (!rebuild) {
@@ -1288,7 +1290,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     @Override protected void setWidth(double value) {
         if (value != lastWidth) {
             super.setWidth(value);
-            sizeChanged = true;
+//            sizeChanged = true;
             setNeedsLayout(true);
             requestLayout();
         }
@@ -1298,7 +1300,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     @Override protected void setHeight(double value) {
         if (value != lastHeight) {
             super.setHeight(value);
-            sizeChanged = true;
+//            sizeChanged = true;
             setNeedsLayout(true);
             requestLayout();
         }
