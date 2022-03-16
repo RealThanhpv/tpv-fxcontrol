@@ -1040,13 +1040,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             lastHeight = -1;
             releaseCell(accumCell);
             sheet.clearCompletely();
-            releaseAllPrivateCells();
         } else if (needsRebuildCells) {
             lastWidth = -1;
             lastHeight = -1;
             releaseCell(accumCell);
             sheet.dumpAllToPile();
-            releaseAllPrivateCells();
+            sheet.clearChildren();
         } else if (needsReconfigureCells) {
             setMaxPrefBreadth(-1);
             lastWidth = -1;
@@ -1704,7 +1703,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     protected void setCellIndex(T cell, int index) {
         assert cell != null;
-
         cell.updateIndex(index);
 
         // make sure the cell is sized correctly. This is important for both
@@ -2526,37 +2524,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
 
-        // check the existing sheet children
-        if (cell == null) {
-            for (int i = 0; i < sheet.getChildren().size(); i++) {
-                T _cell = (T) sheet.getChildren().get(i);
-                if (_cell.getIndex() == index) {
-                    return _cell;
-                }
-            }
-        }
-
-        Callback<VirtualFlow<T>, T> cellFactory = getCellFactory();
-        if (cellFactory != null) {
-            cell = cellFactory.call(this);
-        }
-
-        if (cell != null) {
-            setCellIndex(cell, index);
-            cell.setVisible(false);
-            sheet.getChildren().add(cell);
-        }
-
-        return cell;
+        return null;
     }
-
-
-    private void releaseAllPrivateCells() {
-        sheet.getChildren().clear();
-    }
-
-
-
 
 
 
