@@ -69,7 +69,6 @@ import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
 
 /**
  * Implementation of a virtualized container using a cell based mechanism. This
@@ -368,9 +367,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                                 // of all currently loaded lines.
                                 T lastCell = sheet.getLast();
                                 lineSize =
-                                        (getCellPosition(lastCell).getY()
+                                        (sheet.getCellPosition(lastCell).getY()
                                             + getCellHeight(lastCell)
-                                            - getCellPosition(sheet.getFirst()).getY())
+                                            - sheet.getCellPosition(sheet.getFirst()).getY())
                                         / sheet.size();
                             }
 
@@ -783,8 +782,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     private void relayoutAll() {
-        sheet.clearChildren();
-        sheet.clear();
+        sheet.clearCompletely();
         lastWidth = lastHeight = -1;
         setMaxPrefBreadth(-1);
         sheet.setWidth(0);
@@ -1054,13 +1052,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         updateDirtyCells();
 
 
-//        final boolean hasSizeChange = sizeChanged;
         boolean recreatedOrRebuilt = needsRebuildCells || needsRecreateCells || sizeChanged;
 
         needsRecreateCells = false;
         needsReconfigureCells = false;
         needsRebuildCells = false;
-//        sizeChanged = false;
 
 
         final double width = getWidth();
@@ -1096,8 +1092,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         boolean cellNeedsLayout = cellNeedsLayout();
 
 
-        final int cellCount = getItemsCount();
-        final T firstCell = getFirstVisibleCell();
+        final int itemCount = getItemsCount();
 
         // If no cells need layout, we check other criteria to see if this
         // layout call is even necessary. If it is found that no layout is
@@ -1105,21 +1100,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (! cellNeedsLayout && !thumbNeedsLayout) {
 
 
-            if (width == lastWidth &&
-                height == lastHeight &&
-                cellCount == lastCellCount &&
-                position == lastPosition
-                )
-            {
-                // TODO this happens to work around the problem tested by
-                // testCellLayout_LayoutWithoutChangingThingsUsesCellsInSameOrderAsBefore
-                // but isn't a proper solution. Really what we need to do is, when
-                // laying out cells, we need to make sure that if a cell is pressed
-                // AND we are doing a full rebuild then we need to make sure we
-                // use that cell in the same physical location as before so that
-                // it gets the mouse release event.
-                return;
-            }
+
         }
 
         /*
@@ -1179,7 +1160,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 sheet.isEmpty()            ||
                 getMaxPrefBreadth() == -1  ||
                 position != lastPosition   ||
-                cellCount != lastCellCount ||
                 lastHeight != height ||
                 lastWidth != width||
                 (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
@@ -1204,7 +1184,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (!rebuild) {
             if ((isVertical() && height > lastHeight) || (!isVertical() && width > lastWidth)) {
-                // resized in the virtual direction
                 addTrailingCells();
             }
         }
@@ -1212,37 +1191,26 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         // Get the index of the "current" cell
         int currentIndex = computeCurrentIndex();
-        if (lastCellCount != cellCount) {
-            // The cell count has changed. We want to keep the viewport
-            // stable if possible. If position was 0 or 1, we want to keep
-            // the position in the same place. If the new cell count is >=
-            // the currentIndex, then we will adjust the position to be 1.
-            // Otherwise, our goal is to leave the index of the cell at the
-            // top consistent, with the same translation etc.
-            if (position != 0 && position != 1 && (currentIndex >= cellCount)) {
-                setPosition(1.0f);
-            }
 
-            // Update the current index
-            currentIndex = computeCurrentIndex();
-        }
         if (rebuild) {
-            setMaxPrefBreadth(-1);
-            sheet.addAllToPile();
-            addLeadingCells(currentIndex);
-            addTrailingCells();
+           rebuild(currentIndex);
         }
         computeBarVisibility();
 
-        recreatedOrRebuilt = recreatedOrRebuilt || rebuild;
-        updateScrollBarsAndCells(recreatedOrRebuilt);
+        updateScrollBarsAndCells(recreatedOrRebuilt || rebuild);
 
         lastWidth = getWidth();
         lastHeight = getHeight();
-        lastCellCount = getItemsCount();
         lastPosition = getPosition();
         recalculateEstimatedSize();
         sheet.cleanPile();
+    }
+
+    private void rebuild(int currentIndex) {
+        setMaxPrefBreadth(-1);
+        sheet.addAllToPile();
+        addLeadingCells(currentIndex);
+        addTrailingCells();
     }
 
     private boolean cellNeedsLayout() {
@@ -1307,20 +1275,21 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     protected T getAvailableOrCreateCell(int prefIndex) {
         T cell  = sheet.getAndRemoveCellFromPile(prefIndex);
         if(cell == null){
-            cell =  createNewCellAndAddToSheet();
+            getCell(prefIndex);
+        }
+        if(cell == null){
+            cell =  createCell();
+            if (cell.getParent() == null) {
+                sheet.getChildren().add(cell);
+            }
         }
         setCellIndex(cell, prefIndex);
         return cell;
     }
 
-    private T createNewCellAndAddToSheet(){
+    private T createCell(){
         T cell = getCellFactory().call(this);
         cell.getProperties().put(NEW_CELL, null);
-
-        if (cell.getParent() == null) {
-            sheet.getChildren().add(cell);
-        }
-
         return cell;
     }
 
@@ -1334,12 +1303,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the last visible cell
      */
     public T getLastVisibleCell() {
-        if (sheet.isEmpty() || sheet.getHeight() <= 0) return null;
+        if (sheet.isEmpty() || sheet.getHeight() <= 0) {
+            return null;
+        }
 
         T cell;
         for (int i = sheet.size() - 1; i >= 0; i--) {
             cell = sheet.get(i);
-            if (! cell.isEmpty()) {
+            if (!cell.isEmpty()) {
                 return cell;
             }
         }
@@ -1369,7 +1340,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToTop(T firstCell) {
         if (firstCell != null) {
-            scrollPixels(getCellPosition(firstCell).getY());
+            scrollPixels(sheet.getCellPosition(firstCell).getY());
         }
     }
 
@@ -1381,7 +1352,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToBottom(T lastCell) {
         if (lastCell != null) {
-            scrollPixels(getCellPosition(lastCell).getY() + getCellHeight(lastCell) - sheet.getHeight());
+            scrollPixels(sheet.getCellPosition(lastCell).getY() + getCellHeight(lastCell) - sheet.getHeight());
         }
     }
 
@@ -1392,7 +1363,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollTo(T cell) {
         if (cell != null) {
-            final double start = getCellPosition(cell).getY();
+            final double start = sheet.getCellPosition(cell).getY();
             final double length = getCellHeight(cell);
             final double end = start + length;
             final double viewportLength = sheet.getHeight();
@@ -1512,26 +1483,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         for (int i = 0; i < sheet.size(); i++) {
             T cell = sheet.get(i);
             assert cell != null;
-            Point2D p = getCellPosition(cell);
+            Point2D p = sheet.getCellPosition(cell);
             positionCell(cell,p.getX(), p.getY());
             updateCellCacheSize(cell);
         }
     }
-    private void shiftCellsVertical(double layoutY){
-        for (int i = 0; i < sheet.size(); i++) {
-            T cell = sheet.get(i);
-            assert cell != null;
-            Point2D p = getCellPosition(cell);
-            double actualLayoutY = p.getY();
-            if (Math.abs(actualLayoutY - layoutY) > 0.001) {
-                // we need to shift the cell to layoutY
-                positionCell(cell, p.getX(), p.getY() - layoutY);
-                updateCellCacheSize(cell);
-            }
 
-            layoutY += getCellHeight(cell);
-        }
-    }
     public double scrollPixels(final double delta) {
         // Short cut this method for cases where nothing should be done
         if (delta == 0) {return 0;}
@@ -1612,28 +1569,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 //        return adjusted;
     }
 
-    private void addLeadingCellsIfNecessary() {
-        T firstCell = sheet.getFirst();
-
-        // Add any necessary leading cells
-        if (firstCell != null) {
-            int firstIndex = firstCell.getIndex();
-            double prevIndexSize = getCellHeight(firstIndex - 1);
-            Point2D p = getCellPosition(firstCell);
-            addLeadingCells(firstIndex - 1);
-        } else {
-            int currentIndex = computeCurrentIndex();
-
-            // The distance from the top of the viewport to the top of the
-            // cell for the current index.
-//            double offset = -computeViewportOffset(getPosition());
-
-            // Add all the leading and trailing cells (the call to add leading
-            // cells will add the current cell as well -- that is, the one that
-            // represents the current position on the mapper).
-            addLeadingCells(currentIndex);
-        }
-    }
 
 
     /** {@inheritDoc} */
@@ -1661,6 +1596,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell != null){
             return cell;
         }
+
         // We need to use the accumCell and return that
         return createOrUseAccumCell(index);
 
@@ -1669,8 +1605,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (accumCell == null) {
             Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
             if (cellFactory != null) {
-                accumCell = cellFactory.call(this);
-                accumCell.getProperties().put(NEW_CELL, null);
+                accumCell = createCell();
                 accumCellParent.getChildren().setAll(accumCell);
 
                 // Note the screen reader will attempt to find all
@@ -1681,12 +1616,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 // uses getPrivateCell(), which places the item in the sheet.
                 // The accumCell, and its children, should be ignored by the
                 // screen reader.
-                accumCell.setAccessibleRole(AccessibleRole.NODE);
-                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
-                    for (Node n : accumCell.getChildrenUnmodifiable()) {
-                        n.setAccessibleRole(AccessibleRole.NODE);
-                    }
-                });
+//                accumCell.setAccessibleRole(AccessibleRole.NODE);
+//                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
+//                    for (Node n : accumCell.getChildrenUnmodifiable()) {
+//                        n.setAccessibleRole(AccessibleRole.NODE);
+//                    }
+//                });
             }
         }
         setCellIndex(accumCell, index);
@@ -1812,40 +1747,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return cell.prefWidth(-1);
     }
 
-    private Point2D getCellPosition(T cell) {
-        //vertical layout
-        int index = cell.getIndex();
-        double layoutX = 0;
-        double layoutY = 0;
-        double maxCellHeight = 0;
-
-        int start = sheet.getFirst().getIndex();
-        for (int i = start; i < index; i++) {
-            Cell calCel = sheet.get(i);
-            if(calCel == null){
-                continue;
-            }
-            double prefWidth = calCel.prefWidth(-1) ;
-            double prefHeight = calCel.prefHeight(-1);
-
-            if(maxCellHeight < prefHeight){
-                maxCellHeight = prefHeight;
-            }
-
-            layoutX = layoutX + prefWidth;
-            if(!isInRow(layoutX )) {
-                layoutX = 0;
-                layoutY = layoutY + maxCellHeight;
-                maxCellHeight = 0;
-            }
-
-        }
-
-        Point2D p =  new Point2D(layoutX, layoutY);
-        return p;
-    }
-
-
 
     private void positionCell(T cell, double positionX,  double positionY) {
         cell.setLayoutX(snapSpaceX(positionX));
@@ -1907,7 +1808,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             cell = sheet.get(i);
             if (cell.isEmpty()) continue;
 
-            final double cellStart = getCellPosition(cell).getY();
+            final double cellStart = sheet.getCellPosition(cell).getY();
             final double cellEnd = cellStart + getCellHeight(cell);
 
             // we use the magic +2 to allow for a little bit of fuzziness,
@@ -1935,7 +1836,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             cell = sheet.get(i);
             if (cell.isEmpty()) continue;
 
-            final double cellStartY = getCellPosition(cell).getY();
+            final double cellStartY = sheet.getCellPosition(cell).getY();
             if (cellStartY >= 0) {
                 return cell;
             }
@@ -1989,7 +1890,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 first = false;
             }
             // Position the cell, and update the maxPrefBreadth variable as we go.
-            Point2D p = getCellPosition(cell);
+            Point2D p = sheet.getCellPosition(cell);
             positionCell(cell, p.getX(), p.getY());
             updateCellCacheSize(cell);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
@@ -2005,13 +1906,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (sheet.size() > 0) {
             cell = sheet.getFirst();
             int firstIndex = cell.getIndex();
-            double firstCellPos = getCellPosition(cell).getY();
+            double firstCellPos = sheet.getCellPosition(cell).getY();
             if (firstIndex == 0 && firstCellPos > 0) {
                 setPosition(0.0f);
 
                 for (int i = 0; i < sheet.size(); i++) {
                     cell = sheet.get(i);
-                    Point2D p = getCellPosition(cell);
+                    Point2D p = sheet.getCellPosition(cell);
                     positionCell(cell, p.getX(), p.getY());
                     updateCellCacheSize(cell);
 
@@ -2038,7 +1939,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final double viewPortHeight = sheet.getHeight();
         T lastCell = sheet.getLast();
 
-        Point2D pos = getCellPosition(lastCell);
+        Point2D pos = sheet.getCellPosition(lastCell);
         double offsetX = pos.getX() + getCellWidth(lastCell);
         double offsetY = pos.getY() + getCellHeight(lastCell);
 
@@ -2070,7 +1971,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             double cellBreadth = getCellWidth(cell);
 
             offsetX += cellBreadth;
-            if(!isInRow(offsetX)){
+            if(!sheet.isInRow(offsetX)){
                 offsetY += getCellHeight(cell);
                 offsetX = 0;
             }
@@ -2089,13 +1990,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-    private boolean isInRow(double x){
-        return x < (sheet.getWidth() - MAGIC_X);
-    }
 
     private void addLastCellToSheet(T cell) {
         sheet.addLast(cell);
-        Point2D p = getCellPosition(cell);
+        Point2D p = sheet.getCellPosition(cell);
         positionCell(cell, p.getX(), p.getY());
         updateCellCacheSize(cell);
     }
@@ -2219,7 +2117,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final int cellsSize = sheet.size();
         final int cellCount = getItemsCount();
         for (int i = 0; i < 2; i++) {
-            Point2D pos = getCellPosition(sheet.getLast());
+            Point2D pos = sheet.getCellPosition(sheet.getLast());
             final boolean lengthBarVisible = getPosition() > 0
                     || cellCount > cellsSize
                     || (cellCount == cellsSize && (pos.getY() + getCellHeight(sheet.getLast())) > sheet.getHeight())
@@ -2290,9 +2188,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void updateScrollBarsAndCells(boolean recreate) {
         // Assign the hbar and vbar to the breadthBar and lengthBar so as
         // to make some subsequent calculations easier.
-        final boolean isVertical = isVertical();
-        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
-        VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
+        VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
+        VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
 
         // We may have adjusted the viewport length and breadth after the
         // layout due to scroll bars becoming visible. So we need to perform
@@ -2314,7 +2211,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             for (int i = currIndex - 1; i >= 0 && i < size; i--) {
                 final T cell = sheet.get(i);
-                Point2D pos = getCellPosition(cell);
+                Point2D pos = sheet.getCellPosition(cell);
                 positionCell(cell, pos.getX(), pos.getY());
                 updateCellCacheSize(cell);
             }
@@ -2322,7 +2219,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // position trailing cells
             for (int i = currIndex; i >= 0 && i < size; i++) {
                 final T cell = sheet.get(i);
-                Point2D pos = getCellPosition(cell);
+                Point2D pos = sheet.getCellPosition(cell);
                 positionCell(cell, pos.getX(), pos.getY());
                 updateCellCacheSize(cell);
 
@@ -2333,7 +2230,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
 
         double sumCellLength = 0;
-        double flowLength = (isVertical ? getHeight() : getWidth()) -
+        double flowLength = (isVertical() ? getHeight() : getWidth()) -
                 (breadthBar.isVisible() ? breadthBar.prefHeight(-1) : 0);
 
         final double viewportBreadth = sheet.getWidth();
@@ -2345,7 +2242,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             ** Positioning the ScrollBar
             */
             if (!Properties.IS_TOUCH_SUPPORTED) {
-                if (isVertical) {
+                if (isVertical()) {
                     hbar.resizeRelocate(0, viewportLength,
                             viewportBreadth, hbar.prefHeight(viewportBreadth));
                 } else {
@@ -2354,7 +2251,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 }
             }
             else {
-                if (isVertical) {
+                if (isVertical()) {
                     double prefHeight = hbar.prefHeight(viewportBreadth);
                     hbar.resizeRelocate(0, viewportLength - prefHeight,
                             viewportBreadth, prefHeight);
@@ -2389,7 +2286,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             for (int i = 0, max = sheet.size(); i < max; i++) {
                 T cell = sheet.get(i);
                 if (cell != null && !cell.isEmpty()) {
-                    sumCellLength += (isVertical ? cell.getHeight() : cell.getWidth());
+                    sumCellLength += (isVertical() ? cell.getHeight() : cell.getWidth());
                     if (sumCellLength > flowLength) {
                         break;
                     }
@@ -2426,14 +2323,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             ** Positioning the ScrollBar
             */
             if (!Properties.IS_TOUCH_SUPPORTED) {
-                if (isVertical) {
+                if (isVertical()) {
                     vbar.resizeRelocate(viewportBreadth, 0, vbar.prefWidth(viewportLength), viewportLength);
                 } else {
                     hbar.resizeRelocate(0, viewportBreadth, viewportLength, hbar.prefHeight(-1));
                 }
             }
             else {
-                if (isVertical) {
+                if (isVertical()) {
                     double prefWidth = vbar.prefWidth(viewportLength);
                     vbar.resizeRelocate(viewportBreadth - prefWidth, 0, prefWidth, viewportLength);
                 } else {
@@ -2456,8 +2353,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
 
-        clipView.resize(snapSizeX(isVertical ? viewportBreadth : viewportLength),
-                        snapSizeY(isVertical ? viewportLength : viewportBreadth));
+        clipView.resize(snapSizeX(isVertical() ? viewportBreadth : viewportLength),
+                        snapSizeY(isVertical() ? viewportLength : viewportBreadth));
 
         // If the viewportLength becomes large enough that all cells fit
         // within the viewport, then we want to update the value to match.
@@ -2473,7 +2370,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         for (int i = sheet.size() - 1; i >= 0; i--) {
             T cell = sheet.get(i);
             double cellSize = getCellHeight(cell);
-            Point2D cellStart = getCellPosition(cell);
+            Point2D cellStart = sheet.getCellPosition(cell);
             double cellEnd = cellStart.getY() + cellSize;
             if (cellStart.getY() >= viewportLength || cellEnd < 0) {
                 sheet.addToPile(sheet.remove(i));
@@ -2592,10 +2489,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the actual number of pixels that have been applied
      */
     private double adjustPositionByPixelAmount(double numPixels) {
-        if (numPixels == 0) return 0;
+        if (numPixels == 0) {
+            return 0;
+        }
         // When we're at the top already, we can't move back further, unless we
         // want to allow for gravity-alike effects.
-        if ((absoluteOffset <= 0) && (numPixels < 0)) return 0;
+        if ((absoluteOffset <= 0) && (numPixels < 0)) {
+            return 0;
+        }
 
         // start with applying the requested modification
         double origAbsoluteOffset = this.absoluteOffset;
@@ -2619,7 +2520,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             recalculateEstimatedSize();
         }
-
 
         setPosition(newPosition);
         return absoluteOffset - origAbsoluteOffset;
@@ -2752,7 +2652,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if (size != null) {
                 totalX = totalX + size[0];
 //                count++;
-                if(!isInRow(totalX)) {
+                if(!sheet.isInRow(totalX)) {
                     totalY = totalY + size[1];
                     totalX = 0;
                 }

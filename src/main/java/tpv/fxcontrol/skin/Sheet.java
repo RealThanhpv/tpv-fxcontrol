@@ -1,5 +1,6 @@
 package tpv.fxcontrol.skin;
 
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -11,6 +12,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
+    private static final double MAGIC_X = 2;
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
      * the layout pass. In a vertical flow this would be the same as the clip
@@ -36,6 +38,46 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         this.viewportLength = value;
 
     }
+
+     Point2D getCellPosition(T cell) {
+        //vertical layout
+        int index = cell.getIndex();
+        double layoutX = 0;
+        double layoutY = 0;
+        double maxCellHeight = 0;
+
+        int start = getFirst().getIndex();
+        for (int i = start; i < index; i++) {
+            Cell calCel = get(i);
+            if(calCel == null){
+                continue;
+            }
+            double prefWidth = calCel.prefWidth(-1) ;
+            double prefHeight = calCel.prefHeight(-1);
+
+            if(maxCellHeight < prefHeight){
+                maxCellHeight = prefHeight;
+            }
+
+            layoutX = layoutX + prefWidth;
+            if(!isInRow(layoutX )) {
+                layoutX = 0;
+                layoutY = layoutY + maxCellHeight;
+                maxCellHeight = 0;
+            }
+
+        }
+
+        Point2D p =  new Point2D(layoutX, layoutY);
+        return p;
+    }
+
+    boolean isInRow(double x){
+        return x < (getWidth() - MAGIC_X);
+    }
+
+
+
     double getHeight() {
         return viewportLength;
     }
