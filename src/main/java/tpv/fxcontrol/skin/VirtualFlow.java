@@ -1663,7 +1663,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             // The distance from the top of the viewport to the top of the
             // cell for the current index.
-            double offset = -computeViewportOffset(getPosition());
+//            double offset = -computeViewportOffset(getPosition());
 
             // Add all the leading and trailing cells (the call to add leading
             // cells will add the current cell as well -- that is, the one that
@@ -2083,7 +2083,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // offset becomes greater than the width/height of the flow, then we
         // know we cannot add any more cells.
         final double viewPortWidth = sheet.getWidth();
-        final double viewHeight = sheet.getHeight();
+        final double viewPortHeight = sheet.getHeight();
         T lastCell = sheet.getLast();
 
         Point2D pos = getCellPosition(lastCell);
@@ -2095,7 +2095,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         boolean isEmptyCell = index <= cellCount;
 
         // Fix for RT-37421, which was a regression caused by RT-36556
-        if ((offsetY < 0 )|| offsetY  > viewHeight) {
+        if ((offsetY < 0 )|| offsetY  > viewPortHeight) {
             return false;
         }
 
@@ -2106,10 +2106,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // then offset is not incrementing fast enough, or at all, which means
         // there is something wrong with the cell size calculation.
         //
-        final double maxCellCount = viewHeight;//cell size = 1
+        final double maxCellCount = viewPortHeight;//cell size = 1
 
 
-        while (offsetY < viewHeight) {
+        while (offsetY < viewPortHeight) {
             if (index >= cellCount) {
                 if(index > maxCellCount) {
                     notifyIndexExceedsMaximum();
@@ -2120,77 +2120,22 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             addLastCellToSheet(cell);
             double cellBreadth = getCellWidth(cell);
 
-//            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), cellBreadth));
             offsetX += cellBreadth;
-            if(offsetX > viewPortWidth) {
+            if(isInRow(offsetX)){
                 offsetY += getCellHeight(cell);
                 offsetX = 0;
             }
+
 
             cell.setVisible(true);
             ++index;
         }
 
-        // Discover whether the first cell coincides with index #0. If after
-        // adding all the trailing cells we find that a) the first cell was
-        // not index #0 and b) there are trailing cells, then we have a
-        // problem. We need to shift all the cells down and add leading cells,
-        // one at a time, until either the very last non-empty cells is aligned
-        // with the bottom OR we have laid out cell index #0 at the first
-        // position.
-        T firstCell = sheet.getFirst();
-        index = firstCell.getIndex();
-        T lastNonEmptyCell = getLastVisibleCell();
-
-        double startY = getCellPosition(firstCell).getY();
-        double endY = getCellPosition(lastNonEmptyCell).getY() + getCellHeight(lastNonEmptyCell);
-        if ((index != 0 || (index == 0 && startY < 0))  &&
-                lastNonEmptyCell != null && lastNonEmptyCell.getIndex() == cellCount - 1 && endY < viewHeight) {
-
-            double prospectiveEnd = endY;
-            double distance = viewHeight - endY;
-            while (prospectiveEnd < viewHeight && index != 0 && (-startY) < distance) {
-                index--;
-                T cell = getAvailableOrCreateCell(index);
-
-//                resizeCell(cell); // resize must be after config
-                sheet.addFirst(cell);
-                Point2D p =getCellPosition(cell);
-                double cellLength = getCellHeight(cell);
-                startY -= cellLength;
-                prospectiveEnd += cellLength;
-
-                positionCell(cell, p.getX(), p.getY());
-                updateCellCacheSize(cell);
-                setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
-                cell.setVisible(true);
-            }
-
-            // The amount by which to translate the cells down
-            firstCell = sheet.getFirst();
-            Point2D cellPos = getCellPosition(firstCell);
-            startY = cellPos.getY();
-            double delta = viewHeight - endY;
-            if (firstCell.getIndex() == 0 && delta > (-startY)) {
-                delta = (-startY);
-            }
-            // Move things
-            layoutCells();
-
-
-            // Check whether the first cell, subsequent to our adjustments, is
-            // now index #0 and aligned with the top. If so, change the position
-            // to be at 0 instead of 1.
-            Point2D p = getCellPosition(firstCell);
-            startY = p.getY();
-            if (firstCell.getIndex() == 0 && startY == 0) {
-                setPosition(0);
-            } else if (getPosition() != 1) {
-                setPosition(1);
-            }
-        }
-
         return isEmptyCell;
+    }
+
+    private boolean isInRow(double x){
+        return x < (sheet.getWidth() - MAGIC_X);
     }
 
     private void addLastCellToSheet(T cell) {
@@ -2794,6 +2739,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         double total = 0;
         int currentCellCount = getItemsCount();
         double estSize = estimatedSize / currentCellCount;
+        int index = -1;
+
         for (int i = 0; i < currentCellCount; i++) {
             double[] nextSize = getCellSize(i);
             if (nextSize == null) {
@@ -2801,10 +2748,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             total = total + nextSize[1];
             if (total > absoluteOffset) {
-                return i;
+                index =  i;
+                break;
             }
         }
-        return currentCellCount == 0 ? 0 : currentCellCount - 1;
+        if(index == -1)
+        index =  currentCellCount == 0 ? 0 : currentCellCount - 1;
+        return index;
     }
 
     /**
