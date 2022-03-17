@@ -8,13 +8,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.Cell;
 import tpv.fxcontrol.FlowIndexedCell;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
     private static final double MAGIC_X = 2;
     private Group testParent = new Group();
     private Group layoutGroup = new Group();
+    //To spare rows
+    private ArrayLinkedList<VirtualRow<T>> rowPiles = new ArrayLinkedList();
+
+    private ArrayLinkedList<T> cellsPiles = new ArrayLinkedList<>();
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
      * the layout pass. In a vertical flow this would be the same as the clip
@@ -38,42 +42,69 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     private double viewportLength;
     void setHeight(double value) {
         this.viewportLength = value;
+    }
 
+
+    private VirtualRow<T> getOrCreateRow(){
+        if(rowPiles.isEmpty()){
+            return new VirtualRow<>(this);
+        }
+        else {
+            VirtualRow<T> row =  rowPiles.getFirst();
+            return row;
+        }
     }
 
 
 
-     Point2D getCellPosition(T cell) {
-        //vertical layout
-        int index = cell.getIndex();
-        double layoutX = 0;
-        double layoutY = 0;
-        double maxCellHeight = 0;
-
-        int start = getFirst().getIndex();
-        for (int i = start; i < index; i++) {
-            Cell calCel = get(i);
-            if(calCel == null){
-                continue;
-            }
-            double prefWidth = calCel.prefWidth(-1) ;
-            double prefHeight = calCel.prefHeight(-1);
-
-            if(maxCellHeight < prefHeight){
-                maxCellHeight = prefHeight;
-            }
-
-            layoutX = layoutX + prefWidth;
-            if(!isInRow(layoutX )) {
-                layoutX = 0;
-                layoutY = layoutY + maxCellHeight;
-                maxCellHeight = 0;
-            }
-
+    private boolean removeLastRow(){
+        if(getChildren().isEmpty() ){
+            return false;
         }
 
-        Point2D p =  new Point2D(layoutX, layoutY);
-        return p;
+        VirtualRow<T> row = (VirtualRow<T>) getChildren().remove(getChildren().size() -1);
+
+        dumpRow(row);
+        return true;
+
+    }
+
+    //TODO
+    private void dumpRow(VirtualRow<T> row) {
+        row.getChildren().stream().map(n-> (T) n).forEach(c->{
+            cellsPiles.addLast(c);
+        });
+        rowPiles.addLast(row);
+    }
+
+
+    Point2D getCellPosition(T cell) {
+        //vertical layout
+        VirtualRow<T> matchedRow = null;
+        List<VirtualRow<T>> rows = getRows();
+        for (int i = 0; i < rows.size(); i++) {
+            VirtualRow<T> row =  rows.get(i);
+            T rCell = row.getLastCell();
+            if(rCell.getIndex() >= cell.getIndex()){
+                matchedRow = row;
+                break;
+            }
+        }
+
+        double layoutX = - 1;
+        if(matchedRow != null){
+           layoutX =  matchedRow.getCellPosition(cell);
+        }
+        else {
+            return new Point2D(0,0);
+        }
+
+        return new Point2D(layoutX, matchedRow.getLayoutY() );
+
+    }
+
+    private List<VirtualRow<T>> getRows() {
+        return layoutGroup.getChildren().stream().map(n->(VirtualRow<T>)n).collect(Collectors.toList());
     }
 
     boolean isInRow(double x){
@@ -140,21 +171,17 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         clear();
     }
 
-    boolean addCell(T cell) {
-        VirtualRow<T> last = getLastRow();
-        if(last == null || !last.isAddAble(cell)){
-            last = new VirtualRow<>(this);
-            addTrailingRow(last);
+
+    private double computeRowLayoutHeight(VirtualRow<T> row){
+        if(row.getScene() != null){
+            return row.getLayoutBounds().getHeight();
         }
 
-        if(last.isAddAble(cell)){
-           return last.addTrailingCell(cell);
-        }
+        testParent.getChildren().setAll(row);
+        double h = row.getLayoutBounds().getHeight();
+        testParent.getChildren().clear();
 
-
-
-        return false;
-
+        return h;
 
     }
 
@@ -164,6 +191,10 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
             layoutY = layoutY + child.getLayoutBounds().getHeight();
         }
         last.setLayoutX(layoutY);
+        double h = computeRowLayoutHeight(last);
+        if(layoutY + h > getHeight()){
+            return false;
+        }
         getChildren().add(last);
 
         return true;
@@ -175,190 +206,23 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
 
     private VirtualRow<T> getLastRow(){
-        if(getChildren().isEmpty()){
+        if(layoutGroup.getChildren().isEmpty()){
             return null;
         }
-       return (VirtualRow<T>) getChildren().get(getChildren().size() -1);
+       return (VirtualRow<T>) layoutGroup.getChildren().get(getChildren().size() -1);
     }
 
     private VirtualRow<T> getFirstRow() {
-        if (getChildren().isEmpty()) {
+        if (layoutGroup.getChildren().isEmpty()) {
             return null;
         }
-        return (VirtualRow<T>) getChildren().get(0);
+        return (VirtualRow<T>) layoutGroup.getChildren().get(0);
     }
 
-    /**
-     * A List-like implementation that is exceedingly efficient for the purposes
-     * of the VirtualFlow. Typically there is not much variance in the number of
-     * cells -- it is always some reasonably consistent number. Yet for efficiency
-     * in code, we like to use a linked list implementation so as to append to
-     * start or append to end. However, at times when we need to iterate, LinkedList
-     * is expensive computationally as well as requiring the construction of
-     * temporary iterators.
-     * <p>
-     * This linked list like implementation is done using an array. It begins by
-     * putting the first item in the center of the allocated array, and then grows
-     * outward (either towards the first or last of the array depending on whether
-     * we are inserting at the head or tail). It maintains an index to the start
-     * and end of the array, so that it can efficiently expose iteration.
-     * <p>
-     * This class is package private solely for the sake of testing.
-     */
-    static class ArrayLinkedList<T> extends AbstractList<T> {
-        /**
-         * The array list backing this class. We default the size of the array
-         * list to be fairly large so as not to require resizing during normal
-         * use, and since that many ArrayLinkedLists won't be created it isn't
-         * very painful to do so.
-         */
-        private final ArrayList<T> array;
 
-        private int firstIndex = -1;
-        private int lastIndex = -1;
 
-        public ArrayLinkedList() {
-            array = new ArrayList<T>(50);
-            for (int i = 0; i < 50; i++) {
-                array.add(null);
-            }
-        }
 
-        public T getFirst() {
-            return firstIndex == -1 ? null : array.get(firstIndex);
-        }
 
-        public T getLast() {
-            return lastIndex == -1 ? null : array.get(lastIndex);
-        }
-
-        public void addFirst(T cell) {
-            // if firstIndex == -1 then that means this is the first item in the
-            // list and we need to initialize firstIndex and lastIndex
-            if (firstIndex == -1) {
-                firstIndex = lastIndex = array.size() / 2;
-                array.set(firstIndex, cell);
-            } else if (firstIndex == 0) {
-                // we're already at the head of the array, so insert at position
-                // 0 and then increment the lastIndex to compensate
-                array.add(0, cell);
-                lastIndex++;
-            } else {
-                // we're not yet at the head of the array, so insert at the
-                // firstIndex - 1 position and decrement first position
-                array.set(--firstIndex, cell);
-            }
-        }
-
-        public void addLast(T cell) {
-
-            // if lastIndex == -1 then that means this is the first item in the
-            // list and we need to initialize the firstIndex and lastIndex
-            if (firstIndex == -1) {
-                firstIndex = lastIndex = array.size() / 2;
-                array.set(lastIndex, cell);
-            } else if (lastIndex == array.size() - 1) {
-                // we're at the end of the array so need to "add" so as to force
-                // the array to be expanded in size
-                array.add(++lastIndex, cell);
-            } else {
-                array.set(++lastIndex, cell);
-            }
-        }
-
-        public int size() {
-            return firstIndex == -1 ? 0 : lastIndex - firstIndex + 1;
-        }
-
-        public boolean isEmpty() {
-            return firstIndex == -1;
-        }
-
-        public T get(int index) {
-            if (index > (lastIndex - firstIndex) || index < 0) {
-                // Commented out exception due to RT-29111
-                // throw new java.lang.ArrayIndexOutOfBoundsException();
-                return null;
-            }
-
-            return array.get(firstIndex + index);
-        }
-
-        public void clear() {
-            for (int i = 0; i < array.size(); i++) {
-                array.set(i, null);
-            }
-
-            firstIndex = lastIndex = -1;
-        }
-
-        public T removeFirst() {
-            if (isEmpty()) return null;
-            return remove(0);
-        }
-
-        public T removeLast() {
-            if (isEmpty()) return null;
-            return remove(lastIndex - firstIndex);
-        }
-
-        public T remove(int index) {
-            if (index > lastIndex - firstIndex || index < 0) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-
-            // if the index == 0, then we're removing the first
-            // item and can simply set it to null in the array and increment
-            // the firstIndex unless there is only one item, in which case
-            // we have to also set first & last index to -1.
-            if (index == 0) {
-                T cell = array.get(firstIndex);
-                array.set(firstIndex, null);
-                if (firstIndex == lastIndex) {
-                    firstIndex = lastIndex = -1;
-                } else {
-                    firstIndex++;
-                }
-                return cell;
-            } else if (index == lastIndex - firstIndex) {
-                // if the index == lastIndex - firstIndex, then we're removing the
-                // last item and can simply set it to null in the array and
-                // decrement the lastIndex
-                T cell = array.get(lastIndex);
-                array.set(lastIndex--, null);
-                return cell;
-            } else {
-                // if the index is somewhere in between, then we have to remove the
-                // item and decrement the lastIndex
-                T cell = array.get(firstIndex + index);
-                array.set(firstIndex + index, null);
-                for (int i = (firstIndex + index + 1); i <= lastIndex; i++) {
-                    array.set(i - 1, array.get(i));
-                }
-                array.set(lastIndex--, null);
-                return cell;
-            }
-        }
-    }
-    /**
-     * The list of cells representing those cells which actually make up the
-     * current view. The cells are ordered such that the first cell in this
-     * list is the first in the view, and the last cell is the last in the
-     * view. When pixel scrolling, the list is simply shifted and items drop
-     * off the beginning or the end, depending on the order of scrolling.
-     * <p>
-     * This is package private ONLY FOR TESTING
-     */
-    final ArrayLinkedList<T> cells = new ArrayLinkedList<T>();
-
-    /**
-     * A structure containing cells that can be reused later. These are cells
-     * that at one time were needed to populate the view, but now are no longer
-     * needed. We keep them here until they are needed again.
-     * <p>
-     * This is package private ONLY FOR TESTING
-     */
-    final ArrayLinkedList<T> pile = new ArrayLinkedList<T>();
 
     private void cull() {
         final double viewportLength = getHeight();
@@ -375,68 +239,110 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
 
      T get(int i) {
-        return cells.get(i);
+        return cellsPiles.get(i);
     }
 
      int size() {
-        return cells.size();
+        return cellsPiles.size();
     }
 
      void clear() {
-        cells.clear();
-        pile.clear();
+        cellsPiles.clear();
+        cellsPiles.clear();
     }
 
      T getLast() {
-        return cells.getLast();
+        return cellsPiles.getLast();
     }
 
     T getFirst() {
-        return cells.getFirst();
+        VirtualRow<T> firstRow = getFirstRow();
+        if(firstRow == null){
+            return null;
+        }
+
+       return firstRow.getFirstCell();
     }
 
      boolean contains(Parent p) {
-         return cells.contains(p);
+         return cellsPiles.contains(p);
     }
 
     boolean isEmpty() {
-        return cells.isEmpty();
+        return cellsPiles.isEmpty();
     }
 
     boolean contains(Node owner) {
-        return cells.contains(owner);
+        return cellsPiles.contains(owner);
     }
 
-     T remove(int i) {
-        return cells.remove(i);
+    T remove(int i) {
+        return cellsPiles.remove(i);
     }
 
-     void addFirst(T cell) {
-        cells.addFirst(cell);
+    boolean addFirst(T cell) {
+        VirtualRow<T> firstRow = getFirstRow();
+        double cellWidth = computeCellWidth(cell);
+        cell.setPrefWidth(cellWidth);
+        if(firstRow == null){
+            return addLast(cell);
+        }
+        return firstRow.addLeadingCell(cell);
     }
 
-    void addLast(T cell) {
-        cells.addLast(cell);
+    private double computeCellWidth(T cell) {
+        if(cell == null){
+            return 0;
+        }
+
+        if(cell.getScene() == null){
+            testParent.getChildren().setAll(cell);
+            return cell.getLayoutBounds().getWidth();
+        }
+
+        return cell.getLayoutBounds().getWidth();
     }
 
-    public T removeFirst() {
-        return cells.removeFirst();
+    boolean addLast(T cell) {
+        VirtualRow<T> last = getLastRow();
+        if(last == null || !last.isAddAble(cell)){
+            last = getOrCreateRow();
+            addTrailingRow(last);
+        }
+
+        if(last.isAddAble(cell)){
+            return last.addTrailingCell(cell);
+        }
+        return false;
+    }
+
+
+    T removeFirst() {
+        VirtualRow<T> firstRow = getFirstRow();
+        if(firstRow == null){
+            return null;
+        }
+        T cell =  firstRow.removeFirst();
+        if(cell != null){
+            cellsPiles.addFirst(cell);
+        }
+        return cell;
     }
 
     T getAndRemoveCellFromPile(int prefIndex){
         T cell = null;
 
-        for (int i = 0, max = pile.size(); i < max; i++) {
-            T _cell = pile.get(i);
+        for (int i = 0, max = cellsPiles.size(); i < max; i++) {
+            T _cell = cellsPiles.get(i);
             assert _cell != null;
             if (_cell.getIndex() == prefIndex) {
                 cell = _cell;
-                pile.remove(i);
+                cellsPiles.remove(i);
                 break;
             }
         }
-        if (cell == null && !pile.isEmpty()) {
-            cell = pile.removeLast();
+        if (cell == null && !cellsPiles.isEmpty()) {
+            cell = cellsPiles.removeLast();
         }
 
         return  cell;
@@ -448,7 +354,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      */
      void addToPile(T cell) {
         assert cell != null;
-        pile.addLast(cell);
+        cellsPiles.addLast(cell);
     }
 
     /**
@@ -466,8 +372,8 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     void cleanPile() {
         boolean wasFocusOwner = false;
 
-        for (int i = 0, max = pile.size(); i < max; i++) {
-            T cell = pile.get(i);
+        for (int i = 0, max = cellsPiles.size(); i < max; i++) {
+            T cell = cellsPiles.get(i);
             wasFocusOwner = wasFocusOwner || doesCellContainFocus(cell);
             cell.setVisible(false);
         }
@@ -527,8 +433,8 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         }
 
         // check the pile
-        for (int i = 0; i < pile.size(); i++) {
-            T cell = pile.get(i);
+        for (int i = 0; i < cellsPiles.size(); i++) {
+            T cell = cellsPiles.get(i);
             if (cell.getIndex() == index) {
                 // Note that we don't remove from the pile: if we do it leads
                 // to a severe performance decrease. This seems to be OK, as

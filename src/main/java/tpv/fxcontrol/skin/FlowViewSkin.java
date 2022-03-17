@@ -624,7 +624,9 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
      */
     private int onScrollPageUp(boolean isFocusDriven) {
         FlowCell<T> firstVisibleCell = flow.getFirstVisibleCellWithinViewport();
-        if (firstVisibleCell == null) return -1;
+        if (firstVisibleCell == null) {
+            return -1;
+        }
 
         final SelectionModel<T> sm = getSkinnable().getSelectionModel();
         final FocusModel<T> fm = getSkinnable().getFocusModel();

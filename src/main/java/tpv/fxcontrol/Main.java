@@ -50,9 +50,7 @@ public class Main extends Application {
         AnchorPane.setLeftAnchor(flView, 0.0);
 
         Random random = new Random();
-        for (int i = 0; i < 500; i++) {
-            flView.getItems().add("Number " + random.nextInt());
-        }
+
         flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         System.out.println(flView.getItems().size());
@@ -73,6 +71,10 @@ public class Main extends Application {
         scene.setFill(Color.DARKGRAY);
 
         stage.setScene(scene);
+
+        for (int i = 0; i < 500; i++) {
+            flView.getItems().add("1 " + random.nextInt());
+        }
         org.scenicview.ScenicView.show(scene);
         CSSFX.start(scene);
         stage.show();

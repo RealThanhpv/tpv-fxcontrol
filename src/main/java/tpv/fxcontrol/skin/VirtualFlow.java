@@ -36,7 +36,6 @@ import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.DoubleProperty;
@@ -1261,9 +1260,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell == null){
             cell =  createCell();
             if (cell.getParent() == null) {
-                sheet.addCell(cell);
-
-                //.getChildren().add(cell);
+                sheet.addLast(cell);
             }
         }
         setCellIndex(cell, prefIndex);
