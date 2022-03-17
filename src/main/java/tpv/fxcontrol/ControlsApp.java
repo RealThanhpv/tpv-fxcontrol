@@ -52,15 +52,6 @@ public class ControlsApp extends Application {
         flView.prefWidthProperty().bind(scene.widthProperty());
 
 
-//        container.getChildren().add(colorOptionNullable);
-//        container.getChildren().add(new ColorPicker());
-
-//        SVGView svgView = new SVGView();
-//        svgView.setUrl("https://upload.wikimedia.org/wikipedia/commons/f/f7/Bananas.svg");
-//        svgView.setUrl("tiger.svg");
-//        container.getChildren().add(svgView);
-//        container.getChildren().add(new Test());
-
         scene.setFill(Color.DARKGRAY);
 
         stage.setScene(scene);

@@ -1268,7 +1268,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     private T createCell(){
-        T cell = getCellFactory().call(this);
+        T cell = sheet.getDumpCell();
+        if(cell != null){
+            return cell;
+        }
+
+        cell = getCellFactory().call(this);
         cell.getProperties().put(NEW_CELL, null);
         return cell;
     }

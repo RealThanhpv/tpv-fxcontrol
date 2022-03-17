@@ -21,7 +21,7 @@ import java.util.Random;
 public class Main  {
 
     public static void main(String[] args) {
-       Application.launch(SheetApp.class);
+       Application.launch(ControlsApp.class);
     }
 
 }

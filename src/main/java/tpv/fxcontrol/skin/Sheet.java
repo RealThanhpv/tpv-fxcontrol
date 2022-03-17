@@ -502,4 +502,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         return false;
     }
 
+    public T getDumpCell() {
+       return cellsPiles.getFirst();
+    }
 }
