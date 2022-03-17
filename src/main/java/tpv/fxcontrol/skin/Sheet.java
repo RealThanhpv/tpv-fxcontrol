@@ -26,7 +26,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * The access on this variable is package ONLY FOR TESTING.
      */
     private double viewportBreadth;
-    final void setWidth(double value) {
+    public final void setWidth(double value) {
         this.viewportBreadth = value;
     }
 
@@ -187,7 +187,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
     private boolean addTrailingRow(VirtualRow<T> last) {
         double layoutY = 0;
-        for (Node child : getChildren()) {
+        for (Node child : layoutGroup.getChildren()) {
             layoutY = layoutY + child.getLayoutBounds().getHeight();
         }
         last.setLayoutX(layoutY);
@@ -195,12 +195,13 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         if(layoutY + h > getHeight()){
             return false;
         }
-        getChildren().add(last);
+        last.updateIndex(layoutGroup.getChildren().size());
+        layoutGroup.getChildren().add(last);
 
         return true;
     }
 
-    Sheet(){
+    public Sheet(){
         testParent.setVisible(false);
         getChildren().addAll(testParent, layoutGroup);
     }
@@ -209,7 +210,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         if(layoutGroup.getChildren().isEmpty()){
             return null;
         }
-       return (VirtualRow<T>) layoutGroup.getChildren().get(getChildren().size() -1);
+       return (VirtualRow<T>) layoutGroup.getChildren().get(layoutGroup.getChildren().size() -1);
     }
 
     private VirtualRow<T> getFirstRow() {
@@ -277,7 +278,40 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
 
     T remove(int i) {
-        return cellsPiles.remove(i);
+        List<VirtualRow<T>> rows = getRows();
+        VirtualRow<T> foundRow = null;
+        for (int i1 = 0; i1 < rows.size(); i1++) {
+            if(rows.get(i).getLastCell().getIndex() > i){
+                foundRow = rows.get(i);
+                break;
+            }
+        }
+        T foundCell = null;
+        if(foundRow != null){
+            List<T> cells = foundRow.getCells();
+
+            for (T cell : cells) {
+                if(cell.getIndex() == i){
+                    foundCell = cell;
+
+                    break;
+                }
+            }
+        }
+
+        if(foundCell != null){
+            foundRow.remove(foundCell);
+            dumpCell(foundCell);
+            return foundCell;
+        }
+
+        return null;
+
+    }
+
+    private void dumpCell(T foundCell) {
+        cellsPiles.addLast(foundCell);
+        foundCell.updateIndex(-1);
     }
 
     boolean addFirst(T cell) {
@@ -303,7 +337,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         return cell.getLayoutBounds().getWidth();
     }
 
-    boolean addLast(T cell) {
+    public boolean addLast(T cell) {
         VirtualRow<T> last = getLastRow();
         if(last == null || !last.isAddAble(cell)){
             last = getOrCreateRow();

@@ -82,7 +82,9 @@ public class VirtualRow<T extends FlowIndexedCell> extends Group {
         for (Node child : getChildren()) {
             child.setLayoutX(child.getLayoutX() + shiftRight);
         }
-        getChildren().add(cell);
+        if(!getChildren().contains(cell)) {
+            getChildren().add(cell);
+        }
         cell.setLayoutX(0);
         return true;
     }
@@ -111,7 +113,7 @@ public class VirtualRow<T extends FlowIndexedCell> extends Group {
         return  - 1;
     }
 
-    private List<T> getCells() {
+     List<T> getCells() {
         return getChildren().stream().map(n->(T)n).collect(Collectors.toList());
     }
 
@@ -125,5 +127,9 @@ public class VirtualRow<T extends FlowIndexedCell> extends Group {
 
     public T removeFirst() {
         return (T) getChildren().remove(0);
+    }
+
+    boolean remove(T foundCell) {
+       return getChildren().remove(foundCell);
     }
 }
