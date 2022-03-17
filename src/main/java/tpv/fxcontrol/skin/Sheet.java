@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
     private static final double MAGIC_X = 2;
+    private Group testParent = new Group();
+    private Group layoutGroup = new Group();
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
      * the layout pass. In a vertical flow this would be the same as the clip
@@ -38,6 +40,8 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         this.viewportLength = value;
 
     }
+
+
 
      Point2D getCellPosition(T cell) {
         //vertical layout
@@ -121,7 +125,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         return viewportLength;
     }
      void clearChildren() {
-        getChildren().clear();
+        layoutGroup.getChildren().clear();
     }
 
     void dumpAllToPile() {
@@ -134,6 +138,54 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
     void clearCompletely() {
         clear();
+    }
+
+    boolean addCell(T cell) {
+        VirtualRow<T> last = getLastRow();
+        if(last == null || !last.isAddAble(cell)){
+            last = new VirtualRow<>(this);
+            addTrailingRow(last);
+        }
+
+        if(last.isAddAble(cell)){
+           return last.addTrailingCell(cell);
+        }
+
+
+
+        return false;
+
+
+    }
+
+    private boolean addTrailingRow(VirtualRow<T> last) {
+        double layoutY = 0;
+        for (Node child : getChildren()) {
+            layoutY = layoutY + child.getLayoutBounds().getHeight();
+        }
+        last.setLayoutX(layoutY);
+        getChildren().add(last);
+
+        return true;
+    }
+
+    Sheet(){
+        testParent.setVisible(false);
+        getChildren().addAll(testParent, layoutGroup);
+    }
+
+    private VirtualRow<T> getLastRow(){
+        if(getChildren().isEmpty()){
+            return null;
+        }
+       return (VirtualRow<T>) getChildren().get(getChildren().size() -1);
+    }
+
+    private VirtualRow<T> getFirstRow() {
+        if (getChildren().isEmpty()) {
+            return null;
+        }
+        return (VirtualRow<T>) getChildren().get(0);
     }
 
     /**

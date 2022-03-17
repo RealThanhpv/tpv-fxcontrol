@@ -1261,7 +1261,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell == null){
             cell =  createCell();
             if (cell.getParent() == null) {
-                sheet.getChildren().add(cell);
+                sheet.addCell(cell);
+
+                //.getChildren().add(cell);
             }
         }
         setCellIndex(cell, prefIndex);
