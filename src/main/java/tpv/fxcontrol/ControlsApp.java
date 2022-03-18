@@ -56,7 +56,7 @@ public class ControlsApp extends Application {
         stage.setScene(scene);
 
         for (int i = 0; i < 500; i++) {
-            flView.getItems().add("1 " + random.nextInt());
+            flView.getItems().add("Number " + random.nextInt());
         }
 
         org.scenicview.ScenicView.show(scene);

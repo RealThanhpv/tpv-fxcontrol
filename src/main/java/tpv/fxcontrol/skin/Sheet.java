@@ -313,6 +313,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
 
     boolean addFirst(T cell) {
+        new NullPointerException("Trace it");
         VirtualRow<T> firstRow = getFirstRow();
         double cellWidth = computeCellWidth(cell);
         cell.setPrefWidth(cellWidth);
@@ -336,6 +337,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
 
     public boolean addLast(T cell) {
+        new NullPointerException("Trace it");
         VirtualRow<T> last = getLastRow();
         if(last == null || !last.isAddAble(cell)){
             last = getOrCreateRow();
