@@ -28,9 +28,7 @@ public class SheetApp extends Application {
         Sheet<FlowIndexedCell<Rectangle>> sheet = new Sheet<>();
         sheet.setWidth(100);
 
-
         root.getChildren().add(sheet);
-
 
         scene.setFill(Color.DARKGRAY);
 

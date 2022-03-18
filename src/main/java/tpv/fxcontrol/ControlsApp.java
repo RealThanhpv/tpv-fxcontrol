@@ -51,7 +51,6 @@ public class ControlsApp extends Application {
         root.getChildren().add(flView);
         flView.prefWidthProperty().bind(scene.widthProperty());
 
-
         scene.setFill(Color.DARKGRAY);
 
         stage.setScene(scene);
@@ -59,6 +58,7 @@ public class ControlsApp extends Application {
         for (int i = 0; i < 500; i++) {
             flView.getItems().add("1 " + random.nextInt());
         }
+
         org.scenicview.ScenicView.show(scene);
         CSSFX.start(scene);
         stage.show();

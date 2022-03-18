@@ -541,15 +541,16 @@ public class FlowView<T> extends Control {
      */
     public final ObjectProperty<Orientation> orientationProperty() {
         if (orientation == null) {
-            orientation = new StyleableObjectProperty<Orientation>(Orientation.VERTICAL) {
-                @Override public void invalidated() {
+            orientation = new StyleableObjectProperty<>(Orientation.VERTICAL) {
+                @Override
+                public void invalidated() {
                     final boolean active = (get() == Orientation.VERTICAL);
-                    pseudoClassStateChanged(PSEUDO_CLASS_VERTICAL,    active);
+                    pseudoClassStateChanged(PSEUDO_CLASS_VERTICAL, active);
                     pseudoClassStateChanged(PSEUDO_CLASS_HORIZONTAL, !active);
                 }
 
                 @Override
-                public CssMetaData<FlowView<?>,Orientation> getCssMetaData() {
+                public CssMetaData<FlowView<?>, Orientation> getCssMetaData() {
                     return FlowView.StyleableProperties.ORIENTATION;
                 }
 
@@ -603,7 +604,7 @@ public class FlowView<T> extends Control {
      */
     public final ObjectProperty<Callback<FlowView<T>, FlowCell<T>>> cellFactoryProperty() {
         if (cellFactory == null) {
-            cellFactory = new SimpleObjectProperty<Callback<FlowView<T>, FlowCell<T>>>(this, "cellFactory");
+            cellFactory = new SimpleObjectProperty<>(this, "cellFactory");
         }
         return cellFactory;
     }
@@ -771,9 +772,10 @@ public class FlowView<T> extends Control {
      */
     public final ObjectProperty<EventHandler<FlowView.EditEvent<T>>> onEditStartProperty() {
         if (onEditStart == null) {
-            onEditStart = new ObjectPropertyBase<EventHandler<FlowView.EditEvent<T>>>() {
-                @Override protected void invalidated() {
-                    setEventHandler(FlowView.<T>editStartEvent(), get());
+            onEditStart = new ObjectPropertyBase<>() {
+                @Override
+                protected void invalidated() {
+                    setEventHandler(FlowView.editStartEvent(), get());
                 }
 
                 @Override
@@ -830,9 +832,10 @@ public class FlowView<T> extends Control {
      */
     public final ObjectProperty<EventHandler<FlowView.EditEvent<T>>> onEditCommitProperty() {
         if (onEditCommit == null) {
-            onEditCommit = new ObjectPropertyBase<EventHandler<FlowView.EditEvent<T>>>() {
-                @Override protected void invalidated() {
-                    setEventHandler(FlowView.<T>editCommitEvent(), get());
+            onEditCommit = new ObjectPropertyBase<>() {
+                @Override
+                protected void invalidated() {
+                    setEventHandler(FlowView.editCommitEvent(), get());
                 }
 
                 @Override
@@ -878,9 +881,10 @@ public class FlowView<T> extends Control {
      */
     public final ObjectProperty<EventHandler<FlowView.EditEvent<T>>> onEditCancelProperty() {
         if (onEditCancel == null) {
-            onEditCancel = new ObjectPropertyBase<EventHandler<FlowView.EditEvent<T>>>() {
-                @Override protected void invalidated() {
-                    setEventHandler(FlowView.<T>editCancelEvent(), get());
+            onEditCancel = new ObjectPropertyBase<>() {
+                @Override
+                protected void invalidated() {
+                    setEventHandler(FlowView.editCancelEvent(), get());
                 }
 
                 @Override
@@ -967,16 +971,19 @@ public class FlowView<T> extends Control {
 
     public ObjectProperty<EventHandler<ScrollToEvent<Integer>>> onScrollToProperty() {
         if( onScrollTo == null ) {
-            onScrollTo = new ObjectPropertyBase<EventHandler<ScrollToEvent<Integer>>>() {
-                @Override protected void invalidated() {
+            onScrollTo = new ObjectPropertyBase<>() {
+                @Override
+                protected void invalidated() {
                     setEventHandler(ScrollToEvent.scrollToTopIndex(), get());
                 }
 
-                @Override public Object getBean() {
+                @Override
+                public Object getBean() {
                     return FlowView.this;
                 }
 
-                @Override public String getName() {
+                @Override
+                public String getName() {
                     return "onScrollTo";
                 }
             };
@@ -1058,7 +1065,7 @@ public class FlowView<T> extends Control {
                     }
 
                     @Override public StyleableProperty<Number> getStyleableProperty(FlowView<?> n) {
-                        return (StyleableProperty<Number>)(WritableValue<Number>)n.fixedCellSizeProperty();
+                        return (StyleableProperty<Number>) n.fixedCellSizeProperty();
                     }
                 };
 
@@ -1454,7 +1461,10 @@ public class FlowView<T> extends Control {
 
         /** {@inheritDoc} */
         @Override protected void focus(int row) {
-            if (listView.getFocusModel() == null) return;
+            if (listView.getFocusModel() == null) {
+                return;
+            }
+
             listView.getFocusModel().focus(row);
 
             listView.notifyAccessibleAttributeChanged(AccessibleAttribute.FOCUS_ITEM);
@@ -1472,8 +1482,12 @@ public class FlowView<T> extends Control {
 
         @Override protected T getModelItem(int index) {
             List<T> items = listView.getItems();
-            if (items == null) return null;
-            if (index < 0 || index >= itemCount) return null;
+            if (items == null){
+                return null;
+            }
+            if (index < 0 || index >= itemCount) {
+                return null;
+            }
 
             return items.get(index);
         }
@@ -1630,8 +1644,9 @@ public class FlowView<T> extends Control {
 
         @Override protected T getModelItem(int index) {
             if (isEmpty()) return null;
-            if (index < 0 || index >= itemCount) return null;
-
+            if (index < 0 || index >= itemCount) {
+                return null;
+            }
             return listView.getItems().get(index);
         }
 
@@ -1657,7 +1672,6 @@ public class FlowView<T> extends Control {
                 if (focusedItem != null) {
                     newValueIndex = listView.getItems().indexOf(focusedItem);
                 }
-
                 // we put focus onto the first item, if there is at least
                 // one item in the list
                 if (newValueIndex == -1) {

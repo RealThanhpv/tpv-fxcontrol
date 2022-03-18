@@ -50,7 +50,6 @@ import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
-import javafx.scene.AccessibleRole;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -314,15 +313,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final EventDispatcher blockEventDispatcher = (event, tail) -> event;
         // block ScrollEvent from being passed down to scrollbar's skin
         final EventDispatcher oldHsbEventDispatcher = hbar.getEventDispatcher();
-        hbar.setEventDispatcher((event, tail) -> {
-            if (event.getEventType() == ScrollEvent.SCROLL &&
-                    !((ScrollEvent)event).isDirect()) {
-                tail = tail.prepend(blockEventDispatcher);
-                tail = tail.prepend(oldHsbEventDispatcher);
-                return tail.dispatchEvent(event);
-            }
-            return oldHsbEventDispatcher.dispatchEvent(event, tail);
-        });
+
         // block ScrollEvent from being passed down to scrollbar's skin
         final EventDispatcher oldVsbEventDispatcher = vbar.getEventDispatcher();
         vbar.setEventDispatcher((event, tail) -> {
@@ -401,21 +392,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     }
                 }
 
-                ScrollBar nonVirtualBar = isVertical() ? hbar : vbar;
-                if (needBreadthBar) {
-                    double nonVirtualDelta = isVertical() ? event.getDeltaX() : event.getDeltaY();
-                    if (nonVirtualDelta != 0.0) {
-                        double newValue = nonVirtualBar.getValue() - nonVirtualDelta;
-                        if (newValue < nonVirtualBar.getMin()) {
-                            nonVirtualBar.setValue(nonVirtualBar.getMin());
-                        } else if (newValue > nonVirtualBar.getMax()) {
-                            nonVirtualBar.setValue(nonVirtualBar.getMax());
-                        } else {
-                            nonVirtualBar.setValue(newValue);
-                        }
-                        event.consume();
-                    }
-                }
+
+
             }
         });
 
@@ -532,28 +510,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         });
         getChildren().add(vbar);
 
-        // --- hbar
-        hbar.setOrientation(Orientation.HORIZONTAL);
-        hbar.addEventHandler(MouseEvent.ANY, event -> {
-            event.consume();
-        });
-        getChildren().add(hbar);
 
-        // --- corner
-        corner = new StackPane();
-        corner.getStyleClass().setAll("corner");
-        getChildren().add(corner);
 
-        // initBinds
-        // clipView binds
-        InvalidationListener listenerX = valueModel -> {
-            updateHbar();
-        };
-        verticalProperty().addListener(listenerX);
-        hbar.valueProperty().addListener(listenerX);
-        hbar.visibleProperty().addListener(listenerX);
-        visibleProperty().addListener(listenerX);
-        sceneProperty().addListener(listenerX);
+
+
+
 
         ChangeListener<Number> listenerY = (ov, t, t1) -> {
             clipView.setClipY(isVertical() ? 0 : vbar.getValue());
@@ -782,7 +743,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         sheet.setWidth(0);
         sheet.setHeight(0);
         lastPosition = 0;
-        hbar.setValue(0);
         vbar.setValue(0);
         setPosition(0.0f);
         setNeedsLayout(true);
@@ -1050,9 +1010,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             sheet.addAllToPile();
             lastWidth = width;
             lastHeight = height;
-            hbar.setVisible(false);
-            vbar.setVisible(false);
-            corner.setVisible(false);
+//            hbar.setVisible(false);
+//            vbar.setVisible(false);
+//            corner.setVisible(false);
             return;
         }
 
@@ -1980,7 +1940,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final boolean isVertical = isVertical();
         boolean barVisibilityChanged = false;
 
-        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
+//        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
         VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
 
         final double viewportBreadth = sheet.getWidth();
@@ -2014,10 +1974,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
             updateViewportDimensions();
-            breadthBar.setVisible(needBreadthBar);
+//            breadthBar.setVisible(needBreadthBar);
             lengthBar.setVisible(needLengthBar);
         } else {
-            breadthBar.setVisible(needBreadthBar && tempVisibility);
+//            breadthBar.setVisible(needBreadthBar && tempVisibility);
             lengthBar.setVisible(needLengthBar && tempVisibility);
         }
         return barVisibilityChanged;
@@ -2098,7 +2058,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         // Toggle visibility on the corner
-        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
+//        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
 
         double sumCellLength = 0;
         double flowLength = (isVertical() ? getHeight() : getWidth()) -
@@ -2196,33 +2156,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if (!Properties.IS_TOUCH_SUPPORTED) {
                 if (isVertical()) {
                     vbar.resizeRelocate(viewportBreadth, 0, vbar.prefWidth(viewportLength), viewportLength);
-                } else {
-                    hbar.resizeRelocate(0, viewportBreadth, viewportLength, hbar.prefHeight(-1));
                 }
             }
             else {
                 if (isVertical()) {
                     double prefWidth = vbar.prefWidth(viewportLength);
                     vbar.resizeRelocate(viewportBreadth - prefWidth, 0, prefWidth, viewportLength);
-                } else {
-                    double prefHeight = hbar.prefHeight(-1);
-                    hbar.resizeRelocate(0, viewportBreadth - prefHeight, viewportLength, prefHeight);
                 }
             }
         }
 
-        if (corner.isVisible()) {
-            if (!Properties.IS_TOUCH_SUPPORTED) {
-                corner.resize(vbar.getWidth(), hbar.getHeight());
-                corner.relocate(hbar.getLayoutX() + hbar.getWidth(), vbar.getLayoutY() + vbar.getHeight());
-            }
-            else {
-                corner.resize(vbar.getWidth(), hbar.getHeight());
-                corner.relocate(hbar.getLayoutX() + (hbar.getWidth()-vbar.getWidth()), vbar.getLayoutY() + (vbar.getHeight()-hbar.getHeight()));
-                hbar.resize(hbar.getWidth()-vbar.getWidth(), hbar.getHeight());
-                vbar.resize(vbar.getWidth(), vbar.getHeight()-hbar.getHeight());
-            }
-        }
+
 
         clipView.resize(snapSizeX(isVertical() ? viewportBreadth : viewportLength),
                         snapSizeY(isVertical() ? viewportLength : viewportBreadth));

@@ -17,7 +17,6 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     private Group layoutGroup = new Group();
     //To spare rows
     private ArrayLinkedList<VirtualRow<T>> rowPiles = new ArrayLinkedList();
-
     private ArrayLinkedList<T> cellsPiles = new ArrayLinkedList<>();
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
