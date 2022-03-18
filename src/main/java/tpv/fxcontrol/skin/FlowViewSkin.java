@@ -226,7 +226,6 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
             }
         };
         flow.getVbar().addEventFilter(MouseEvent.MOUSE_PRESSED, ml);
-        flow.getHbar().addEventFilter(MouseEvent.MOUSE_PRESSED, ml);
 
         updateItemCount();
 
@@ -385,7 +384,6 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
                 return FXCollections.observableArrayList(selection);
             }
             case VERTICAL_SCROLLBAR: return flow.getVbar();
-            case HORIZONTAL_SCROLLBAR: return flow.getHbar();
             default: return super.queryAccessibleAttribute(attribute, parameters);
         }
     }

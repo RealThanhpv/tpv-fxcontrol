@@ -161,20 +161,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-    /**
-     * A special cell used to accumulate bounds, such that we reduce object
-     * churn. This cell must be recreated whenever the cell factory function
-     * changes. This has package access ONLY for testing.
-     */
-    T accumCell;
 
-    /**
-     * This group is used for holding the 'accumCell'. 'accumCell' must
-     * be added to the skin for it to be styled. Otherwise, it doesn't
-     * report the correct width/height leading to issues when scrolling
-     * the flow
-     */
-    Group accumCellParent;
 
     /**
      * The group which holds the cells.
@@ -183,11 +170,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-    /**
-     * The scroll bar used for scrolling horizontally. This has package access
-     * ONLY for testing.
-     */
-    private VirtualScrollBar hbar = new VirtualScrollBar(this);
 
     /**
      * The scroll bar used to scrolling vertically. This has package access
@@ -208,7 +190,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * meet. This is handled by this corner region. This has package access
      * ONLY for testing.
      */
-    StackPane corner;
 
     /**
      * The offset in pixels between the top of the virtualFlow and the content it
@@ -292,9 +273,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         getChildren().add(clipView);
 
         // --- accumCellParent
-        accumCellParent = new Group();
-        accumCellParent.setVisible(false);
-        getChildren().add(accumCellParent);
 
 
         /*
@@ -305,7 +283,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // block the event from being passed down to children
         final EventDispatcher blockEventDispatcher = (event, tail) -> event;
         // block ScrollEvent from being passed down to scrollbar's skin
-        final EventDispatcher oldHsbEventDispatcher = hbar.getEventDispatcher();
 
         // block ScrollEvent from being passed down to scrollbar's skin
         final EventDispatcher oldVsbEventDispatcher = vbar.getEventDispatcher();
@@ -433,8 +410,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 // mouse events being 'doubled up' when dragging the scrollbar
                 // thumb - it has the side-effect of also starting the panning
                 // code, leading to flicker
-                isPanning = ! (vbar.getBoundsInParent().contains(e.getX(), e.getY())
-                        || hbar.getBoundsInParent().contains(e.getX(), e.getY()));
+                isPanning = ! vbar.getBoundsInParent().contains(e.getX(), e.getY())                 ;
             }
         });
         addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
@@ -470,23 +446,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 else lastX = e.getX();
             }
 
-            // similarly, we do the same in the non-virtual direction
-            double nonVirtualDelta = isVertical() ? xDelta : yDelta;
-            ScrollBar nonVirtualBar = isVertical() ? hbar : vbar;
-            if (nonVirtualBar.isVisible()) {
-                double newValue = nonVirtualBar.getValue() + nonVirtualDelta;
-                if (newValue < nonVirtualBar.getMin()) {
-                    nonVirtualBar.setValue(nonVirtualBar.getMin());
-                } else if (newValue > nonVirtualBar.getMax()) {
-                    nonVirtualBar.setValue(nonVirtualBar.getMax());
-                } else {
-                    nonVirtualBar.setValue(newValue);
 
-                    // same as the last* comment above
-                    if (isVertical()) lastX = e.getX();
-                    else lastY = e.getY();
-                }
-            }
         });
 
         /*
@@ -773,7 +733,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // ensure that the virtual scrollbar adjusts in size based on the current
             // cell count.
             if (countChanged) {
-                VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
+                VirtualScrollBar lengthBar =  vbar ;
                 lengthBar.setMax(cellCount);
             }
 
@@ -888,10 +848,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                         recreateCells();
                         if (getParent() != null) getParent().requestLayout();
                     }
-                    if (accumCellParent != null) {
-                        accumCellParent.getChildren().clear();
-                    }
-                    accumCell = null;
+
                 }
             };
         }
@@ -991,11 +948,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // that is the first time the layout would occur otherwise.
 
 
-        if (Properties.IS_TOUCH_SUPPORTED) {
-            if ((tempVisibility == true && (hbar.isVisible() == false || vbar.isVisible() == false)) ||
-                (tempVisibility == false && (hbar.isVisible() == true || vbar.isVisible() == true))) {
-            }
-        }
+
         boolean cellNeedsLayout = cellNeedsLayout();
 
 
@@ -1356,8 +1309,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     private boolean scrollAtEightExtremity(final double delta){
         final boolean isVertical = isVertical();
-        if (((isVertical && (tempVisibility ? !needLengthBar : !vbar.isVisible())) ||
-                (! isVertical && (tempVisibility ? !needLengthBar : !hbar.isVisible())))) return true;
+
 
         double pos = getPosition();
         if (pos == 0.0f && delta < 0) return true;
@@ -1394,10 +1346,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return  vbar.prefWidth(-1);
     }
 
-    /** {@inheritDoc} */
-    @Override protected double computePrefHeight(double width) {
-        return  hbar.prefHeight(-1);
-    }
 
     /**
      * Return a cell for the given index. This may be called for any cell,
@@ -1408,38 +1356,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the cell
      */
     public T getCell(int index){
-        T cell = sheet.getAvailableCell(index);
-        if(cell != null){
-            return cell;
-        }
-        return createOrUseAccumCell(index);
-    }
+        return sheet.getAvailableCell(index);
 
-    private T createOrUseAccumCell(int index){
-        if (accumCell == null) {
-            Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
-            if (cellFactory != null) {
-                accumCell = createCell();
-                accumCellParent.getChildren().setAll(accumCell);
-
-                // Note the screen reader will attempt to find all
-                // the items inside the view to calculate the item count.
-                // Having items under different parents (sheet and accumCellParent)
-                // leads the screen reader to compute wrong values.
-                // The regular scheme to provide items to the screen reader
-                // uses getPrivateCell(), which places the item in the sheet.
-                // The accumCell, and its children, should be ignored by the
-                // screen reader.
-                accumCell.setAccessibleRole(AccessibleRole.NODE);
-                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
-                    for (Node n : accumCell.getChildrenUnmodifiable()) {
-                        n.setAccessibleRole(AccessibleRole.NODE);
-                    }
-                });
-            }
-        }
-        setCellIndex(accumCell, index);
-        return accumCell;
     }
 
     /**
@@ -1477,9 +1395,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the scroll bar used for scrolling horizontally
      * @since 12
      */
-    public final ScrollBar getHbar() {
-        return hbar;
-    }
+
 
     /**
      * Returns the scroll bar used for scrolling vertically. A developer who needs to be notified when a scroll is
@@ -1784,7 +1700,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         boolean barVisibilityChanged = false;
 
 //        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
-        VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
+        VirtualScrollBar lengthBar = vbar ;
 
 
 
@@ -1807,12 +1723,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void updateViewportDimensions() {
         final boolean isVertical = isVertical();
-        final double breadthBarLength = isVertical ? snapSizeY(hbar.prefHeight(-1)) : snapSizeX(vbar.prefWidth(-1));
-        final double lengthBarBreadth = isVertical ? snapSizeX(vbar.prefWidth(-1)) : snapSizeY(hbar.prefHeight(-1));
+        final double lengthBarBreadth = snapSizeX(vbar.prefWidth(-1)) ;
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
             sheet.setWidth((isVertical ? getWidth() : getHeight()) - (needLengthBar ? lengthBarBreadth : 0));
-            sheet.setHeight((isVertical ? getHeight() : getWidth()) - (needBreadthBar ? breadthBarLength : 0));
         } else {
             sheet.setWidth((isVertical ? getWidth() : getHeight()));
             sheet.setHeight((isVertical ? getHeight() : getWidth()));
@@ -1825,11 +1739,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void initViewport() {
         // Initialize the viewportLength and viewportBreadth to match the
         // width/height of the flow
-        final boolean isVertical = isVertical();
 
         updateViewportDimensions();
 
-        VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
+        VirtualScrollBar lengthBar =  vbar;
 
         // If there has been a switch between the virtualized bar, then we
         // will want to do some stuff TODO.
