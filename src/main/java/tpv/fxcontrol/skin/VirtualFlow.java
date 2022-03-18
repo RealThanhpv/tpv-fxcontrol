@@ -36,6 +36,7 @@ import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.DoubleProperty;
@@ -50,6 +51,7 @@ import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -914,29 +916,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      *                                                                         *
      **************************************************************************/
 
-    /**
-     * Overridden to implement somewhat more efficient support for layout. The
-     * VirtualFlow can generally be considered as being unmanaged, in that
-     * whenever the position changes, or other such things change, we need
-     * to perform a layout but there is no reason to notify the parent. However
-     * when things change which may impact the preferred size (such as
-     * vertical, createCell, and configCell) then we need to notify the
-     * parent.
-     */
-    @Override public void requestLayout() {
-// Note: This block is commented as it was relaying on a bad assumption on how
-//       layout request was handled in parent class that is now fixed.
-//
-//        // isNeedsLayout() is commented out due to RT-21417. This does not
-//        // appear to impact performance (indeed, it may help), and resolves the
-//        // issue identified in RT-21417.
-//        setNeedsLayout(true);
 
-        // The fix is to prograte this layout request to its parent class.
-        // A better fix will be required if performance is negatively affected
-        // by this fix.
-        super.requestLayout();
-    }
+
 
     /**
      * Keep the position constant and adjust the absoluteOffset to
@@ -1022,12 +1003,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // 'jump' (in height normally) when the user drags the virtual thumb as
         // that is the first time the layout would occur otherwise.
 
-        boolean thumbNeedsLayout = false;
 
         if (Properties.IS_TOUCH_SUPPORTED) {
             if ((tempVisibility == true && (hbar.isVisible() == false || vbar.isVisible() == false)) ||
                 (tempVisibility == false && (hbar.isVisible() == true || vbar.isVisible() == true))) {
-                thumbNeedsLayout = true;
             }
         }
         boolean cellNeedsLayout = cellNeedsLayout();
@@ -1037,11 +1016,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // If no cells need layout, we check other criteria to see if this
         // layout call is even necessary. If it is found that no layout is
         // needed, we just punt.
-        if (! cellNeedsLayout && !thumbNeedsLayout) {
 
-
-
-        }
 
         /*
          * This function may get called under a variety of circumstances.
@@ -1424,15 +1399,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return false;
     }
 
-    private void layoutCells(){
-        for (int i = 0; i < sheet.size(); i++) {
-            T cell = sheet.get(i);
-            assert cell != null;
-            Point2D p = sheet.getCellPosition(cell);
-            positionCell(cell,p.getX(), p.getY());
-            updateCellCacheSize(cell);
-        }
-    }
+
 
     public double scrollPixels(final double delta) {
         // Short cut this method for cases where nothing should be done
@@ -1452,13 +1419,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     /** {@inheritDoc} */
     @Override protected double computePrefWidth(double height) {
-        double w = isVertical() ? getPrefBreadth(height) : getPrefLength();
+        double w =  getPrefLength();
         return w + vbar.prefWidth(-1);
     }
 
     /** {@inheritDoc} */
     @Override protected double computePrefHeight(double width) {
-        double h = isVertical() ? getPrefLength() : getPrefBreadth(width);
+        double h =  getPrefLength() ;
         return h + hbar.prefHeight(-1);
     }
 
@@ -1475,11 +1442,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell != null){
             return cell;
         }
-
-        // We need to use the accumCell and return that
         return createOrUseAccumCell(index);
-
     }
+
     private T createOrUseAccumCell(int index){
         if (accumCell == null) {
             Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
@@ -1495,12 +1460,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 // uses getPrivateCell(), which places the item in the sheet.
                 // The accumCell, and its children, should be ignored by the
                 // screen reader.
-//                accumCell.setAccessibleRole(AccessibleRole.NODE);
-//                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
-//                    for (Node n : accumCell.getChildrenUnmodifiable()) {
-//                        n.setAccessibleRole(AccessibleRole.NODE);
-//                    }
-//                });
+                accumCell.setAccessibleRole(AccessibleRole.NODE);
+                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
+                    for (Node n : accumCell.getChildrenUnmodifiable()) {
+                        n.setAccessibleRole(AccessibleRole.NODE);
+                    }
+                });
             }
         }
         setCellIndex(accumCell, index);
@@ -1585,8 +1550,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * to use a cell as a helper for computing cell size in some cases.
      */
     double getCellHeight(int index) {
-
-
         T cell = getCell(index);
         double length = getCellHeight(cell);
 
@@ -1723,7 +1686,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Position the cell, and update the maxPrefBreadth variable as we go.
             Point2D p = sheet.getCellPosition(cell);
             positionCell(cell, p.getX(), p.getY());
-            updateCellCacheSize(cell);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             --index;
@@ -1752,7 +1714,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         } else {
             // reset scrollbar to top, so if the flow sees cells again it starts at the top
             vbar.setValue(0);
-            hbar.setValue(0);
+//            hbar.setValue(0);
         }
     }
 
@@ -1907,24 +1869,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         requestLayout();
     }
 
-    void updateHbar() {
-        if (! isVisible() || getScene() == null){
-            return;
-        }
-        // Bring the clipView.clipX back to 0 if control is vertical or
-        // the hbar isn't visible (fix for RT-11666)
-        if (isVertical()) {
-            if (needBreadthBar) {
-                clipView.setClipX(hbar.getValue());
-            } else {
-                // all cells are now less than the width of the flow,
-                // so we should shift the hbar/clip such that
-                // everything is visible in the viewport.
-                clipView.setClipX(0);
-                hbar.setValue(0);
-            }
-        }
-    }
 
     /**
      * @return true if bar visibility changed
@@ -2007,20 +1951,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         updateViewportDimensions();
 
-        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
         VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
 
         // If there has been a switch between the virtualized bar, then we
         // will want to do some stuff TODO.
-        breadthBar.setVirtual(false);
         lengthBar.setVirtual(true);
     }
 
     private void updateScrollBarsAndCells(boolean recreate) {
         // Assign the hbar and vbar to the breadthBar and lengthBar so as
         // to make some subsequent calculations easier.
-        VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
-        VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
+        VirtualScrollBar lengthBar =  vbar;
 
         // We may have adjusted the viewport length and breadth after the
         // layout due to scroll bars becoming visible. So we need to perform
@@ -2057,60 +1998,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
 
-        // Toggle visibility on the corner
-//        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
 
         double sumCellLength = 0;
-        double flowLength = (isVertical() ? getHeight() : getWidth()) -
-                (breadthBar.isVisible() ? breadthBar.prefHeight(-1) : 0);
+        double flowLength =  getHeight();
 
         final double viewportBreadth = sheet.getWidth();
         final double viewportLength = sheet.getHeight();
 
-        // Now position and update the scroll bars
-        if (breadthBar.isVisible()) {
-            /*
-            ** Positioning the ScrollBar
-            */
-            if (!Properties.IS_TOUCH_SUPPORTED) {
-                if (isVertical()) {
-                    hbar.resizeRelocate(0, viewportLength,
-                            viewportBreadth, hbar.prefHeight(viewportBreadth));
-                } else {
-                    vbar.resizeRelocate(viewportLength, 0,
-                            vbar.prefWidth(viewportBreadth), viewportBreadth);
-                }
-            }
-            else {
-                if (isVertical()) {
-                    double prefHeight = hbar.prefHeight(viewportBreadth);
-                    hbar.resizeRelocate(0, viewportLength - prefHeight,
-                            viewportBreadth, prefHeight);
-                } else {
-                    double prefWidth = vbar.prefWidth(viewportBreadth);
-                    vbar.resizeRelocate(viewportLength - prefWidth, 0,
-                            prefWidth, viewportBreadth);
-                }
-            }
-
-            if (getMaxPrefBreadth() != -1) {
-                double newMax = Math.max(1, getMaxPrefBreadth() - viewportBreadth);
-                if (newMax != breadthBar.getMax()) {
-                    breadthBar.setMax(newMax);
-
-                    double breadthBarValue = breadthBar.getValue();
-                    boolean maxed = breadthBarValue != 0 && newMax == breadthBarValue;
-                    if (maxed || breadthBarValue > newMax) {
-                        breadthBar.setValue(newMax);
-                    }
-
-                    breadthBar.setVisibleAmount((viewportBreadth / getMaxPrefBreadth()) * newMax);
-                }
-            }
-        }
-
-        // determine how many cells there are on screen so that the scrollbar
-        // thumb can be appropriately sized
         if (recreate && (lengthBar.isVisible() || Properties.IS_TOUCH_SUPPORTED)) {
             final int cellCount = getItemsCount();
             int numCellsVisibleOnScreen = 0;
@@ -2207,26 +2101,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 //     * @return a cell for the given index inserted in the VirtualFlow container
 //     * @since 12
 //     */
-//    public T getPrivateCell(int index)  {
-//        T cell = null;
-//
-//        // If there are cells, then we will attempt to get an existing cell
-//        if (! sheet.isEmpty()) {
-//            // First check the cells that have already been created and are
-//            // in use. If this call returns a value, then we can use it
-//            cell = sheet.getVisibleCell(index);
-//            if (cell != null) {
-//                // Force the underlying text inside the cell to be updated
-//                // so that when the screen reader runs, it will match the
-//                // text in the cell (force updateDisplayedText())
-//                cell.layout();
-//                return cell;
-//            }
-//        }
-//
-//        return null;
-//    }
-//
+
+
 
 
     private double getPrefBreadth(double oppDimension) {

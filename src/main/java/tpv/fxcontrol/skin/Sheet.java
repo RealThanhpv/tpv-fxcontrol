@@ -248,7 +248,6 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
      void clear() {
         cellsPiles.clear();
-        cellsPiles.clear();
     }
 
      T getLast() {
