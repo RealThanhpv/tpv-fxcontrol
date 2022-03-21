@@ -1081,27 +1081,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // 'jump' (in height normally) when the user drags the virtual thumb as
         // that is the first time the layout would occur otherwise.
 
-        boolean thumbNeedsLayout = false;
+
 
         if (Properties.IS_TOUCH_SUPPORTED) {
             if ((tempVisibility == true && (hbar.isVisible() == false || vbar.isVisible() == false)) ||
                 (tempVisibility == false && (hbar.isVisible() == true || vbar.isVisible() == true))) {
-                thumbNeedsLayout = true;
+
             }
         }
         boolean cellNeedsLayout = cellNeedsLayout();
 
 
-        final int itemCount = getItemsCount();
-
-        // If no cells need layout, we check other criteria to see if this
-        // layout call is even necessary. If it is found that no layout is
-        // needed, we just punt.
-        if (! cellNeedsLayout && !thumbNeedsLayout) {
-
-
-
-        }
 
         /*
          * This function may get called under a variety of circumstances.
