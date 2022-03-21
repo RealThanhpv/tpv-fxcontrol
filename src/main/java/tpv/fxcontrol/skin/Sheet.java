@@ -114,6 +114,10 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         clear();
     }
 
+    public void addCell(T cell) {
+        getChildren().add(cell);
+    }
+
     /**
      * A List-like implementation that is exceedingly efficient for the purposes
      * of the VirtualFlow. Typically there is not much variance in the number of

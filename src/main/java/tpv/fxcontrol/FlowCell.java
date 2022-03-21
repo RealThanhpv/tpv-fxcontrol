@@ -85,6 +85,7 @@ public class FlowCell<T> extends FlowIndexedCell<T> {
     public FlowCell() {
         getStyleClass().addAll(DEFAULT_STYLE_CLASS);
         setAccessibleRole(AccessibleRole.LIST_ITEM);
+
     }
 
 
