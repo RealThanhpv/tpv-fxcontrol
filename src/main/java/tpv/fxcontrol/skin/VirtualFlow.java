@@ -259,11 +259,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private boolean isPanning = false;
 
     private boolean fixedCellSizeEnabled = false;
-
     private boolean needsReconfigureCells = false; // when cell contents are the same
     private boolean needsRecreateCells = false; // when cell factory changed
     private boolean needsRebuildCells = false; // when cell contents have changed
     private boolean sizeChanged = false;
+
     private final BitSet dirtyCells = new BitSet();
 
     Timeline sbTouchTimeline;
@@ -558,8 +558,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         hbar.visibleProperty().addListener(listenerX);
         visibleProperty().addListener(listenerX);
         sceneProperty().addListener(listenerX);
-
-
 
         ChangeListener<Number> listenerY = (ov, t, t1) -> {
             clipView.setClipY(isVertical() ? 0 : vbar.getValue());
@@ -1034,20 +1032,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             synchronizeAbsoluteOffsetWithPosition();
         }
         if (needsRecreateCells) {
-            lastWidth = -1;
-            lastHeight = -1;
+            invalidateSizes();
             releaseCell(accumCell);
             sheet.clearCompletely();
         } else if (needsRebuildCells) {
-            lastWidth = -1;
-            lastHeight = -1;
+            invalidateSizes();
             releaseCell(accumCell);
             sheet.dumpAllToPile();
             sheet.clearChildren();
         } else if (needsReconfigureCells) {
-            setMaxPrefBreadth(-1);
-            lastWidth = -1;
-            lastHeight = -1;
+           invalidateSizes();
         }
         updateDirtyCells();
 
@@ -1230,10 +1224,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 dirtyCells.clear(index);
             }
 
-            setMaxPrefBreadth(-1);
-            lastWidth = -1;
-            lastHeight = -1;
+            invalidateSizes();
+
+
         }
+    }
+    private void invalidateSizes(){
+        setMaxPrefBreadth(-1);
+        lastWidth = -1;
+        lastHeight = -1;
     }
 
     /** {@inheritDoc} */
@@ -2071,38 +2070,34 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (sheet.isEmpty()) {
             // In case no cells are set yet, we assume no bars are needed
             needLengthBar = false;
-            needBreadthBar = false;
             return true;
         }
 
-        final boolean isVertical = isVertical();
+//        final boolean isVertical = isVertical();
         boolean barVisibilityChanged = false;
 
-        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
-        VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
+//        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
+        VirtualScrollBar lengthBar =  vbar;
 
-        final double viewportBreadth = sheet.getWidth();
+//        final double viewportBreadth = sheet.getWidth();
 
         final int cellsSize = sheet.size();
-        final int cellCount = getItemsCount();
+        final int itemCount = getItemsCount();
+        T lastCell = sheet.getLast();
         for (int i = 0; i < 2; i++) {
-            Point2D pos = sheet.getCellPosition(sheet.getLast());
-            final boolean lengthBarVisible = getPosition() > 0
-                    || cellCount > cellsSize
-                    || (cellCount == cellsSize && (pos.getY() + getCellHeight(sheet.getLast())) > sheet.getHeight())
-                    || (cellCount == cellsSize - 1 && barVisibilityChanged && needBreadthBar);
+
+            Point2D lastPos = sheet.getCellPosition(lastCell);
+            final boolean lengthBarVisible =
+                    getPosition() > 0
+                    || itemCount > cellsSize
+                    || (itemCount == cellsSize && (lastPos.getY() + getCellHeight(lastCell)) > sheet.getHeight());
 
             if (lengthBarVisible ^ needLengthBar) {
                 needLengthBar = lengthBarVisible;
                 barVisibilityChanged = true;
             }
 
-            // second conditional removed for RT-36669.
-            final boolean breadthBarVisible = (maxPrefBreadth > viewportBreadth);// || (needLengthBar && maxPrefBreadth > (viewportBreadth - lengthBarBreadth));
-            if (breadthBarVisible ^ needBreadthBar) {
-                needBreadthBar = breadthBarVisible;
-                barVisibilityChanged = true;
-            }
+
         }
 
         // Start by optimistically deciding whether the length bar and
@@ -2112,10 +2107,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
             updateViewportDimensions();
-            breadthBar.setVisible(needBreadthBar);
+//            breadthBar.setVisible(needBreadthBar);
             lengthBar.setVisible(needLengthBar);
         } else {
-            breadthBar.setVisible(needBreadthBar && tempVisibility);
+//            breadthBar.setVisible(needBreadthBar && tempVisibility);
             lengthBar.setVisible(needLengthBar && tempVisibility);
         }
         return barVisibilityChanged;
@@ -2614,13 +2609,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         int cacheCount = itemSizeCache.size();
         double totalX = 0d;
         double totalY = 0d;
-//        int count = 0;
         int i = 0;
         for (; (i < itemCount && i < cacheCount); i++) {
             double[] size = itemSizeCache.get(i);
             if (size != null) {
                 totalX = totalX + size[0];
-//                count++;
                 if(!sheet.isInRow(totalX)) {
                     totalY = totalY + size[1];
                     totalX = 0;
