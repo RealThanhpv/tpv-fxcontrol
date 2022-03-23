@@ -1178,7 +1178,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (rebuild) {
            rebuild(currentIndex);
         }
-        computeBarVisibility();
 
         layoutCells();
         updateScrollBars(recreatedOrRebuilt || rebuild);
@@ -2171,6 +2170,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     private void updateScrollBars(boolean recreate) {
+        computeBarVisibility();
         VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
         VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
         corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
@@ -2328,11 +2328,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     private void releaseIfCellIsAccum(T cell) {
         if (accumCell != null && cell == accumCell) {
-            System.out.println("release accum cell of index: "+ cell);
             accumCell.setVisible(false);
             accumCell.updateIndex(-1);
-//            throw new NullPointerException("Throw it");
-
         }
     }
 
