@@ -1197,12 +1197,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         computeBarVisibility();
 
         updateScrollBarsAndCells(recreatedOrRebuilt || rebuild);
+        reportSizesAndPosition();
+        sheet.cleanPile();
+    }
+    private void reportSizesAndPosition(){
 
         lastWidth = getWidth();
         lastHeight = getHeight();
         lastPosition = getPosition();
-        recalculateEstimatedSize();
-        sheet.cleanPile();
     }
 
     private void rebuild(int currentIndex) {
