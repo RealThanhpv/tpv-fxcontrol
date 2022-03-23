@@ -8,8 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Cell;
 import tpv.fxcontrol.FlowIndexedCell;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
+
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
     private static final double MAGIC_X = 2;
@@ -20,6 +20,16 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * The access on this variable is package ONLY FOR TESTING.
      */
     private double viewportBreadth;
+    /**
+     * A list containing the cached version of the calculated size (height for
+     * vertical, width for horizontal) for a (fictive or real) cell for
+     * each element of the backing data.
+     * This list is used to calculate the estimatedSize.
+     * The list is not expected to be complete, but it is always up to date.
+     * When the size of the items in the backing list changes, this list is
+     * cleared.
+     */
+    private ArrayList<double[]> itemSizeCache = new ArrayList<>();
     final void setWidth(double value) {
         this.viewportBreadth = value;
     }
@@ -37,6 +47,10 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     void setHeight(double value) {
         this.viewportLength = value;
 
+    }
+    VirtualFlow<T> flow;
+    Sheet(VirtualFlow<T> flow){
+        this.flow = flow;
     }
 
      Point2D getCellPosition(T cell) {
@@ -332,5 +346,116 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
         return false;
     }
+
+    /**
+     * Update the size of a specific cell.
+     * If this cell was already in the cache, its old value is replaced by the
+     * new size.
+     * @param cell
+     */
+    double[] updateCellCacheSize(T cell) {
+        int cellIndex = cell.getIndex();
+
+        if (itemSizeCache.size() > cellIndex) {
+
+            double newW = cell.getLayoutBounds().getWidth();
+            double newH = cell.getLayoutBounds().getHeight();
+
+            double[] size = itemSizeCache.get(cellIndex);
+            if(size == null){
+                size = new double[]{newW, newH};
+            }
+            else {
+                size[0] = newW;
+                size[1] = newH;
+            }
+            itemSizeCache.set(cellIndex, size);
+
+            return size;
+
+        }
+
+        return null;
+
+
+    }
+
+    double recalculateAndImproveEstimatedSize(int improve, int itemCount) {
+        int added = 0;
+
+        while (( itemSizeCache.size() < itemCount) && (added < improve)) {
+            getOrCreateCacheCellSize(itemSizeCache.size());
+            added++;
+        }
+        int cacheCount = itemSizeCache.size();
+        double totalX = 0d;
+        double totalY = 0d;
+        int i = 0;
+        for (; (i < itemCount && i < cacheCount); i++) {
+            double[] size = itemSizeCache.get(i);
+            if (size != null) {
+                totalX = totalX + size[0];
+                if(!isInRow(totalX)) {
+                    totalY = totalY + size[1];
+                    totalX = 0;
+                }
+            }
+        }
+        double  size = i == 0 ? 1d: totalY * itemCount / i;
+        return  size;
+
+    }
+
+    void resetSizeEstimates() {
+        itemSizeCache.clear();
+
+    }
+
+
+    double[] getCellSize(int idx) {
+        return getOrCreateCacheCellSize(idx, false);
+    }
+
+    /**
+     * Get the size of the considered element.
+     * If the requested element has a size that is not yet in the cache,
+     * it will be computed and cached now.
+     * @return the size of the element; or 1 in case there are no cells yet
+     */
+    double[] getOrCreateCacheCellSize(int idx) {
+        return getOrCreateCacheCellSize(idx, true);
+    }
+
+    private double[] getOrCreateCacheCellSize(int idx, boolean create) {
+        // is the current cache long enough to contain idx?
+        if (itemSizeCache.size() > idx) {
+            // is there a non-null value stored in the cache?
+            if (itemSizeCache.get(idx) != null) {
+                return itemSizeCache.get(idx);
+            }
+        }
+        if (!create) return null;
+
+        boolean doRelease = false;
+
+        // Do we have a visible cell for this index?
+        T cell = getVisibleCell(idx);
+        if (cell == null) { // we might get the accumcell here
+            cell = flow.getCell(idx);
+            doRelease = true;
+        }
+        // Make sure we have enough space in the cache to store this index
+        while (idx >= itemSizeCache.size()) {
+            itemSizeCache.add(itemSizeCache.size(), null);
+        }
+
+        double[] answer =  updateCellCacheSize(cell);
+
+        if (doRelease) { // we need to release the accumcell
+            flow.releaseIfCellIsAccum(cell);
+        }
+        return answer;
+    }
+
 
 }

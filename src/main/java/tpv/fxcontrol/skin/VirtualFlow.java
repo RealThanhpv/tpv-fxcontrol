@@ -241,16 +241,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     double estimatedSize = -1d;
 
-    /**
-     * A list containing the cached version of the calculated size (height for
-     * vertical, width for horizontal) for a (fictive or real) cell for
-     * each element of the backing data.
-     * This list is used to calculate the estimatedSize.
-     * The list is not expected to be complete, but it is always up to date.
-     * When the size of the items in the backing list changes, this list is
-     * cleared.
-     */
-    private ArrayList<double[]> itemSizeCache = new ArrayList<>();
+
 
 
     // used for panning the virtual flow
@@ -291,7 +282,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         // initContent
         // --- sheet
-        sheet = new Sheet<>();
+        sheet = new Sheet<>(this);
         sheet.getStyleClass().add("sheet");
 //
 
@@ -820,7 +811,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         @Override protected void invalidated() {
             int cellCount = get();
-            resetSizeEstimates();
+            sheet.resetSizeEstimates();
+            estimatedSize = 1d;
             recalculateEstimatedSize();
 
             boolean countChanged = oldCount != cellCount;
@@ -1211,7 +1203,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 //                cell.updateIndex(-1);
                 if (cell != null) {
                     cell.requestLayout();
-                    updateCellCacheSize(cell);
+                    sheet.updateCellCacheSize(cell);
                 }
                 dirtyCells.clear(index);
             }
@@ -1465,7 +1457,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 final T cell = sheet.get(i);
                 Point2D pos = sheet.getCellPosition(cell);
                 positionCell(cell, pos.getX(), pos.getY());
-                updateCellCacheSize(cell);
+                sheet.updateCellCacheSize(cell);
             }
 
             // position trailing cells
@@ -1473,7 +1465,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 final T cell = sheet.get(i);
                 Point2D pos = sheet.getCellPosition(cell);
                 positionCell(cell, pos.getX(), pos.getY());
-                updateCellCacheSize(cell);
+                sheet.updateCellCacheSize(cell);
 
             }
         }
@@ -1855,7 +1847,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // Position the cell, and update the maxPrefBreadth variable as we go.
             Point2D p = sheet.getCellPosition(cell);
             positionCell(cell, p.getX(), p.getY());
-            updateCellCacheSize(cell);
+            sheet.updateCellCacheSize(cell);
             setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             --index;
@@ -1877,7 +1869,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     cell = sheet.get(i);
                     Point2D p = sheet.getCellPosition(cell);
                     positionCell(cell, p.getX(), p.getY());
-                    updateCellCacheSize(cell);
+                    sheet.updateCellCacheSize(cell);
 
                 }
             }
@@ -1958,7 +1950,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         sheet.addLast(cell);
         Point2D p = sheet.getCellPosition(cell);
         positionCell(cell, p.getX(), p.getY());
-        updateCellCacheSize(cell);
+        sheet.updateCellCacheSize(cell);
     }
 
     private void notifyIndexExceedsMaximum() {
@@ -2302,7 +2294,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      * After using the accum cell, it needs to be released!
      */
-    private void releaseIfCellIsAccum(T cell) {
+     void releaseIfCellIsAccum(T cell) {
         if (accumCell != null && cell == accumCell) {
             accumCell.setVisible(false);
             accumCell.updateIndex(-1);
@@ -2392,7 +2384,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             double targetOffset = 0;
             double estSize = estimatedSize/cellCount;
             for (int i = 0; i < index; i++) {
-                double[] cz = getCellSize(i);
+                double[] cz = sheet.getCellSize(i);
                 if (cz[1] < 0) cz[1] = estSize;
                 targetOffset = targetOffset+ cz[1];
             }
@@ -2437,7 +2429,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (newPosition > .95) {
             int cci = computeCurrentIndex();
             while (cci < getItemsCount()) {
-                getOrCreateCellSize(cci); cci++;
+                sheet.getOrCreateCacheCellSize(cci); cci++;
             }
             recalculateEstimatedSize();
         }
@@ -2454,7 +2446,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         int index = -1;
 
         for (int i = 0; i < currentCellCount; i++) {
-            double[] nextSize = getCellSize(i);
+            double[] nextSize = sheet.getCellSize(i);
             if (nextSize == null) {
                 nextSize = new double[]{0d, estSize};
             }
@@ -2471,123 +2463,18 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-    double[] getCellSize(int idx) {
-        return getOrCreateCellSize(idx, false);
-    }
 
-    /**
-     * Get the size of the considered element.
-     * If the requested element has a size that is not yet in the cache,
-     * it will be computed and cached now.
-     * @return the size of the element; or 1 in case there are no cells yet
-     */
-    double[] getOrCreateCellSize(int idx) {
-        return getOrCreateCellSize (idx, true);
-    }
-
-    private double[] getOrCreateCellSize (int idx, boolean create) {
-        // is the current cache long enough to contain idx?
-        if (itemSizeCache.size() > idx) {
-            // is there a non-null value stored in the cache?
-            if (itemSizeCache.get(idx) != null) {
-                return itemSizeCache.get(idx);
-            }
-        }
-        if (!create) return null;
-
-        boolean doRelease = false;
-
-        // Do we have a visible cell for this index?
-        T cell = sheet.getVisibleCell(idx);
-        if (cell == null) { // we might get the accumcell here
-            cell = getCell(idx);
-            doRelease = true;
-        }
-        // Make sure we have enough space in the cache to store this index
-        while (idx >= itemSizeCache.size()) {
-            itemSizeCache.add(itemSizeCache.size(), null);
-        }
-
-       double[] answer =  updateCellCacheSize(cell);
-
-        if (doRelease) { // we need to release the accumcell
-            releaseIfCellIsAccum(cell);
-        }
-        return answer;
-    }
-
-    /**
-     * Update the size of a specific cell.
-     * If this cell was already in the cache, its old value is replaced by the
-     * new size.
-     * @param cell
-     */
-    double[] updateCellCacheSize(T cell) {
-        int cellIndex = cell.getIndex();
-
-        if (itemSizeCache.size() > cellIndex) {
-
-            double newW = cell.getLayoutBounds().getWidth();
-            double newH = cell.getLayoutBounds().getHeight();
-
-            double[] size = itemSizeCache.get(cellIndex);
-            if(size == null){
-                size = new double[]{newW, newH};
-            }
-            else {
-                size[0] = newW;
-                size[1] = newH;
-            }
-            itemSizeCache.set(cellIndex, size);
-
-            return size;
-
-        }
-
-        return null;
-
-
-    }
 
     /**
      * Recalculate the estimated size for this list based on what we have in the
      * cache.
      */
     private void recalculateEstimatedSize() {
-        recalculateAndImproveEstimatedSize(DEFAULT_IMPROVEMENT, getItemsCount());
+        estimatedSize = sheet.recalculateAndImproveEstimatedSize(DEFAULT_IMPROVEMENT, getItemsCount());
     }
 
 
-    private void recalculateAndImproveEstimatedSize(int improve, int itemCount) {
-        int added = 0;
 
-        while (( itemSizeCache.size() < itemCount) && (added < improve)) {
-            getOrCreateCellSize(itemSizeCache.size());
-            added++;
-        }
-        int cacheCount = itemSizeCache.size();
-        double totalX = 0d;
-        double totalY = 0d;
-        int i = 0;
-        for (; (i < itemCount && i < cacheCount); i++) {
-            double[] size = itemSizeCache.get(i);
-            if (size != null) {
-                totalX = totalX + size[0];
-                if(!sheet.isInRow(totalX)) {
-                    totalY = totalY + size[1];
-                    totalX = 0;
-                }
-            }
-        }
-
-        this.estimatedSize = i == 0 ? 1d: totalY * itemCount / i;
-
-    }
-
-    private void resetSizeEstimates() {
-        itemSizeCache.clear();
-        this.estimatedSize = 1d;
-    }
 
     T getFirstVisibleCellWithinViewport() {
         return sheet.getFirstVisibleCellWithinViewport();
