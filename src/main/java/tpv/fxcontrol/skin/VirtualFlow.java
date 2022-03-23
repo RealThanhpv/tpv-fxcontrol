@@ -1592,8 +1592,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
     private T createOrUseAccumCell(int index){
         if (accumCell == null) {
-            Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
-            if (cellFactory != null) {
+//            Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
+//            if (cellFactory != null) {
                 accumCell = createCell();
                 accumCellParent.getChildren().setAll(accumCell);
 
@@ -1605,13 +1605,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 // uses getPrivateCell(), which places the item in the sheet.
                 // The accumCell, and its children, should be ignored by the
                 // screen reader.
-//                accumCell.setAccessibleRole(AccessibleRole.NODE);
-//                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
-//                    for (Node n : accumCell.getChildrenUnmodifiable()) {
-//                        n.setAccessibleRole(AccessibleRole.NODE);
-//                    }
-//                });
-            }
+                accumCell.setAccessibleRole(AccessibleRole.NODE);
+                accumCell.getChildrenUnmodifiable().addListener((Observable c) -> {
+                    for (Node n : accumCell.getChildrenUnmodifiable()) {
+                        n.setAccessibleRole(AccessibleRole.NODE);
+                    }
+                });
+//            }
         }
         setCellIndex(accumCell, index);
         return accumCell;
