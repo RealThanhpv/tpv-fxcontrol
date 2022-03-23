@@ -2537,6 +2537,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
         if (!create) return null;
+
         boolean doRelease = false;
 
         // Do we have a visible cell for this index?
@@ -2550,13 +2551,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             itemSizeCache.add(itemSizeCache.size(), null);
         }
 
-        // if we have a valid cell, we can populate the cache
-        double[] answer = new double[2];
+       double[] answer =  updateCellCacheSize(cell);
 
-        answer[0] = cell.getLayoutBounds().getWidth();
-        answer[1] = cell.getLayoutBounds().getHeight();
-
-        itemSizeCache.set(idx, answer);
+//        // if we have a valid cell, we can populate the cache
+//        double[] answer = new double[2];
+//
+//        answer[0] = cell.getLayoutBounds().getWidth();
+//        answer[1] = cell.getLayoutBounds().getHeight();
+//
+//        itemSizeCache.set(idx, answer);
 
         if (doRelease) { // we need to release the accumcell
             releaseCell(cell);
@@ -2570,8 +2573,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * new size.
      * @param cell
      */
-    void updateCellCacheSize(T cell) {
+    double[] updateCellCacheSize(T cell) {
         int cellIndex = cell.getIndex();
+
         if (itemSizeCache.size() > cellIndex) {
 
             double newW = cell.getLayoutBounds().getWidth();
@@ -2587,7 +2591,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             itemSizeCache.set(cellIndex, size);
 
+            return size;
+
         }
+
+        return null;
+
+
     }
 
     /**
@@ -2601,7 +2611,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void recalculateAndImproveEstimatedSize(int improve, int itemCount) {
         int added = 0;
-        while ((itemCount > itemSizeCache.size()) && (added < improve)) {
+
+        while (( itemSizeCache.size() < itemCount) && (added < improve)) {
             getOrCreateCellSize(itemSizeCache.size());
             added++;
         }
