@@ -781,17 +781,21 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void relayoutAll() {
         sheet.clearCompletely();
-        lastWidth = lastHeight = -1;
-        setMaxPrefBreadth(-1);
+        invalidateSizes();
         sheet.setWidth(0);
         sheet.setHeight(0);
+        resetScrollBars();
+        setNeedsLayout(true);
+        requestLayout();
+    }
+
+    private void resetScrollBars(){
         lastPosition = 0;
         hbar.setValue(0);
         vbar.setValue(0);
         setPosition(0.0f);
-        setNeedsLayout(true);
-        requestLayout();
     }
+
 
     // --- pannable
     /**
@@ -1603,8 +1607,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
     private T createOrUseAccumCell(int index){
         if (accumCell == null) {
-//            Callback<VirtualFlow<T>,T> cellFactory = getCellFactory();
-//            if (cellFactory != null) {
                 accumCell = createCell();
                 accumCellParent.getChildren().setAll(accumCell);
 
@@ -1622,7 +1624,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                         n.setAccessibleRole(AccessibleRole.NODE);
                     }
                 });
-//            }
         }
         setCellIndex(accumCell, index);
         return accumCell;
