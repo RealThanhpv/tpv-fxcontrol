@@ -2595,12 +2595,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * cache.
      */
     private void recalculateEstimatedSize() {
-        recalculateAndImproveEstimatedSize(DEFAULT_IMPROVEMENT);
+        recalculateAndImproveEstimatedSize(DEFAULT_IMPROVEMENT, getItemsCount());
     }
 
 
-    private void recalculateAndImproveEstimatedSize(int improve) {
-        int itemCount = getItemsCount();
+    private void recalculateAndImproveEstimatedSize(int improve, int itemCount) {
         int added = 0;
         while ((itemCount > itemSizeCache.size()) && (added < improve)) {
             getOrCreateCellSize(itemSizeCache.size());
