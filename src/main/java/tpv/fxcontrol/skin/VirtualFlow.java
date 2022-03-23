@@ -1092,12 +1092,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-        if (Properties.IS_TOUCH_SUPPORTED) {
-            if ((tempVisibility == true && (hbar.isVisible() == false || vbar.isVisible() == false)) ||
-                (tempVisibility == false && (hbar.isVisible() == true || vbar.isVisible() == true))) {
 
-            }
-        }
         boolean cellNeedsLayout = cellNeedsLayout();
 
 
