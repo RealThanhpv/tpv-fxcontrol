@@ -165,19 +165,8 @@ public abstract class VirtualContainerBase<C extends Control, I extends FlowInde
      *                                                                         *
      **************************************************************************/
 
-    double getMaxCellWidth(int rowsToCount) {
-        return snappedLeftInset() + flow.getMaxCellWidth(rowsToCount) + snappedRightInset();
-    }
 
-    double getVirtualFlowPreferredHeight(int rows) {
-        double height = 1.0;
 
-        for (int i = 0; i < rows && i < getItemCount(); i++) {
-            height += flow.getCellHeight(i);
-        }
-
-        return height + snappedTopInset() + snappedBottomInset();
-    }
 
     protected void checkState() {
         if (itemCountDirty) {

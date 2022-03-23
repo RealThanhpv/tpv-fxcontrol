@@ -2553,14 +2553,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
        double[] answer =  updateCellCacheSize(cell);
 
-//        // if we have a valid cell, we can populate the cache
-//        double[] answer = new double[2];
-//
-//        answer[0] = cell.getLayoutBounds().getWidth();
-//        answer[1] = cell.getLayoutBounds().getHeight();
-//
-//        itemSizeCache.set(idx, answer);
-
         if (doRelease) { // we need to release the accumcell
             releaseCell(cell);
         }
