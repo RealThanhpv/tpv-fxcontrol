@@ -9,6 +9,7 @@ import javafx.scene.control.Cell;
 import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
@@ -30,6 +31,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * cleared.
      */
     private ArrayList<double[]> itemSizeCache = new ArrayList<>();
+    private final BitSet dirtyCells = new BitSet();
     final void setWidth(double value) {
         this.viewportBreadth = value;
     }
@@ -409,6 +411,28 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     void resetSizeEstimates() {
         itemSizeCache.clear();
 
+    }
+
+     void updateDirtyCells() {
+        if (!dirtyCells.isEmpty()) {
+            int index;
+            final int cellsSize = size();
+            while ((index = dirtyCells.nextSetBit(0)) != -1 && index < cellsSize) {
+                T cell = get(index);
+                // updateIndex(-1) works for TableView, but breaks ListView.
+                // For now, the TableView just does not use the dirtyCells API
+//                cell.updateIndex(-1);
+                if (cell != null) {
+                    cell.requestLayout();
+                    updateCellCacheSize(cell);
+                }
+                dirtyCells.clear(index);
+            }
+
+        }
+    }
+    void setCellDirty(int index) {
+        dirtyCells.set(index);
     }
 
 

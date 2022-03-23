@@ -255,7 +255,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private boolean needsRebuildCells = false; // when cell contents have changed
     private boolean sizeChanged = false;
 
-    private final BitSet dirtyCells = new BitSet();
+
 
     Timeline sbTouchTimeline;
     KeyFrame sbTouchKF1;
@@ -1050,7 +1050,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         } else if (needsReconfigureCells) {
            invalidateSizes();
         }
-        updateDirtyCells();
+        sheet.updateDirtyCells();
+        invalidateSizes();
 
 
         boolean recreatedOrRebuilt = needsRebuildCells || needsRecreateCells || sizeChanged;
@@ -1192,24 +1193,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return cellNeedsLayout;
     }
 
-    private void updateDirtyCells() {
-        if (!dirtyCells.isEmpty()) {
-            int index;
-            final int cellsSize = sheet.size();
-            while ((index = dirtyCells.nextSetBit(0)) != -1 && index < cellsSize) {
-                T cell = sheet.get(index);
-                // updateIndex(-1) works for TableView, but breaks ListView.
-                // For now, the TableView just does not use the dirtyCells API
-//                cell.updateIndex(-1);
-                if (cell != null) {
-                    cell.requestLayout();
-                    sheet.updateCellCacheSize(cell);
-                }
-                dirtyCells.clear(index);
-            }
-            invalidateSizes();
-        }
-    }
+
     private void invalidateSizes(){
         setMaxPrefBreadth(-1);
         lastWidth = -1;
@@ -1998,10 +1982,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-    void setCellDirty(int index) {
-        dirtyCells.set(index);
-        requestLayout();
-    }
 
     private void startSBReleasedAnimation() {
         if (sbTouchTimeline == null) {
@@ -2478,6 +2458,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     T getFirstVisibleCellWithinViewport() {
         return sheet.getFirstVisibleCellWithinViewport();
+    }
+
+     void setCellDirty(int i) {
+        sheet.setCellDirty(i);
     }
 
 

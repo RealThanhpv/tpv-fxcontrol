@@ -145,6 +145,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
                     for (int i = c.getFrom(); i < c.getTo(); i++) {
                         flow.setCellDirty(i);
                     }
+                    flow.requestLayout();
 
                     break;
                 } else if (c.getRemovedSize() == itemCount) {
