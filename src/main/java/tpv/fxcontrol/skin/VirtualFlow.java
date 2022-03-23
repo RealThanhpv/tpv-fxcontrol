@@ -1163,23 +1163,23 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 lastWidth != width||
                 (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
 
-        if (!rebuild) {
-            // Check if maxPrefBreadth didn't change
-            double maxPrefBreadth = getMaxPrefBreadth();
-            boolean foundMax = false;
-            for (int i = 0; i < sheet.size(); ++i) {
-                double breadth = getCellWidth(sheet.get(i));
-                if (maxPrefBreadth == breadth) {
-                    foundMax = true;
-                } else if (breadth > maxPrefBreadth) {
-                    rebuild = true;
-                    break;
-                }
-            }
-            if (!foundMax) { // All values were lower
-                rebuild = true;
-            }
-        }
+//        if (!rebuild) {
+//            // Check if maxPrefBreadth didn't change
+//            double maxPrefBreadth = getMaxPrefBreadth();
+//            boolean foundMax = false;
+//            for (int i = 0; i < sheet.size(); ++i) {
+//                double breadth = getCellWidth(sheet.get(i));
+//                if (maxPrefBreadth == breadth) {
+//                    foundMax = true;
+//                } else if (breadth > maxPrefBreadth) {
+//                    rebuild = true;
+//                    break;
+//                }
+//            }
+//            if (!foundMax) { // All values were lower
+//                rebuild = true;
+//            }
+//        }
 
         if (!rebuild) {
             if ((isVertical() && height > lastHeight) || (!isVertical() && width > lastWidth)) {
@@ -1283,6 +1283,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell == null){
             getCell(prefIndex);
         }
+
         if(cell == null){
             cell =  createCell();
             if (cell.getParent() == null) {
