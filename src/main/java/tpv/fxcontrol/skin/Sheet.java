@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Cell;
+import javafx.scene.layout.Region;
 import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      */
     private ArrayList<double[]> itemSizeCache = new ArrayList<>();
     private final BitSet dirtyCells = new BitSet();
-    final void setWidth(double value) {
+    final void setViewPortWidth(double value) {
         this.viewportBreadth = value;
     }
 
-    final double getWidth() {
+    final double getViewPortWidth() {
         return viewportBreadth;
     }
     /**
@@ -46,7 +47,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * The access on this variable is package ONLY FOR TESTING.
      */
     private double viewportLength;
-    void setHeight(double value) {
+    void setViewPortHeight(double value) {
         this.viewportLength = value;
 
     }
@@ -89,11 +90,11 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
 
     boolean isInRow(double x){
-        return x < (getWidth() - MAGIC_X);
+        return x < (getViewPortWidth() - MAGIC_X);
     }
 
     T getFirstVisibleCellWithinViewport() {
-        if (isEmpty() || getHeight() <= 0) {return null;}
+        if (isEmpty() || getViewPortHeight() <= 0) {return null;}
 
         T cell;
         for (int i = 0; i < size(); i++) {
@@ -111,7 +112,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
 
 
-    double getHeight() {
+    double getViewPortHeight() {
         return viewportLength;
     }
      void clearChildren() {
