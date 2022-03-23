@@ -1084,15 +1084,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             return;
         }
 
-        // we check if any of the cells in the cells list need layout. This is a
-        // sign that they are perhaps animating their sizes. Without this check,
-        // we may not perform a layout here, meaning that the cell will likely
-        // 'jump' (in height normally) when the user drags the virtual thumb as
-        // that is the first time the layout would occur otherwise.
-
-
-
-
         boolean cellNeedsLayout = cellNeedsLayout();
 
 
@@ -1224,10 +1215,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 }
                 dirtyCells.clear(index);
             }
-
             invalidateSizes();
-
-
         }
     }
     private void invalidateSizes(){
@@ -1438,11 +1426,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         requestLayout();
     }
 
-//    //TODO We assume all the cell have the same length.  We will need to support
-//    // cells of different lengths.
-//    public void scrollToOffset(int offset) {
-//        scrollPixels(offset * getCellLength(0));
-//    }
+
 
     /**
      * Given a delta value representing a number of pixels, this method attempts
@@ -1602,9 +1586,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell != null){
             return cell;
         }
-
-        cell =  createOrUseAccumCell(index);
-        return cell;
+        return createOrUseAccumCell(index);
 
     }
     private T createOrUseAccumCell(int index){
@@ -1774,7 +1756,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (isVertical()) {
             double width = Math.max(getMaxPrefBreadth(), sheet.getWidth());
-
             cell.resize(width, fixedCellSizeEnabled ? getFixedCellSize() : Utils.boundedSize(cell.prefHeight(width), cell.minHeight(width), cell.maxHeight(width)));
         } else {
             double height = Math.max(getMaxPrefBreadth(), sheet.getHeight());
