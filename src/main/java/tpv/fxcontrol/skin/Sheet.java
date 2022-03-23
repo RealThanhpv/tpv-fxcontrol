@@ -256,7 +256,9 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * @return the visible cell
      */
     public T getVisibleCell(int index) {
-        if (isEmpty()) return null;
+        if (isEmpty()) {
+            return null;
+        }
 
         // check the last index
         T lastCell = getLast();
@@ -283,18 +285,21 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     }
     T getAvailableCell(int index) {
         // If there are cells, then we will attempt to get an existing cell
-        if (!isEmpty()) {
             // First check the cells that have already been created and are
             // in use. If this call returns a value, then we can use it
-            T cell = getVisibleCell(index);
-            if (cell != null) {
-                return cell;
-            }
+        T cell = getVisibleCell(index);
+        if (cell != null) {
+            return cell;
         }
 
-        // check the pile
+        return getCellFromPile(index);
+
+    }
+
+   private T getCellFromPile(int index){
+        T cell  = null;
         for (int i = 0; i < pile.size(); i++) {
-            T cell = pile.get(i);
+            cell = pile.get(i);
             if (cell.getIndex() == index) {
                 // Note that we don't remove from the pile: if we do it leads
                 // to a severe performance decrease. This seems to be OK, as
@@ -304,7 +309,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
             }
         }
 
-        return null;
+        return cell;
     }
 
      boolean doesCellContainFocus(Cell<?> c) {

@@ -951,16 +951,27 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     if (get() != null) {
                         setNeedsLayout(true);
                         recreateCells();
-                        if (getParent() != null) getParent().requestLayout();
+                        if (getParent() != null) {
+                            getParent().requestLayout();
+                        }
                     }
-                    if (accumCellParent != null) {
-                        accumCellParent.getChildren().clear();
-                    }
-                    accumCell = null;
+
+                    clearAccumCellAndParent();
+
                 }
             };
         }
         return cellFactory;
+    }
+
+    /**
+     * This must be call when cell factory is changed.
+     */
+    private void clearAccumCellAndParent() {
+        if (accumCellParent != null) {
+            accumCellParent.getChildren().clear();
+        }
+        accumCell = null;
     }
 
 
@@ -1033,11 +1044,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
         if (needsRecreateCells) {
             invalidateSizes();
-            releaseCell(accumCell);
+            releaseIfCellIsAccum(accumCell);
             sheet.clearCompletely();
         } else if (needsRebuildCells) {
             invalidateSizes();
-            releaseCell(accumCell);
+            releaseIfCellIsAccum(accumCell);
             sheet.dumpAllToPile();
             sheet.clearChildren();
         } else if (needsReconfigureCells) {
@@ -1586,8 +1597,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             return cell;
         }
 
-        // We need to use the accumCell and return that
-        return createOrUseAccumCell(index);
+        cell =  createOrUseAccumCell(index);
+        return cell;
 
     }
     private T createOrUseAccumCell(int index){
@@ -1706,7 +1717,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T cell = getCell(index);
         double length = getCellHeight(cell);
 
-        releaseCell(cell);
+        releaseIfCellIsAccum(cell);
         return length;
     }
 
@@ -1715,7 +1726,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     double getCellWidth(int index) {
         T cell = getCell(index);
         double b = getCellWidth(cell);
-        releaseCell(cell);
+        releaseIfCellIsAccum(cell);
         return b;
     }
 
@@ -2345,10 +2356,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      * After using the accum cell, it needs to be released!
      */
-    private void releaseCell(T cell) {
+    private void releaseIfCellIsAccum(T cell) {
         if (accumCell != null && cell == accumCell) {
+            System.out.println("release accum cell of index: "+ cell);
             accumCell.setVisible(false);
             accumCell.updateIndex(-1);
+//            throw new NullPointerException("Throw it");
+
         }
     }
 
@@ -2554,7 +2568,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
        double[] answer =  updateCellCacheSize(cell);
 
         if (doRelease) { // we need to release the accumcell
-            releaseCell(cell);
+            releaseIfCellIsAccum(cell);
         }
         return answer;
     }
@@ -2652,17 +2666,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * outside of the bounds of the Region is clipped.
      */
     static class ClippedContainer extends Region {
+        private final Rectangle clipRect;
 
-        /**
-         * The Node which is embedded within this {@code ClipView}.
-         */
-        private Node node;
-        public Node getNode() { return this.node; }
         public void setNode(Node n) {
-            this.node = n;
 
             getChildren().clear();
-            getChildren().add(node);
+            getChildren().add(n);
         }
 
         public void setClipX(double clipX) {
@@ -2675,7 +2684,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             clipRect.setLayoutY(clipY);
         }
 
-        private final Rectangle clipRect;
+
 
         public ClippedContainer(final VirtualFlow<?> flow) {
             if (flow == null) {
