@@ -2193,18 +2193,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
 
-    private void cull() {
-        final double viewportLength = sheet.getViewPortHeight();
-        for (int i = sheet.size() - 1; i >= 0; i--) {
-            T cell = sheet.get(i);
-            double cellSize = getCellHeight(cell);
-            Point2D cellStart = sheet.getCellPosition(cell);
-            double cellEnd = cellStart.getY() + cellSize;
-            if (cellStart.getY() >= viewportLength || cellEnd < 0) {
-                sheet.addToPile(sheet.remove(i));
-            }
-        }
-    }
+
 
     /**
      * After using the accum cell, it needs to be released!
@@ -2215,43 +2204,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             accumCell.updateIndex(-1);
         }
     }
-
-
-    /**
-     * Creates and returns a new cell for the given index.
-     * <p>
-     * If the requested index is not already an existing visible cell, it will create a cell for the given index and
-     * insert it into the {@code VirtualFlow} container. If the index exists, simply returns the visible cell. From that
-     * point on, it will be unmanaged, and is up to the caller of this method to manage it.
-     * <p>
-     * This is useful if a row that should not be visible must be accessed (a row that always stick to the top for
-     * example). It can then be easily created, correctly initialized and inserted in the {@code VirtualFlow}
-     * container.
-     *
-     * @param index the cell index
-     * @return a cell for the given index inserted in the VirtualFlow container
-     * @since 12
-     */
-    public T getPrivateCell(int index)  {
-        T cell = null;
-
-        // If there are cells, then we will attempt to get an existing cell
-        if (! sheet.isEmpty()) {
-            // First check the cells that have already been created and are
-            // in use. If this call returns a value, then we can use it
-            cell = sheet.getVisibleCell(index);
-            if (cell != null) {
-                // Force the underlying text inside the cell to be updated
-                // so that when the screen reader runs, it will match the
-                // text in the cell (force updateDisplayedText())
-                cell.layout();
-                return cell;
-            }
-        }
-
-        return null;
-    }
-
 
 
     private double getPrefBreadth(double oppDimension) {
@@ -2375,8 +2327,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return sheet.getFirstVisibleCellWithinViewport();
     }
 
-     void setCellDirty(int i) {
+    void setCellDirty(int i) {
         sheet.setCellDirty(i);
+    }
+
+    public T getVisibleCell(int index) {
+        return sheet.getVisibleCell(index);
     }
 
 

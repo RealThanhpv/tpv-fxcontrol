@@ -367,14 +367,14 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
                         return null;
                     }
                 }
-                return flow.getPrivateCell(focusedIndex);
+                return flow.getVisibleCell(focusedIndex);
             }
             case ITEM_COUNT: return getItemCount();
             case ITEM_AT_INDEX: {
                 Integer rowIndex = (Integer)parameters[0];
                 if (rowIndex == null) return null;
                 if (0 <= rowIndex && rowIndex < getItemCount()) {
-                    return flow.getPrivateCell(rowIndex);
+                    return flow.getVisibleCell(rowIndex);
                 }
                 return null;
             }
@@ -383,7 +383,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
                 ObservableList<Integer> indices = sm.getSelectedIndices();
                 List<Node> selection = new ArrayList<>(indices.size());
                 for (int i : indices) {
-                    FlowCell<T> row = flow.getPrivateCell(i);
+                    FlowCell<T> row = flow.getVisibleCell(i);
                     if (row != null) selection.add(row);
                 }
                 return FXCollections.observableArrayList(selection);
