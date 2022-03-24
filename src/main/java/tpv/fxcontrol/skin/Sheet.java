@@ -456,11 +456,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * it will be computed and cached now.
      * @return the size of the element; or 1 in case there are no cells yet
      */
-    double[] getOrCreateCacheCellSize(int idx) {
-        return getOrCreateCacheCellSize(idx, true);
-    }
-
-    private double[] getOrCreateCacheCellSize(int idx, boolean create) {
+   private double[] getCacheCellSize(int idx) {
         // is the current cache long enough to contain idx?
         if (itemSizeCache.size() > idx) {
             // is there a non-null value stored in the cache?
@@ -468,9 +464,23 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
                 return itemSizeCache.get(idx);
             }
         }
-        if (!create) return null;
+        return null;
+    }
 
-        boolean doRelease = false;
+    double[] getOrCreateCacheCellSize(int idx) {
+        return getOrCreateCacheCellSize(idx, true);
+    }
+
+    private double[] getOrCreateCacheCellSize(int idx, boolean create) {
+
+        double[] cached  = getCacheCellSize(idx);
+        if(cached != null){
+            return cached;
+        }
+
+        if(!create){
+            return null;
+        }
 
         T cell = getVisibleCell(idx);
 
@@ -481,7 +491,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         if(cell == null){
             cell =  flow.getOrCreateAccumCell();
             setCellIndex(cell, idx);
-            doRelease = true;
         }
         // Make sure we have enough space in the cache to store this index
         while (idx >= itemSizeCache.size()) {
@@ -490,9 +499,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
         double[] answer =  updateCellCacheSize(cell);
 
-        if (doRelease) { // we need to release the accumcell
-            flow.releaseIfCellIsAccum(cell);
-        }
+
         return answer;
     }
 

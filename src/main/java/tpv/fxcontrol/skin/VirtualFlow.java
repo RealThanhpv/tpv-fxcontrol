@@ -83,8 +83,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Static fields                                                           *
      *                                                                         *
      **************************************************************************/
-    private static double MAGIC_X = 2;
-    private static double MAGIC_Y = 2;
 
 
     /**
@@ -1032,11 +1030,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
         if (needsRecreateCells) {
             invalidateSizes();
-            releaseIfCellIsAccum(accumCell);
+//            releaseIfCellIsAccum(accumCell);
             sheet.clearCompletely();
         } else if (needsRebuildCells) {
             invalidateSizes();
-            releaseIfCellIsAccum(accumCell);
+//            releaseIfCellIsAccum(accumCell);
             sheet.dumpAllToPile();
             sheet.clearChildren();
         } else if (needsReconfigureCells) {
@@ -2156,16 +2154,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-
-    /**
-     * After using the accum cell, it needs to be released!
-     */
-     void releaseIfCellIsAccum(T cell) {
-        if (accumCell != null && cell == accumCell) {
-            accumCell.setVisible(false);
-            accumCell.updateIndex(-1);
-        }
-    }
+//
+//    /**
+//     * After using the accum cell, it needs to be released!
+//     */
+//     void releaseIfCellIsAccum(T cell) {
+//        if (accumCell != null && cell == accumCell) {
+//            accumCell.setVisible(false);
+//            accumCell.updateIndex(-1);
+//        }
+//    }
 
 
     private double getPrefBreadth(double oppDimension) {
