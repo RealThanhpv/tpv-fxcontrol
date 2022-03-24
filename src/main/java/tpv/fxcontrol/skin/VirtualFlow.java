@@ -1224,7 +1224,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T cell  = sheet.getAndRemoveCellFromPile(prefIndex);
         if(cell == null){
             getOrCreateAccumCell();
-
             sheet.setCellIndex(accumCell, prefIndex);
             System.out.println(accumCell);
         }
@@ -1237,7 +1236,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
         sheet.setCellIndex(cell, prefIndex);
-//        System.out.println(cell);
 
         return cell;
     }
@@ -1363,7 +1361,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
         if (targetCell != null) {
             T cell = getAvailableOrCreateCell(targetIndex);
-//            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             if (downOrRight) {
                 sheet.addLast(cell);
@@ -1635,26 +1632,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return maxPrefBreadth;
     }
 
-    /**
-     * Compute and return the length of the cell for the given index. This is
-     * called both internally when adjusting by pixels, and also at times
-     * by PositionMapper (see the getItemSize callback). When called by
-     * PositionMapper, it is possible that it will be called for some index
-     * which is not associated with any cell, so we have to do a bit of work
-     * to use a cell as a helper for computing cell size in some cases.
-     */
-    double getCellHeight(int index) {
-        if (fixedCellSizeEnabled) {
-            return getFixedCellSize();
-        }
 
-        T cell = getOrCreateAccumCell();
-        sheet.setCellIndex(cell, index);
-        double length = getCellHeight(cell);
-
-        releaseIfCellIsAccum(cell);
-        return length;
-    }
 
 
 
@@ -1670,7 +1648,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Gets the breadth of a specific cell
      */
     double getCellWidth(Cell cell) {
-        return cell.prefWidth(-1);
+        if (cell == null)        {return 0;}
+        return cell.getLayoutBounds().getWidth();
     }
 
 
