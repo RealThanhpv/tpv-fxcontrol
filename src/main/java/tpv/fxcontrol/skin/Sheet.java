@@ -420,7 +420,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     void resetSizeEstimates() {
         itemSizeCache.clear();
-
     }
 
      void updateDirtyCells() {

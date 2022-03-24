@@ -1,6 +1,10 @@
 package tpv.fxcontrol.skin;
 
-import javafx.scene.Group;
+import javafx.scene.layout.HBox;
+import tpv.fxcontrol.FlowIndexedCell;
 
-public class VirtualRow extends Group {
+public class VirtualRow<T extends FlowIndexedCell> extends HBox {
+
+
+
 }
