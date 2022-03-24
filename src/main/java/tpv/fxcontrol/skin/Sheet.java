@@ -472,12 +472,13 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         T cell = getVisibleCell(idx);
         if (cell == null) { // we might get the accumcell here
             cell = getAvailableCell(idx);
-            if(cell == null){
-               cell =  flow.getOrCreateAccumCell();
-               setCellIndex(cell, idx);
-                doRelease = true;
-            }
 
+
+        }
+        if(cell == null){
+            cell =  flow.getOrCreateAccumCell();
+            setCellIndex(cell, idx);
+            doRelease = true;
         }
         // Make sure we have enough space in the cache to store this index
         while (idx >= itemSizeCache.size()) {
