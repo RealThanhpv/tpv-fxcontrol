@@ -475,8 +475,9 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
             if(cell == null){
                cell =  flow.getOrCreateAccumCell();
                setCellIndex(cell, idx);
+                doRelease = true;
             }
-            doRelease = true;
+
         }
         // Make sure we have enough space in the cache to store this index
         while (idx >= itemSizeCache.size()) {
