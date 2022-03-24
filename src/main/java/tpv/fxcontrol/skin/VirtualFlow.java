@@ -776,7 +776,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         lastPosition = 0;
         hbar.setValue(0);
         vbar.setValue(0);
-        setPosition(0.0f);
+        setScrollBarPosition(0.0f);
     }
 
 
@@ -876,7 +876,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     };
     public final double getPosition() { return position.get(); }
     //Value will be clamped between [0, 1]
-    public final void setPosition(double value) {
+    public final void setScrollBarPosition(double value) {
         position.set(value);
         // When the position is changed explicitly, we need to make sure
         // the absolute offset is changed accordingly.
@@ -1008,9 +1008,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     void synchronizePositionWithAbsoluteOffset() {
         if (sheet.getViewPortHeight() >= estimatedSize) {
-            setPosition(0d);
+            setScrollBarPosition(0d);
         } else {
-            setPosition(absoluteOffset / (estimatedSize - sheet.getViewPortHeight()));
+            setScrollBarPosition(absoluteOffset / (estimatedSize - sheet.getViewPortHeight()));
         }
     }
 
@@ -1347,10 +1347,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         boolean posSet = false;
 
         if (index > getItemsCount() - 1) {
-            setPosition(1);
+            setScrollBarPosition(1);
             posSet = true;
         } else if (index < 0) {
-            setPosition(0);
+            setScrollBarPosition(0);
             posSet = true;
         }
 
@@ -1758,7 +1758,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             int firstIndex = cell.getIndex();
             double firstCellPos = sheet.getCellPosition(cell).getY();
             if (firstIndex == 0 && firstCellPos > 0) {
-                setPosition(0.0f);
+                setScrollBarPosition(0.0f);
 
                 for (int i = 0; i < sheet.size(); i++) {
                     cell = sheet.get(i);
@@ -1823,7 +1823,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             }
             sheet.setCellIndex(cell, nextIndex);
-            addLastCellToSheet(cell);
+            sheet.addLastCellToSheet(cell);
             double cellBreadth = getCellWidth(cell);
 
             offsetX += cellBreadth;
@@ -1847,12 +1847,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
 
-    private void addLastCellToSheet(T cell) {
-        sheet.addLast(cell);
-        Point2D p = sheet.getCellPosition(cell);
-        sheet.positionCell(cell, p.getX(), p.getY());
-        sheet.updateCellCacheSize(cell);
-    }
+
 
     private void notifyIndexExceedsMaximum() {
 
@@ -2211,7 +2206,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void adjustPositionToIndex(int index) {
         int cellCount = getItemsCount();
         if (cellCount <= 0) {
-            setPosition(0.0f);
+            setScrollBarPosition(0.0f);
         } else {
             double targetOffset = 0;
             double estSize = estimatedSize/cellCount;
@@ -2266,7 +2261,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             recalculateEstimatedSize();
         }
 
-        setPosition(newPosition);
+        setScrollBarPosition(newPosition);
         return absoluteOffset - origAbsoluteOffset;
 
     }

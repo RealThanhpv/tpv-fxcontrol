@@ -543,7 +543,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
         // Fix for RT-11299
         FlowCell<T> cell = flow.getFirstVisibleCell();
         if (cell == null || pos < cell.getIndex()) {
-            flow.setPosition(pos / (double) getItemCount());
+            flow.setScrollBarPosition(pos / (double) getItemCount());
         }
     }
 
@@ -557,13 +557,13 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
         // Fix for RT-11299
         FlowCell<T> cell = flow.getLastVisibleCell();
         if (cell == null || cell.getIndex() < pos) {
-            flow.setPosition(pos / (double) getItemCount());
+            flow.setScrollBarPosition(pos / (double) getItemCount());
         }
     }
 
     private void onMoveToFirstCell() {
         flow.scrollTo(0);
-        flow.setPosition(0);
+        flow.setScrollBarPosition(0);
     }
 
     private void onMoveToLastCell() {
@@ -573,7 +573,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
         int endPos = getItemCount() - 1;
 //        sm.select(endPos);
         flow.scrollTo(endPos);
-        flow.setPosition(1);
+        flow.setScrollBarPosition(1);
     }
 
     /**

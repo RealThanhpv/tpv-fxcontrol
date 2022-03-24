@@ -543,6 +543,13 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return null;
     }
 
+    void addLastCellToSheet(T cell) {
+        addLast(cell);
+        Point2D p = getCellPosition(cell);
+        positionCell(cell, p.getX(), p.getY());
+        updateCellCacheSize(cell);
+    }
+
 
 
 
