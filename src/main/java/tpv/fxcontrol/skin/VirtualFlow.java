@@ -1224,21 +1224,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * are no cells, or if the viewport length is 0.
      * @return the last visible cell
      */
-    public T getLastVisibleCell() {
-        if (sheet.isEmpty() || sheet.getViewPortHeight() <= 0) {
-            return null;
-        }
 
-        T cell;
-        for (int i = sheet.size() - 1; i >= 0; i--) {
-            cell = sheet.get(i);
-            if (!cell.isEmpty()) {
-                return cell;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Locates and returns the first non-empty IndexedCell that is partially or
@@ -2329,6 +2315,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     public T getVisibleCell(int index) {
         return sheet.getVisibleCell(index);
+    }
+
+    public T getLastVisibleCell() {
+       return sheet.getLastVisibleCell();
     }
 
 

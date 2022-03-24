@@ -527,6 +527,22 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
 
 
+    public T getLastVisibleCell() {
+        if (isEmpty() || getViewPortHeight() <= 0) {
+            return null;
+        }
+
+        T cell;
+        for (int i = size() - 1; i >= 0; i--) {
+            cell = get(i);
+            if (!cell.isEmpty()) {
+                return cell;
+            }
+        }
+
+        return null;
+    }
+
 
 
 
