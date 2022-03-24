@@ -1392,7 +1392,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             posSet = true;
         }
 
-        if (! posSet) {
+        if (!posSet) {
             adjustPositionToIndex(index);
         }
 
@@ -1559,10 +1559,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell != null){
             return cell;
         }
-        return createOrUseAccumCell(index);
-
+        cell = createOrUseAccumCell();
+        setCellIndex(cell, index);
+        return cell;
     }
-    private T createOrUseAccumCell(int index){
+    private T createOrUseAccumCell(){
         if (accumCell == null) {
                 accumCell = createCell();
                 accumCellParent.getChildren().setAll(accumCell);
@@ -1582,7 +1583,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     }
                 });
         }
-        setCellIndex(accumCell, index);
+
         return accumCell;
     }
 
