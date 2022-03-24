@@ -6,13 +6,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Cell;
+import javafx.scene.layout.Region;
 import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 
 
-public class Sheet<T extends FlowIndexedCell> extends Group {
+public class Sheet<T extends FlowIndexedCell> extends Region {
     private static final double MAGIC_X = 2;
     /**
      * Indicates that this is a newly created cell and we need call processCSS for it.
@@ -516,6 +517,12 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
             cell.applyCss();
             cell.getProperties().remove(NEW_CELL);
         }
+    }
+
+    void positionCell(T cell, double positionX, double positionY) {
+        cell.setLayoutX(snapSpaceX(positionX));
+        cell.setLayoutY(snapSpaceY(positionY));
+
     }
 
 

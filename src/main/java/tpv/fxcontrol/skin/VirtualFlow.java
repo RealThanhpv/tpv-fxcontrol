@@ -1413,7 +1413,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             for (int i = currIndex - 1; i >= 0 && i < size; i--) {
                 final T cell = sheet.get(i);
                 Point2D pos = sheet.getCellPosition(cell);
-                positionCell(cell, pos.getX(), pos.getY());
+                sheet.positionCell(cell, pos.getX(), pos.getY());
                 sheet.updateCellCacheSize(cell);
             }
 
@@ -1421,7 +1421,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             for (int i = currIndex; i >= 0 && i < size; i++) {
                 final T cell = sheet.get(i);
                 Point2D pos = sheet.getCellPosition(cell);
-                positionCell(cell, pos.getX(), pos.getY());
+                sheet.positionCell(cell, pos.getX(), pos.getY());
                 sheet.updateCellCacheSize(cell);
 
             }
@@ -1629,11 +1629,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
 
-    private void positionCell(T cell, double positionX,  double positionY) {
-        cell.setLayoutX(snapSpaceX(positionX));
-        cell.setLayoutY(snapSpaceY(positionY));
 
-    }
 
 
     /**
@@ -1759,9 +1755,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             // Position the cell, and update the maxPrefBreadth variable as we go.
             Point2D p = sheet.getCellPosition(cell);
-            positionCell(cell, p.getX(), p.getY());
+            sheet.positionCell(cell, p.getX(), p.getY());
             sheet.updateCellCacheSize(cell);
-            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
+//            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             --index;
         }
@@ -1781,7 +1777,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 for (int i = 0; i < sheet.size(); i++) {
                     cell = sheet.get(i);
                     Point2D p = sheet.getCellPosition(cell);
-                    positionCell(cell, p.getX(), p.getY());
+                    sheet.positionCell(cell, p.getX(), p.getY());
                     sheet.updateCellCacheSize(cell);
 
                 }
@@ -1868,7 +1864,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void addLastCellToSheet(T cell) {
         sheet.addLast(cell);
         Point2D p = sheet.getCellPosition(cell);
-        positionCell(cell, p.getX(), p.getY());
+        sheet.positionCell(cell, p.getX(), p.getY());
         sheet.updateCellCacheSize(cell);
     }
 
@@ -2215,7 +2211,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // just because items are being added to the ListView)
         if (oppDimension > -1) {
             double prefLength = sheet.getViewPortHeight();
-            max = Math.max(max, prefLength * GOLDEN_RATIO_MULTIPLIER);
+            max =  prefLength * GOLDEN_RATIO_MULTIPLIER;
         }
 
         return max;
