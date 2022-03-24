@@ -305,18 +305,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         // there is no visible cell for the specified index
         return null;
     }
-    T getAvailableCell(int index) {
-        // If there are cells, then we will attempt to get an existing cell
-            // First check the cells that have already been created and are
-            // in use. If this call returns a value, then we can use it
-        T cell = getVisibleCell(index);
-        if (cell != null) {
-            return cell;
-        }
 
-        return getCellFromPile(index);
-
-    }
 
    private T getCellFromPile(int index){
         T cell  = null;
@@ -364,7 +353,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
     double[] updateCellCacheSize(T cell) {
         int cellIndex = cell.getIndex();
 
-        if (itemSizeCache.size() > cellIndex) {
+        if (cellIndex <itemSizeCache.size()) {
 
             double newW = cell.getLayoutBounds().getWidth();
             double newH = cell.getLayoutBounds().getHeight();
@@ -386,6 +375,38 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         return null;
 
 
+    }
+
+    /**
+     * Get a cell which can be used in the layout. This function will reuse
+     * cells from the pile where possible, and will create new cells when
+     * necessary.
+     * @param prefIndex the preferred index
+     * @return the available cell
+     */
+    protected T getFromPileOrCreateCell(int prefIndex) {
+        T cell  = getAndRemoveCellFromPile(prefIndex);
+        if(cell == null){
+            T accumCell = flow.getOrCreateAccumCell();
+            setCellIndex(accumCell, prefIndex);
+        }
+
+        if(cell == null){
+            cell =  createCell();
+            if (cell.getParent() == null) {
+                addCell(cell);
+
+            }
+        }
+        setCellIndex(cell, prefIndex);
+
+        return cell;
+    }
+
+    T createCell(){
+        T cell = flow.getCellFactory().call(flow);
+        cell.getProperties().put(Sheet.NEW_CELL, null);
+        return cell;
     }
 
     double recalculateAndImproveEstimatedSize(int improve, int itemCount) {
@@ -468,13 +489,12 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
 
         boolean doRelease = false;
 
-        // Do we have a visible cell for this index?
         T cell = getVisibleCell(idx);
+
         if (cell == null) { // we might get the accumcell here
-            cell = getAvailableCell(idx);
-
-
+            cell =  getCellFromPile(idx);
         }
+
         if(cell == null){
             cell =  flow.getOrCreateAccumCell();
             setCellIndex(cell, idx);

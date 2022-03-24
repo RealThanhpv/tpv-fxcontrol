@@ -1213,38 +1213,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
 
-    /**
-     * Get a cell which can be used in the layout. This function will reuse
-     * cells from the pile where possible, and will create new cells when
-     * necessary.
-     * @param prefIndex the preferred index
-     * @return the available cell
-     */
-    protected T getAvailableOrCreateCell(int prefIndex) {
-        T cell  = sheet.getAndRemoveCellFromPile(prefIndex);
-        if(cell == null){
-            getOrCreateAccumCell();
-            sheet.setCellIndex(accumCell, prefIndex);
-            System.out.println(accumCell);
-        }
 
-        if(cell == null){
-            cell =  createCell();
-            if (cell.getParent() == null) {
-                sheet.addCell(cell);
-
-            }
-        }
-        sheet.setCellIndex(cell, prefIndex);
-
-        return cell;
-    }
-
-    private T createCell(){
-        T cell = getCellFactory().call(this);
-        cell.getProperties().put(Sheet.NEW_CELL, null);
-        return cell;
-    }
 
 
 
@@ -1360,7 +1329,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
         if (targetCell != null) {
-            T cell = getAvailableOrCreateCell(targetIndex);
+            T cell = sheet.getFromPileOrCreateCell(targetIndex);
             cell.setVisible(true);
             if (downOrRight) {
                 sheet.addLast(cell);
@@ -1557,7 +1526,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
      T getOrCreateAccumCell(){
         if (accumCell == null) {
-                accumCell = createCell();
+                accumCell = sheet.createCell();
                 accumCellParent.getChildren().setAll(accumCell);
 
                 // Note the screen reader will attempt to find all
@@ -1760,7 +1729,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
         while (index >= 0 && ( first)) {
 
-            cell = getAvailableOrCreateCell(index);
+            cell = sheet.getFromPileOrCreateCell(index);
             sheet.setCellIndex(cell, index);
             sheet.addFirst(cell);
 
@@ -1849,7 +1818,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 return false;
             }
 
-            T cell = getAvailableOrCreateCell(nextIndex);
+            T cell = sheet.getFromPileOrCreateCell(nextIndex);
             addLastCellToSheet(cell);
             double cellBreadth = getCellWidth(cell);
 
