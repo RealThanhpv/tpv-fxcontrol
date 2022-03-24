@@ -6,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Cell;
-import javafx.scene.layout.Region;
 import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
@@ -15,6 +14,12 @@ import java.util.BitSet;
 
 public class Sheet<T extends FlowIndexedCell> extends Group {
     private static final double MAGIC_X = 2;
+    /**
+     * Indicates that this is a newly created cell and we need call processCSS for it.
+     *
+     * See RT-23616 for more details.
+     */
+     static final String NEW_CELL = "newcell";
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
      * the layout pass. In a vertical flow this would be the same as the clip
@@ -240,7 +245,7 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * at a later date). This method is protected to allow subclasses to clean up
      * appropriately.
      */
-     void addAllToPile() {
+     void moveAllCellsToPile() {
         for (int i = 0, max = size(); i < max; i++) {
             addToPile(removeFirst());
         }
@@ -466,7 +471,10 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         // Do we have a visible cell for this index?
         T cell = getVisibleCell(idx);
         if (cell == null) { // we might get the accumcell here
-            cell = flow.getCell(idx);
+            cell = getAvailableCell(idx);
+            if(cell == null){
+               cell =  flow.getOrCreateAccumCell(idx);
+            }
             doRelease = true;
         }
         // Make sure we have enough space in the cache to store this index
@@ -481,6 +489,31 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         }
         return answer;
     }
+
+
+    /**
+     * The VirtualFlow uses this method to set a cells index (rather than calling
+     * {@link FlowIndexedCell#updateIndex(int)} directly), so it is a perfect place
+     * for subclasses to override if this if of interest.
+     *
+     * @param cell The cell whose index will be updated.
+     * @param index The new index for the cell.
+     */
+    protected void setCellIndex(T cell, int index) {
+        assert cell != null;
+        cell.updateIndex(index);
+
+        // make sure the cell is sized correctly. This is important for both
+        // general layout of cells in a VirtualFlow, but also in cases such as
+        // RT-34333, where the sizes were being reported incorrectly to the
+        // ComboBox popup.
+        if ((cell.isNeedsLayout() && cell.getScene() != null) || cell.getProperties().containsKey(NEW_CELL)) {
+            cell.applyCss();
+            cell.getProperties().remove(NEW_CELL);
+        }
+    }
+
+
 
 
 }

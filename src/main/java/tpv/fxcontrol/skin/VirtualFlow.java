@@ -98,12 +98,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     private static final int MIN_SCROLLING_LINES_PER_PAGE = 8;
 
-    /**
-     * Indicates that this is a newly created cell and we need call processCSS for it.
-     *
-     * See RT-23616 for more details.
-     */
-    private static final String NEW_CELL = "newcell";
+
 
     private static final double GOLDEN_RATIO_MULTIPLIER = 0.618033987;
 
@@ -1065,12 +1060,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // if the width and/or height is 0, then there is no point doing
         // any of this work. In particular, this can happen during startup
         if (width <= 0 || height <= 0) {
-            sheet.addAllToPile();
-            lastWidth = width;
-            lastHeight = height;
-            hbar.setVisible(false);
-            vbar.setVisible(false);
-            corner.setVisible(false);
+            clearViewPort();
             return;
         }
 
@@ -1139,8 +1129,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 lastWidth != width||
                 (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
 
-
-
         if (!rebuild) {
             if (isSizeExpanded()) {
                 addTrailingCells();
@@ -1161,6 +1149,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         sheet.cleanPile();
     }
 
+    private void clearViewPort() {
+        sheet.moveAllCellsToPile();
+        lastWidth = getWidth();
+        lastHeight = getHeight();
+        hbar.setVisible(false);
+        vbar.setVisible(false);
+        corner.setVisible(false);
+    }
+
     private boolean isSizeExpanded() {
         return (isVertical() && getHeight() > lastHeight) || (!isVertical() && getWidth() > lastWidth);
     }
@@ -1174,7 +1171,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void rebuild(int currentIndex) {
         setMaxPrefBreadth(-1);
-        sheet.addAllToPile();
+        sheet.moveAllCellsToPile();
         addLeadingCells(currentIndex);
         addTrailingCells();
     }
@@ -1226,7 +1223,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     protected T getAvailableOrCreateCell(int prefIndex) {
         T cell  = sheet.getAndRemoveCellFromPile(prefIndex);
         if(cell == null){
-            getCell(prefIndex);
+            getOrCreateAccumCell(prefIndex);
         }
 
         if(cell == null){
@@ -1235,13 +1232,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 sheet.addCell(cell);
             }
         }
-        setCellIndex(cell, prefIndex);
+        sheet.setCellIndex(cell, prefIndex);
         return cell;
     }
 
     private T createCell(){
         T cell = getCellFactory().call(this);
-        cell.getProperties().put(NEW_CELL, null);
+        cell.getProperties().put(Sheet.NEW_CELL, null);
         return cell;
     }
 
@@ -1346,7 +1343,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
 
             adjustPositionToIndex(index);
-            sheet.addAllToPile();
+            sheet.moveAllCellsToPile();
             requestLayout();
         }
     }
@@ -1554,13 +1551,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param index the index
      * @return the cell
      */
-    public T getCell(int index){
-        T cell = sheet.getAvailableCell(index);
-        if(cell != null){
-            return cell;
-        }
-        cell = getOrCreateAccumCell();
-        setCellIndex(cell, index);
+     T getOrCreateAccumCell(int index){
+        T cell = getOrCreateAccumCell();
+        sheet.setCellIndex(cell, index);
         return cell;
     }
     private T getOrCreateAccumCell(){
@@ -1587,27 +1580,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return accumCell;
     }
 
-    /**
-     * The VirtualFlow uses this method to set a cells index (rather than calling
-     * {@link FlowIndexedCell#updateIndex(int)} directly), so it is a perfect place
-     * for subclasses to override if this if of interest.
-     *
-     * @param cell The cell whose index will be updated.
-     * @param index The new index for the cell.
-     */
-    protected void setCellIndex(T cell, int index) {
-        assert cell != null;
-        cell.updateIndex(index);
 
-        // make sure the cell is sized correctly. This is important for both
-        // general layout of cells in a VirtualFlow, but also in cases such as
-        // RT-34333, where the sizes were being reported incorrectly to the
-        // ComboBox popup.
-        if ((cell.isNeedsLayout() && cell.getScene() != null) || cell.getProperties().containsKey(NEW_CELL)) {
-            cell.applyCss();
-            cell.getProperties().remove(NEW_CELL);
-        }
-    }
 
 
 
@@ -1673,7 +1646,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             return getFixedCellSize();
         }
 
-        T cell = getCell(index);
+        T cell = getOrCreateAccumCell(index);
         double length = getCellHeight(cell);
 
         releaseIfCellIsAccum(cell);
@@ -1683,7 +1656,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      */
     double getCellWidth(int index) {
-        T cell = getCell(index);
+        T cell = getOrCreateAccumCell(index);
         double b = getCellWidth(cell);
         releaseIfCellIsAccum(cell);
         return b;
@@ -1815,7 +1788,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         while (index >= 0 && ( first)) {
 
             cell = getAvailableOrCreateCell(index);
-            setCellIndex(cell, index);
+            sheet.setCellIndex(cell, index);
             sheet.addFirst(cell);
 
             // A little gross but better than alternatives because it reduces
