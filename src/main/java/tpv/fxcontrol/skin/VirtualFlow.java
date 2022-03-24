@@ -1224,16 +1224,21 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T cell  = sheet.getAndRemoveCellFromPile(prefIndex);
         if(cell == null){
             getOrCreateAccumCell();
-//            sheet.setCellIndex(accumCell, prefIndex);
+
+            sheet.setCellIndex(accumCell, prefIndex);
+            System.out.println(accumCell);
         }
 
         if(cell == null){
             cell =  createCell();
             if (cell.getParent() == null) {
                 sheet.addCell(cell);
+
             }
         }
         sheet.setCellIndex(cell, prefIndex);
+//        System.out.println(cell);
+
         return cell;
     }
 
