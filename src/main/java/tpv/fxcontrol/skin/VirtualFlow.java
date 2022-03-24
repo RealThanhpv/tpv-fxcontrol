@@ -1223,7 +1223,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     protected T getAvailableOrCreateCell(int prefIndex) {
         T cell  = sheet.getAndRemoveCellFromPile(prefIndex);
         if(cell == null){
-            getOrCreateAccumCell(prefIndex);
+            getOrCreateAccumCell();
+//            sheet.setCellIndex(accumCell, prefIndex);
         }
 
         if(cell == null){
@@ -1551,12 +1552,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param index the index
      * @return the cell
      */
-     T getOrCreateAccumCell(int index){
-        T cell = getOrCreateAccumCell();
-        sheet.setCellIndex(cell, index);
-        return cell;
-    }
-    private T getOrCreateAccumCell(){
+
+     T getOrCreateAccumCell(){
         if (accumCell == null) {
                 accumCell = createCell();
                 accumCellParent.getChildren().setAll(accumCell);
@@ -1646,7 +1643,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             return getFixedCellSize();
         }
 
-        T cell = getOrCreateAccumCell(index);
+        T cell = getOrCreateAccumCell();
+        sheet.setCellIndex(cell, index);
         double length = getCellHeight(cell);
 
         releaseIfCellIsAccum(cell);
@@ -1656,7 +1654,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /**
      */
     double getCellWidth(int index) {
-        T cell = getOrCreateAccumCell(index);
+        T cell = getOrCreateAccumCell();
+        sheet.setCellIndex(cell, index);
         double b = getCellWidth(cell);
         releaseIfCellIsAccum(cell);
         return b;

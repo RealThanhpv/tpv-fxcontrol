@@ -473,7 +473,8 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
         if (cell == null) { // we might get the accumcell here
             cell = getAvailableCell(idx);
             if(cell == null){
-               cell =  flow.getOrCreateAccumCell(idx);
+               cell =  flow.getOrCreateAccumCell();
+               setCellIndex(cell, idx);
             }
             doRelease = true;
         }
