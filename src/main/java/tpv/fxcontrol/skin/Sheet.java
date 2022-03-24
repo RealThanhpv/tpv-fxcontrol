@@ -384,24 +384,6 @@ public class Sheet<T extends FlowIndexedCell> extends Group {
      * @param prefIndex the preferred index
      * @return the available cell
      */
-    protected T getFromPileOrCreateCell(int prefIndex) {
-        T cell  = getAndRemoveCellFromPile(prefIndex);
-        if(cell == null){
-            T accumCell = flow.getOrCreateAccumCell();
-            setCellIndex(accumCell, prefIndex);
-        }
-
-        if(cell == null){
-            cell =  createCell();
-            if (cell.getParent() == null) {
-                addCell(cell);
-
-            }
-        }
-        setCellIndex(cell, prefIndex);
-
-        return cell;
-    }
 
     T createCell(){
         T cell = flow.getCellFactory().call(flow);

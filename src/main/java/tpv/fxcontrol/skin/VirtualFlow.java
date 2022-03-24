@@ -1329,7 +1329,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
         if (targetCell != null) {
-            T cell = sheet.getFromPileOrCreateCell(targetIndex);
+            T cell = sheet.getAndRemoveCellFromPile(targetIndex);
+            if(cell == null){
+                cell = sheet.createCell();
+                if(cell.getParent() == null){
+                    sheet.addCell(cell);
+                }
+            }
+            sheet.setCellIndex(cell, targetIndex);
+
             cell.setVisible(true);
             if (downOrRight) {
                 sheet.addLast(cell);
@@ -1729,7 +1737,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
         while (index >= 0 && ( first)) {
 
-            cell = sheet.getFromPileOrCreateCell(index);
+            cell = sheet.getAndRemoveCellFromPile(index);
+
+            if(cell == null){
+                cell = sheet.createCell();
+
+                        sheet.addCell(cell);
+
+
+            }
+
             sheet.setCellIndex(cell, index);
             sheet.addFirst(cell);
 
@@ -1818,7 +1835,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 return false;
             }
 
-            T cell = sheet.getFromPileOrCreateCell(nextIndex);
+            T cell = sheet.getAndRemoveCellFromPile(nextIndex);
+            if(cell ==  null){
+                cell  = sheet.createCell();
+                sheet.addCell(cell);
+
+            }
+            sheet.setCellIndex(cell, nextIndex);
             addLastCellToSheet(cell);
             double cellBreadth = getCellWidth(cell);
 
