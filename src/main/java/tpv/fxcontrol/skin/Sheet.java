@@ -550,6 +550,23 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         updateCellCacheSize(cell);
     }
 
+    /**
+     * Gets the length of a specific cell
+     */
+    double getCellHeight(T cell) {
+
+        return cell.getLayoutBounds().getHeight();
+    }
+
+    /**
+     * Gets the breadth of a specific cell
+     */
+    double getCellWidth(Cell cell) {
+
+        return cell.getLayoutBounds().getWidth();
+    }
+
+
 
 
 

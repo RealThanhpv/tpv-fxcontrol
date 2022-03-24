@@ -351,7 +351,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                                 T lastCell = sheet.getLast();
                                 lineSize =
                                         (sheet.getCellPosition(lastCell).getY()
-                                            + getCellHeight(lastCell)
+                                            + sheet.getCellHeight(lastCell)
                                             - sheet.getCellPosition(sheet.getFirst()).getY())
                                         / sheet.size();
                             }
@@ -1260,7 +1260,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToBottom(T lastCell) {
         if (lastCell != null) {
-            scrollPixels(sheet.getCellPosition(lastCell).getY() + getCellHeight(lastCell) - sheet.getViewPortHeight());
+            scrollPixels(sheet.getCellPosition(lastCell).getY() + sheet.getCellHeight(lastCell) - sheet.getViewPortHeight());
         }
     }
 
@@ -1272,7 +1272,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     public void scrollTo(T cell) {
         if (cell != null) {
             final double start = sheet.getCellPosition(cell).getY();
-            final double length = getCellHeight(cell);
+            final double length = sheet.getCellHeight(cell);
             final double end = start + length;
             final double viewportLength = sheet.getViewPortHeight();
 
@@ -1326,11 +1326,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             cell.setVisible(true);
             if (downOrRight) {
                 sheet.addLast(cell);
-                scrollPixels(getCellHeight(cell));
+                scrollPixels(sheet.getCellHeight(cell));
             } else {
                 // up or left
                 sheet.addFirst(cell);
-                scrollPixels(-getCellHeight(cell));
+                scrollPixels(-sheet.getCellHeight(cell));
             }
             return true;
         }
@@ -1598,21 +1598,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-    /**
-     * Gets the length of a specific cell
-     */
-    double getCellHeight(T cell) {
-        if (cell == null)        {return 0;}
-        return cell.getLayoutBounds().getHeight();
-    }
-
-    /**
-     * Gets the breadth of a specific cell
-     */
-    double getCellWidth(Cell cell) {
-        if (cell == null)        {return 0;}
-        return cell.getLayoutBounds().getWidth();
-    }
 
 
 
@@ -1671,7 +1656,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             if (cell.isEmpty()) continue;
 
             final double cellStart = sheet.getCellPosition(cell).getY();
-            final double cellEnd = cellStart + getCellHeight(cell);
+            final double cellEnd = cellStart + sheet.getCellHeight(cell);
 
             // we use the magic +2 to allow for a little bit of fuzziness,
             // this is to help in situations such as RT-34407
@@ -1790,8 +1775,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T lastCell = sheet.getLast();
 
         Point2D pos = sheet.getCellPosition(lastCell);
-        double offsetX = pos.getX() + getCellWidth(lastCell);
-        double offsetY = pos.getY() + getCellHeight(lastCell);
+        double offsetX = pos.getX() + sheet.getCellWidth(lastCell);
+        double offsetY = pos.getY() + sheet.getCellHeight(lastCell);
 
         int nextIndex = lastCell.getIndex() + 1;
         final int itemCount = getItemsCount();
@@ -1824,11 +1809,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             sheet.setCellIndex(cell, nextIndex);
             sheet.addLastCellToSheet(cell);
-            double cellBreadth = getCellWidth(cell);
+            double cellBreadth = sheet.getCellWidth(cell);
 
             offsetX += cellBreadth;
             if(!sheet.isInRow(offsetX)){
-                offsetY += getCellHeight(cell);
+                offsetY += sheet.getCellHeight(cell);
                 offsetX = 0;
             }
 
@@ -1969,7 +1954,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             final boolean lengthBarVisible =
                     getPosition() > 0
                     || itemCount > cellsSize
-                    || (itemCount == cellsSize && (lastPos.getY() + getCellHeight(lastCell)) > sheet.getViewPortHeight());
+                    || (itemCount == cellsSize && (lastPos.getY() + sheet.getCellHeight(lastCell)) > sheet.getViewPortHeight());
 
             if (lengthBarVisible ^ needLengthBar) {
                 needLengthBar = lengthBarVisible;
