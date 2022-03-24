@@ -1559,11 +1559,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(cell != null){
             return cell;
         }
-        cell = createOrUseAccumCell();
+        cell = getOrCreateAccumCell();
         setCellIndex(cell, index);
         return cell;
     }
-    private T createOrUseAccumCell(){
+    private T getOrCreateAccumCell(){
         if (accumCell == null) {
                 accumCell = createCell();
                 accumCellParent.getChildren().setAll(accumCell);
