@@ -1363,7 +1363,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
         if (targetCell != null) {
             T cell = getAvailableOrCreateCell(targetIndex);
-            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
+//            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             if (downOrRight) {
                 sheet.addLast(cell);
@@ -1539,13 +1539,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     /** {@inheritDoc} */
     @Override protected double computePrefWidth(double height) {
-        double w = isVertical() ? getPrefBreadth(height) : getPrefLength();
+        double w =  getPrefBreadth(height);
         return w + vbar.prefWidth(-1);
     }
 
     /** {@inheritDoc} */
     @Override protected double computePrefHeight(double width) {
-        double h = isVertical() ? getPrefLength() : getPrefBreadth(width);
+        double h = isVertical() ? sheet.getViewPortHeight() : getPrefBreadth(width);
         return h + hbar.prefHeight(-1);
     }
 
@@ -1656,23 +1656,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return length;
     }
 
-    /**
-     */
-    double getCellWidth(int index) {
-        T cell = getOrCreateAccumCell();
-        sheet.setCellIndex(cell, index);
-        double b = getCellWidth(cell);
-        releaseIfCellIsAccum(cell);
-        return b;
-    }
+
 
     /**
      * Gets the length of a specific cell
      */
     double getCellHeight(T cell) {
-        if (cell == null)
-        {return 0;}
-        if (fixedCellSizeEnabled) {return getFixedCellSize();};
+        if (cell == null)        {return 0;}
         return cell.getLayoutBounds().getHeight();
     }
 
@@ -2295,39 +2285,22 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     private double getPrefBreadth(double oppDimension) {
-        double max = getMaxCellWidth(10);
+        double max = 0;
 
         // This primarily exists for the case where we do not want the breadth
         // to grow to ensure a golden ratio between width and height (for example,
         // when a ListView is used in a ComboBox - the width should not grow
         // just because items are being added to the ListView)
         if (oppDimension > -1) {
-            double prefLength = getPrefLength();
+            double prefLength = sheet.getViewPortHeight();
             max = Math.max(max, prefLength * GOLDEN_RATIO_MULTIPLIER);
         }
 
         return max;
     }
 
-    private double getPrefLength() {
-        double sum = 0.0;
-        int rows = Math.min(10, getItemsCount());
-        for (int i = 0; i < rows; i++) {
-            sum += getCellHeight(i);
-        }
-        return sum;
-    }
 
-    double getMaxCellWidth(int rowsToCount) {
-        double max = 0.0;
 
-        // we always measure at least one row
-        int rows = Math.max(1, rowsToCount == -1 ? getItemsCount() : rowsToCount);
-        for (int i = 0; i < rows; i++) {
-            max = Math.max(max, getCellWidth(i));
-        }
-        return max;
-    }
 
 
     //TODO need to re-implement
