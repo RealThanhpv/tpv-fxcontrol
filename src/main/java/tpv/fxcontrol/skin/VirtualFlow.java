@@ -1328,13 +1328,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         int indexDiff = downOrRight ? -1 : 1;
 
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
+
         if (targetCell != null) {
             T cell = sheet.getAndRemoveCellFromPile(targetIndex);
             if(cell == null){
                 cell = sheet.createCell();
-                if(cell.getParent() == null){
-                    sheet.addCell(cell);
-                }
+                sheet.addCell(cell);
             }
             sheet.setCellIndex(cell, targetIndex);
 
