@@ -13,7 +13,7 @@ import java.util.BitSet;
 
 
 public class Sheet<T extends FlowIndexedCell> extends Region {
-    private static final double MAGIC_X = 2;
+    private static final double MAGIC_X = 20;
     /**
      * Indicates that this is a newly created cell and we need call processCSS for it.
      *
@@ -83,7 +83,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             }
 
             layoutX = layoutX + prefWidth;
-            if(!isInRow(layoutX )) {
+            if(!isInRow(layoutX)) {
                 layoutX = 0;
                 layoutY = layoutY + maxCellHeight;
                 maxCellHeight = 0;
@@ -175,7 +175,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         pile.clear();
     }
 
-     T getLast() {
+    T getLast() {
         return cells.getLast();
     }
 

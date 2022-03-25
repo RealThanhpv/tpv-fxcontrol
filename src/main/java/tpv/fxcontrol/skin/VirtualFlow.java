@@ -224,7 +224,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     // used for panning the virtual flow
-    private double lastX;
     private double lastY;
     private boolean isPanning = false;
 
@@ -262,6 +261,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // --- sheet
         sheet = new Sheet<>(this);
         sheet.getStyleClass().add("sheet");
+
+
 //
 
 
@@ -269,6 +270,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         clipView = new ClippedContainer(this);
         clipView.setNode(sheet);
         getChildren().add(clipView);
+
+
 
         // --- accumCellParent
         accumCellParent = new Group();
@@ -450,8 +453,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             event.consume();
         });
         getChildren().add(vbar);
-
-
 
 
         ChangeListener<Number> listenerY = (ov, t, t1) -> {
@@ -686,7 +687,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void resetScrollBars(){
         lastPosition = 0;
-//        hbar.setValue(0);
         vbar.setValue(0);
         setScrollBarPosition(0.0f);
     }
@@ -2138,22 +2138,24 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private int computeCurrentIndex() {
         double total = 0;
         int currentCellCount = getItemsCount();
-        double estSize = estimatedSize / currentCellCount;
         int index = -1;
-
+        double layoutX = 0;
         for (int i = 0; i < currentCellCount; i++) {
-            double[] nextSize = sheet.getCellSize(i);
-            if (nextSize == null) {
-                nextSize = new double[]{0d, estSize};
+            double[] nextSize = sheet.getOrCreateCacheCellSize(i);
+            layoutX += nextSize[0];
+            if(!sheet.isInRow(layoutX)){
+                total = total + nextSize[1];
+                layoutX  = 0;
             }
-            total = total + nextSize[1];
-            if (total > absoluteOffset) {
+
+            if (total >= absoluteOffset) {
                 index =  i;
                 break;
             }
         }
         if(index == -1)
         index =  currentCellCount == 0 ? 0 : currentCellCount - 1;
+        System.out.printf("index: %s, offset %s\n",index, absoluteOffset);
         return index;
     }
 

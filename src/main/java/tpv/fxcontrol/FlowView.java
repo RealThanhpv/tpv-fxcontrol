@@ -42,6 +42,8 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -352,12 +354,16 @@ public class FlowView<T> extends Control {
         getProperties().addListener((MapChangeListener<Object, Object>) change -> {
             if (change.wasAdded() && "selectFirstRowByDefault".equals(change.getKey())) {
                 Boolean _selectFirstRowByDefault = (Boolean) change.getValueAdded();
-                if (_selectFirstRowByDefault == null) return;
+                if (_selectFirstRowByDefault == null) {
+                    return;
+                }
                 selectFirstRowByDefault = _selectFirstRowByDefault;
             }
         });
 
         pseudoClassStateChanged(PSEUDO_CLASS_VERTICAL, true);
+
+
     }
 
 
