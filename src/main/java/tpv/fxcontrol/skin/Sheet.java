@@ -42,6 +42,28 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         this.viewportBreadth = value;
     }
 
+    VirtualRow<T> getLastRow(){
+        if(getChildren().isEmpty()){
+            return null;
+        }
+        return (VirtualRow<T>) getChildren().get(getChildren().size()-1);
+    }
+
+    VirtualRow<T> getFirstRow(){
+        if(getChildren().isEmpty()){
+            return null;
+        }
+        return (VirtualRow<T>) getChildren().get(0);
+    }
+
+    void appendRow(VirtualRow<T>  row){
+        getChildren().add(row);
+    }
+
+    void prependRow(VirtualRow<T> row){
+        getChildren().add(0, row);
+    }
+
     final double getViewPortWidth() {
         return viewportBreadth;
     }
