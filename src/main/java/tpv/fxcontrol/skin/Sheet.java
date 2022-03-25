@@ -13,7 +13,7 @@ import java.util.BitSet;
 
 
 public class Sheet<T extends FlowIndexedCell> extends Region {
-    private static final double MAGIC_X = 20;
+    private static final double MAGIC_X = 24;
     /**
      * Indicates that this is a newly created cell and we need call processCSS for it.
      *
@@ -311,10 +311,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         for (int i = 0; i < pile.size(); i++) {
             cell = pile.get(i);
             if (cell.getIndex() == index) {
-                // Note that we don't remove from the pile: if we do it leads
-                // to a severe performance decrease. This seems to be OK, as
-                // getCell() is only used for cell measurement purposes.
-                // pile.remove(i);
                 return cell;
             }
         }
@@ -404,7 +400,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         for (; (i < itemCount && i < cacheCount); i++) {
             double[] size = itemSizeCache.get(i);
             if (size != null) {
-                totalX = totalX + size[0];
+                totalX += size[0];
                 if(!isInRow(totalX)) {
                     totalY = totalY + size[1];
                     totalX = 0;
@@ -416,7 +412,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     }
 
-    void resetSizeEstimates() {
+    void resetSizeCache() {
         itemSizeCache.clear();
     }
 

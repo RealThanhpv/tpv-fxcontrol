@@ -35,7 +35,6 @@ import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.BooleanPropertyBase;
@@ -60,7 +59,6 @@ import javafx.scene.control.ScrollBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -715,7 +713,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         @Override protected void invalidated() {
             int cellCount = get();
-            sheet.resetSizeEstimates();
+            sheet.resetSizeCache();
             estimatedSize = 1d;
             recalculateEstimatedSize();
 
@@ -903,7 +901,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     /** {@inheritDoc} */
     @Override
     protected void layoutChildren() {
-        recalculateEstimatedSize();
+         recalculateEstimatedSize();
         // if the last modification to the position was done via scrollPixels,
         // the absoluteOffset and position are already in sync.
         // However, the position can be modified via different ways (e.g. by
@@ -1033,15 +1031,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         updateScrollBars(recreatedOrRebuilt || rebuild);
         reportSizesAndPosition();
         sheet.cleanPile();
+
+
     }
 
     private void clearViewPort() {
         sheet.moveAllCellsToPile();
         lastWidth = getWidth();
         lastHeight = getHeight();
-//        hbar.setVisible(false);
         vbar.setVisible(false);
-//        corner.setVisible(false);
     }
 
     private boolean isSizeExpanded() {

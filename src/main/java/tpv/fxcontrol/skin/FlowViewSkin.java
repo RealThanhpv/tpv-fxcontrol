@@ -388,7 +388,6 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
                 return FXCollections.observableArrayList(selection);
             }
             case VERTICAL_SCROLLBAR: return flow.getVbar();
-//            case HORIZONTAL_SCROLLBAR: return flow.getHbar();
             default: return super.queryAccessibleAttribute(attribute, parameters);
         }
     }
@@ -522,13 +521,17 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
 
     private void onFocusPreviousCell() {
         FocusModel<T> fm = getSkinnable().getFocusModel();
-        if (fm == null) return;
+        if (fm == null){
+            return;
+        }
         flow.scrollTo(fm.getFocusedIndex());
     }
 
     private void onFocusNextCell() {
         FocusModel<T> fm = getSkinnable().getFocusModel();
-        if (fm == null) return;
+        if (fm == null) {
+            return;
+        }
         flow.scrollTo(fm.getFocusedIndex());
     }
 
@@ -566,11 +569,8 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
     }
 
     private void onMoveToLastCell() {
-//        SelectionModel sm = getSkinnable().getSelectionModel();
-//        if (sm == null) return;
-//
+
         int endPos = getItemCount() - 1;
-//        sm.select(endPos);
         flow.scrollTo(endPos);
         flow.setScrollBarPosition(1);
     }
@@ -627,7 +627,9 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
      */
     private int onScrollPageUp(boolean isFocusDriven) {
         FlowCell<T> firstVisibleCell = flow.getFirstVisibleCellWithinViewport();
-        if (firstVisibleCell == null) return -1;
+        if (firstVisibleCell == null) {
+            return -1;
+        }
 
         final SelectionModel<T> sm = getSkinnable().getSelectionModel();
         final FocusModel<T> fm = getSkinnable().getFocusModel();
