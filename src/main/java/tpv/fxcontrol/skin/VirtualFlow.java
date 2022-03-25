@@ -245,7 +245,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     KeyFrame sbTouchKF1;
     KeyFrame sbTouchKF2;
 
-//    private boolean needBreadthBar;
     private boolean needLengthBar;
     private boolean tempVisibility = false;
 
@@ -498,11 +497,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         getChildren().add(vbar);
 
         // --- hbar
-        hbar.setOrientation(Orientation.HORIZONTAL);
-        hbar.addEventHandler(MouseEvent.ANY, event -> {
-            event.consume();
-        });
-        getChildren().add(hbar);
+//        hbar.setOrientation(Orientation.HORIZONTAL);
+//        hbar.addEventHandler(MouseEvent.ANY, event -> {
+//            event.consume();
+//        });
+//        getChildren().add(hbar);
 
         // --- corner
 //        corner = new StackPane();
@@ -511,14 +510,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         // initBinds
         // clipView binds
-        InvalidationListener listenerX = valueModel -> {
-            updateHbar();
-        };
-        verticalProperty().addListener(listenerX);
-        hbar.valueProperty().addListener(listenerX);
-        hbar.visibleProperty().addListener(listenerX);
-        visibleProperty().addListener(listenerX);
-        sceneProperty().addListener(listenerX);
+//        InvalidationListener listenerX = valueModel -> {
+//            updateHbar();
+//        };
+//        verticalProperty().addListener(listenerX);
+//        hbar.valueProperty().addListener(listenerX);
+//        hbar.visibleProperty().addListener(listenerX);
+//        visibleProperty().addListener(listenerX);
+//        sceneProperty().addListener(listenerX);
 
         ChangeListener<Number> listenerY = (ov, t, t1) -> {
             clipView.setClipY(isVertical() ? 0 : vbar.getValue());
@@ -752,7 +751,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void resetScrollBars(){
         lastPosition = 0;
-        hbar.setValue(0);
+//        hbar.setValue(0);
         vbar.setValue(0);
         setScrollBarPosition(0.0f);
     }
@@ -1482,8 +1481,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     /** {@inheritDoc} */
     @Override protected double computePrefHeight(double width) {
-        double h = isVertical() ? sheet.getViewPortHeight() : getPrefBreadth(width);
-        return h + hbar.prefHeight(-1);
+        double h =  sheet.getViewPortHeight() ;
+        return h ;
     }
 
     /**
@@ -1530,17 +1529,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Private implementation                                                  *
      *                                                                         *
      **************************************************************************/
-
-    /**
-     * Returns the scroll bar used for scrolling horizontally. A developer who needs to be notified when a scroll is
-     * happening could attach a listener to the {@link ScrollBar#valueProperty()}.
-     *
-     * @return the scroll bar used for scrolling horizontally
-     * @since 12
-     */
-    public final ScrollBar getHbar() {
-        return hbar;
-    }
+//
+//    /**
+//     * Returns the scroll bar used for scrolling horizontally. A developer who needs to be notified when a scroll is
+//     * happening could attach a listener to the {@link ScrollBar#valueProperty()}.
+//     *
+//     * @return the scroll bar used for scrolling horizontally
+//     * @since 12
+//     */
+//    public final ScrollBar getHbar() {
+//        return hbar;
+//    }
 
     /**
      * Returns the scroll bar used for scrolling vertically. A developer who needs to be notified when a scroll is
