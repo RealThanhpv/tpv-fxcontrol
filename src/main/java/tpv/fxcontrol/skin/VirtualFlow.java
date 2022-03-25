@@ -245,7 +245,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     KeyFrame sbTouchKF1;
     KeyFrame sbTouchKF2;
 
-    private boolean needBreadthBar;
+//    private boolean needBreadthBar;
     private boolean needLengthBar;
     private boolean tempVisibility = false;
 
@@ -290,16 +290,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // block the event from being passed down to children
         final EventDispatcher blockEventDispatcher = (event, tail) -> event;
         // block ScrollEvent from being passed down to scrollbar's skin
-        final EventDispatcher oldHsbEventDispatcher = hbar.getEventDispatcher();
-        hbar.setEventDispatcher((event, tail) -> {
-            if (event.getEventType() == ScrollEvent.SCROLL &&
-                    !((ScrollEvent)event).isDirect()) {
-                tail = tail.prepend(blockEventDispatcher);
-                tail = tail.prepend(oldHsbEventDispatcher);
-                return tail.dispatchEvent(event);
-            }
-            return oldHsbEventDispatcher.dispatchEvent(event, tail);
-        });
+//        final EventDispatcher oldHsbEventDispatcher = hbar.getEventDispatcher();
+//        hbar.setEventDispatcher((event, tail) -> {
+//            if (event.getEventType() == ScrollEvent.SCROLL &&
+//                    !((ScrollEvent)event).isDirect()) {
+//                tail = tail.prepend(blockEventDispatcher);
+//                tail = tail.prepend(oldHsbEventDispatcher);
+//                return tail.dispatchEvent(event);
+//            }
+//            return oldHsbEventDispatcher.dispatchEvent(event, tail);
+//        });
         // block ScrollEvent from being passed down to scrollbar's skin
         final EventDispatcher oldVsbEventDispatcher = vbar.getEventDispatcher();
         vbar.setEventDispatcher((event, tail) -> {
@@ -380,21 +380,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     }
                 }
 
-                ScrollBar nonVirtualBar = isVertical() ? hbar : vbar;
-                if (needBreadthBar) {
-                    double nonVirtualDelta = isVertical() ? event.getDeltaX() : event.getDeltaY();
-                    if (nonVirtualDelta != 0.0) {
-                        double newValue = nonVirtualBar.getValue() - nonVirtualDelta;
-                        if (newValue < nonVirtualBar.getMin()) {
-                            nonVirtualBar.setValue(nonVirtualBar.getMin());
-                        } else if (newValue > nonVirtualBar.getMax()) {
-                            nonVirtualBar.setValue(nonVirtualBar.getMax());
-                        } else {
-                            nonVirtualBar.setValue(newValue);
-                        }
-                        event.consume();
-                    }
-                }
+
             }
         });
 
@@ -1907,15 +1893,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // Bring the clipView.clipX back to 0 if control is vertical or
         // the hbar isn't visible (fix for RT-11666)
         if (isVertical()) {
-            if (needBreadthBar) {
-                clipView.setClipX(hbar.getValue());
-            } else {
+//            if (needBreadthBar) {
+//                clipView.setClipX(hbar.getValue());
+//            } else {
                 // all cells are now less than the width of the flow,
                 // so we should shift the hbar/clip such that
                 // everything is visible in the viewport.
                 clipView.setClipX(0);
-                hbar.setValue(0);
-            }
+//                hbar.setValue(0);
+//            }
         }
     }
 
@@ -1979,7 +1965,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
             sheet.setViewPortWidth((isVertical ? getWidth() : getHeight()) - (needLengthBar ? lengthBarBreadth : 0));
-            sheet.setViewPortHeight((isVertical ? getHeight() : getWidth()) - (needBreadthBar ? breadthBarLength : 0));
+            sheet.setViewPortHeight(getHeight()) ;
         } else {
             sheet.setViewPortWidth((isVertical ? getWidth() : getHeight()));
             sheet.setViewPortHeight((isVertical ? getHeight() : getWidth()));
