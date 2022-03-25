@@ -174,11 +174,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-//    /**
-//     * The scroll bar used for scrolling horizontally. This has package access
-//     * ONLY for testing.
-//     */
-//    private VirtualScrollBar hbar = new VirtualScrollBar(this);
 
     /**
      * The scroll bar used to scrolling vertically. This has package access
@@ -289,17 +284,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // block the event from being passed down to children
         final EventDispatcher blockEventDispatcher = (event, tail) -> event;
         // block ScrollEvent from being passed down to scrollbar's skin
-//        final EventDispatcher oldHsbEventDispatcher = hbar.getEventDispatcher();
-//        hbar.setEventDispatcher((event, tail) -> {
-//            if (event.getEventType() == ScrollEvent.SCROLL &&
-//                    !((ScrollEvent)event).isDirect()) {
-//                tail = tail.prepend(blockEventDispatcher);
-//                tail = tail.prepend(oldHsbEventDispatcher);
-//                return tail.dispatchEvent(event);
-//            }
-//            return oldHsbEventDispatcher.dispatchEvent(event, tail);
-//        });
-        // block ScrollEvent from being passed down to scrollbar's skin
+
         final EventDispatcher oldVsbEventDispatcher = vbar.getEventDispatcher();
         vbar.setEventDispatcher((event, tail) -> {
             if (event.getEventType() == ScrollEvent.SCROLL &&
@@ -463,23 +448,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 else lastX = e.getX();
             }
 
-            // similarly, we do the same in the non-virtual direction
-            double nonVirtualDelta = isVertical() ? xDelta : yDelta;
-//            ScrollBar nonVirtualBar = isVertical() ? hbar : vbar;
-//            if (nonVirtualBar.isVisible()) {
-//                double newValue = nonVirtualBar.getValue() + nonVirtualDelta;
-//                if (newValue < nonVirtualBar.getMin()) {
-//                    nonVirtualBar.setValue(nonVirtualBar.getMin());
-//                } else if (newValue > nonVirtualBar.getMax()) {
-//                    nonVirtualBar.setValue(nonVirtualBar.getMax());
-//                } else {
-//                    nonVirtualBar.setValue(newValue);
-//
-//                    // same as the last* comment above
-//                    if (isVertical()) lastX = e.getX();
-//                    else lastY = e.getY();
-//                }
-//            }
+
         });
 
         /*
@@ -496,28 +465,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         });
         getChildren().add(vbar);
 
-        // --- hbar
-//        hbar.setOrientation(Orientation.HORIZONTAL);
-//        hbar.addEventHandler(MouseEvent.ANY, event -> {
-//            event.consume();
-//        });
-//        getChildren().add(hbar);
 
-        // --- corner
-//        corner = new StackPane();
-//        corner.getStyleClass().setAll("corner");
-//        getChildren().add(corner);
 
-        // initBinds
-        // clipView binds
-//        InvalidationListener listenerX = valueModel -> {
-//            updateHbar();
-//        };
-//        verticalProperty().addListener(listenerX);
-//        hbar.valueProperty().addListener(listenerX);
-//        hbar.visibleProperty().addListener(listenerX);
-//        visibleProperty().addListener(listenerX);
-//        sceneProperty().addListener(listenerX);
 
         ChangeListener<Number> listenerY = (ov, t, t1) -> {
             clipView.setClipY(isVertical() ? 0 : vbar.getValue());
@@ -790,8 +739,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // ensure that the virtual scrollbar adjusts in size based on the current
             // cell count.
             if (countChanged) {
-                VirtualScrollBar lengthBar =  vbar ;
-                lengthBar.setMax(cellCount);
+                vbar.setMax(cellCount);
             }
 
             // I decided *not* to reset maxPrefBreadth here for the following
@@ -947,29 +895,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      *                                                                         *
      **************************************************************************/
 
-    /**
-     * Overridden to implement somewhat more efficient support for layout. The
-     * VirtualFlow can generally be considered as being unmanaged, in that
-     * whenever the position changes, or other such things change, we need
-     * to perform a layout but there is no reason to notify the parent. However
-     * when things change which may impact the preferred size (such as
-     * vertical, createCell, and configCell) then we need to notify the
-     * parent.
-     */
-    @Override public void requestLayout() {
-// Note: This block is commented as it was relaying on a bad assumption on how
-//       layout request was handled in parent class that is now fixed.
-//
-//        // isNeedsLayout() is commented out due to RT-21417. This does not
-//        // appear to impact performance (indeed, it may help), and resolves the
-//        // issue identified in RT-21417.
-//        setNeedsLayout(true);
-
-        // The fix is to prograte this layout request to its parent class.
-        // A better fix will be required if performance is negatively affected
-        // by this fix.
-        super.requestLayout();
-    }
 
     /**
      * Keep the position constant and adjust the absoluteOffset to
