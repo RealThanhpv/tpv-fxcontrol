@@ -311,8 +311,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 ** calculate the delta in the direction of the flow.
                 */
                 double virtualDelta = 0.0;
-                if (isVertical()) {
-                    switch(event.getTextDeltaYUnits()) {
+
+                switch(event.getTextDeltaYUnits()) {
                         case PAGES:
                             virtualDelta = event.getTextDeltaY() * lastHeight;
                             break;
@@ -341,18 +341,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                         case NONE:
                             virtualDelta = event.getDeltaY();
                     }
-                } else { // horizontal
-                    switch(event.getTextDeltaXUnits()) {
-                        case CHARACTERS:
-                            // can we get character size here?
-                            // for now, fall through to pixel values
-                        case NONE:
-                            double dx = event.getDeltaX();
-                            double dy = event.getDeltaY();
-
-                            virtualDelta = (Math.abs(dx) > Math.abs(dy) ? dx : dy);
-                    }
-                }
 
                 if (virtualDelta != 0.0) {
                     /*
@@ -403,7 +391,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                     }
                 }
 
-                lastX = e.getX();
                 lastY = e.getY();
 
                 // determine whether the user has push down on the virtual flow,
@@ -430,13 +417,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // With panning enabled, we support panning in both vertical
             // and horizontal directions, regardless of the fact that
             // VirtualFlow is virtual in only one direction.
-            double xDelta = lastX - e.getX();
             double yDelta = lastY - e.getY();
 
             // figure out the distance that the mouse moved in the virtual
             // direction, and then perform the movement along that axis
             // virtualDelta will contain the amount we actually did move
-            double virtualDelta = isVertical() ? yDelta : xDelta;
+            double virtualDelta =  yDelta;
             double actual = scrollPixels(virtualDelta);
             if (actual != 0) {
                 // update last* here, as we know we've just adjusted the
@@ -444,8 +430,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 // user presses-and-drags a long way past the min or max
                 // values, only to change directions and see the scrollbar
                 // start moving immediately.
-                if (isVertical()) lastY = e.getY();
-                else lastX = e.getX();
+                 lastY = e.getY();
+
             }
 
 
@@ -868,9 +854,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                             getParent().requestLayout();
                         }
                     }
-
                     clearAccumCellAndParent();
-
                 }
             };
         }
