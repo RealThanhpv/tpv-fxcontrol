@@ -51,7 +51,7 @@ public class Main extends Application {
 
         Random random = new Random();
         for (int i = 0; i < 500; i++) {
-            flView.getItems().add("Number " + random.nextInt());
+            flView.getItems().add("Number " + i);
         }
         flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 

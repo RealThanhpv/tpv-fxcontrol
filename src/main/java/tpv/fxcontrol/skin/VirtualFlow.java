@@ -193,13 +193,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     ClippedContainer clipView;
 
-    /**
-     * When both the horizontal and vertical scroll bars are visible,
-     * we have to 'fill in' the bottom right corner where the two scroll bars
-     * meet. This is handled by this corner region. This has package access
-     * ONLY for testing.
-     */
-    StackPane corner;
+
 
     /**
      * The offset in pixels between the top of the virtualFlow and the content it
@@ -348,9 +342,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                                 // of all currently loaded lines.
                                 T lastCell = sheet.getLast();
                                 lineSize =
-                                        (sheet.getCellPosition(lastCell).getY()
+                                        (sheet.computePosition(lastCell).getY()
                                             + sheet.getCellHeight(lastCell)
-                                            - sheet.getCellPosition(sheet.getFirst()).getY())
+                                            - sheet.computePosition(sheet.getFirst()).getY())
                                         / sheet.size();
                             }
 
@@ -525,9 +519,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         getChildren().add(hbar);
 
         // --- corner
-        corner = new StackPane();
-        corner.getStyleClass().setAll("corner");
-        getChildren().add(corner);
+//        corner = new StackPane();
+//        corner.getStyleClass().setAll("corner");
+//        getChildren().add(corner);
 
         // initBinds
         // clipView binds
@@ -1153,7 +1147,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         lastHeight = getHeight();
         hbar.setVisible(false);
         vbar.setVisible(false);
-        corner.setVisible(false);
+//        corner.setVisible(false);
     }
 
     private boolean isSizeExpanded() {
@@ -1246,7 +1240,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToTop(T firstCell) {
         if (firstCell != null) {
-            scrollPixels(sheet.getCellPosition(firstCell).getY());
+            scrollPixels(sheet.computePosition(firstCell).getY());
         }
     }
 
@@ -1258,7 +1252,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToBottom(T lastCell) {
         if (lastCell != null) {
-            scrollPixels(sheet.getCellPosition(lastCell).getY() + sheet.getCellHeight(lastCell) - sheet.getViewPortHeight());
+            scrollPixels(sheet.computePosition(lastCell).getY() + sheet.getCellHeight(lastCell) - sheet.getViewPortHeight());
         }
     }
 
@@ -1269,7 +1263,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollTo(T cell) {
         if (cell != null) {
-            final double start = sheet.getCellPosition(cell).getY();
+            final double start = sheet.computePosition(cell).getY();
             final double length = sheet.getCellHeight(cell);
             final double end = start + length;
             final double viewportLength = sheet.getViewPortHeight();
@@ -1396,7 +1390,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             for (int i = currIndex - 1; i >= 0 && i < size; i--) {
                 final T cell = sheet.get(i);
-                Point2D pos = sheet.getCellPosition(cell);
+                Point2D pos = sheet.computePosition(cell);
                 sheet.positionCell(cell, pos.getX(), pos.getY());
                 sheet.updateCellCacheSize(cell);
             }
@@ -1404,7 +1398,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // position trailing cells
             for (int i = currIndex; i >= 0 && i < size; i++) {
                 final T cell = sheet.get(i);
-                Point2D pos = sheet.getCellPosition(cell);
+                Point2D pos = sheet.computePosition(cell);
                 sheet.positionCell(cell, pos.getX(), pos.getY());
                 sheet.updateCellCacheSize(cell);
 
@@ -1653,7 +1647,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             cell = sheet.get(i);
             if (cell.isEmpty()) continue;
 
-            final double cellStart = sheet.getCellPosition(cell).getY();
+            final double cellStart = sheet.computePosition(cell).getY();
             final double cellEnd = cellStart + sheet.getCellHeight(cell);
 
             // we use the magic +2 to allow for a little bit of fuzziness,
@@ -1723,7 +1717,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 first = false;
             }
             // Position the cell, and update the maxPrefBreadth variable as we go.
-            Point2D p = sheet.getCellPosition(cell);
+            Point2D p = sheet.computePosition(cell);
             sheet.positionCell(cell, p.getX(), p.getY());
             sheet.updateCellCacheSize(cell);
 //            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
@@ -1739,13 +1733,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if (sheet.size() > 0) {
             cell = sheet.getFirst();
             int firstIndex = cell.getIndex();
-            double firstCellPos = sheet.getCellPosition(cell).getY();
+            double firstCellPos = sheet.computePosition(cell).getY();
             if (firstIndex == 0 && firstCellPos > 0) {
                 setScrollBarPosition(0.0f);
 
                 for (int i = 0; i < sheet.size(); i++) {
                     cell = sheet.get(i);
-                    Point2D p = sheet.getCellPosition(cell);
+                    Point2D p = sheet.computePosition(cell);
                     sheet.positionCell(cell, p.getX(), p.getY());
                     sheet.updateCellCacheSize(cell);
 
@@ -1772,7 +1766,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final double viewPortHeight = sheet.getViewPortHeight();
         T lastCell = sheet.getLast();
 
-        Point2D pos = sheet.getCellPosition(lastCell);
+        Point2D pos = sheet.computePosition(lastCell);
         double offsetX = pos.getX() + sheet.getCellWidth(lastCell);
         double offsetY = pos.getY() + sheet.getCellHeight(lastCell);
 
@@ -1948,7 +1942,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T lastCell = sheet.getLast();
         for (int i = 0; i < 2; i++) {
 
-            Point2D lastPos = sheet.getCellPosition(lastCell);
+            Point2D lastPos = sheet.computePosition(lastCell);
             final boolean lengthBarVisible =
                     getPosition() > 0
                     || itemCount > cellsSize
@@ -2016,7 +2010,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         computeBarVisibility();
         VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
         VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
-        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
+//        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
 
         double sumCellLength = 0;
         double flowLength = (isVertical() ? getHeight() : getWidth()) -
@@ -2129,18 +2123,18 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
         }
 
-        if (corner.isVisible()) {
-            if (!Properties.IS_TOUCH_SUPPORTED) {
-                corner.resize(vbar.getWidth(), hbar.getHeight());
-                corner.relocate(hbar.getLayoutX() + hbar.getWidth(), vbar.getLayoutY() + vbar.getHeight());
-            }
-            else {
-                corner.resize(vbar.getWidth(), hbar.getHeight());
-                corner.relocate(hbar.getLayoutX() + (hbar.getWidth()-vbar.getWidth()), vbar.getLayoutY() + (vbar.getHeight()-hbar.getHeight()));
-                hbar.resize(hbar.getWidth()-vbar.getWidth(), hbar.getHeight());
-                vbar.resize(vbar.getWidth(), vbar.getHeight()-hbar.getHeight());
-            }
-        }
+//        if (corner.isVisible()) {
+//            if (!Properties.IS_TOUCH_SUPPORTED) {
+//                corner.resize(vbar.getWidth(), hbar.getHeight());
+//                corner.relocate(hbar.getLayoutX() + hbar.getWidth(), vbar.getLayoutY() + vbar.getHeight());
+//            }
+//            else {
+//                corner.resize(vbar.getWidth(), hbar.getHeight());
+//                corner.relocate(hbar.getLayoutX() + (hbar.getWidth()-vbar.getWidth()), vbar.getLayoutY() + (vbar.getHeight()-hbar.getHeight()));
+//                hbar.resize(hbar.getWidth()-vbar.getWidth(), hbar.getHeight());
+//                vbar.resize(vbar.getWidth(), vbar.getHeight()-hbar.getHeight());
+//            }
+//        }
 
         clipView.resize(snapSizeX(isVertical() ? viewportBreadth : viewportLength),
                 snapSizeY(isVertical() ? viewportLength : viewportBreadth));

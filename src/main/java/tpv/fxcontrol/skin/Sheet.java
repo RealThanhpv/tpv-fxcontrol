@@ -1,7 +1,6 @@
 package tpv.fxcontrol.skin;
 
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -62,7 +61,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         this.flow = flow;
     }
 
-     Point2D getCellPosition(T cell) {
+    Point2D computePosition(T cell) {
         //vertical layout
         int index = cell.getIndex();
         double layoutX = 0;
@@ -70,6 +69,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double maxCellHeight = 0;
 
         int start = getFirst().getIndex();
+
         for (int i = start; i < index; i++) {
             Cell calCel = get(i);
             if(calCel == null){
@@ -88,7 +88,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
                 layoutY = layoutY + maxCellHeight;
                 maxCellHeight = 0;
             }
-
         }
 
         Point2D p =  new Point2D(layoutX, layoutY);
@@ -107,7 +106,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             cell = get(i);
             if (cell.isEmpty()) continue;
 
-            final double cellStartY = getCellPosition(cell).getY();
+            final double cellStartY = computePosition(cell).getY();
             if (cellStartY >= 0) {
                 return cell;
             }
@@ -236,7 +235,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * fallen off the flow's start.
      */
      void addToPile(T cell) {
-        assert cell != null;
         pile.addLast(cell);
     }
 
@@ -551,7 +549,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     void addLastCellToSheet(T cell) {
         addLast(cell);
-        Point2D p = getCellPosition(cell);
+        Point2D p = computePosition(cell);
         positionCell(cell, p.getX(), p.getY());
         updateCellCacheSize(cell);
     }
@@ -560,7 +558,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * Gets the length of a specific cell
      */
     double getCellHeight(T cell) {
-
         return cell.getLayoutBounds().getHeight();
     }
 
