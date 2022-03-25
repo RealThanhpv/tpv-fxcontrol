@@ -174,11 +174,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
 
-    /**
-     * The scroll bar used for scrolling horizontally. This has package access
-     * ONLY for testing.
-     */
-    private VirtualScrollBar hbar = new VirtualScrollBar(this);
+//    /**
+//     * The scroll bar used for scrolling horizontally. This has package access
+//     * ONLY for testing.
+//     */
+//    private VirtualScrollBar hbar = new VirtualScrollBar(this);
 
     /**
      * The scroll bar used to scrolling vertically. This has package access
@@ -427,7 +427,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 // thumb - it has the side-effect of also starting the panning
                 // code, leading to flicker
                 isPanning = ! (vbar.getBoundsInParent().contains(e.getX(), e.getY())
-                        || hbar.getBoundsInParent().contains(e.getX(), e.getY()));
+                        );
             }
         });
         addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
@@ -465,21 +465,21 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             // similarly, we do the same in the non-virtual direction
             double nonVirtualDelta = isVertical() ? xDelta : yDelta;
-            ScrollBar nonVirtualBar = isVertical() ? hbar : vbar;
-            if (nonVirtualBar.isVisible()) {
-                double newValue = nonVirtualBar.getValue() + nonVirtualDelta;
-                if (newValue < nonVirtualBar.getMin()) {
-                    nonVirtualBar.setValue(nonVirtualBar.getMin());
-                } else if (newValue > nonVirtualBar.getMax()) {
-                    nonVirtualBar.setValue(nonVirtualBar.getMax());
-                } else {
-                    nonVirtualBar.setValue(newValue);
-
-                    // same as the last* comment above
-                    if (isVertical()) lastX = e.getX();
-                    else lastY = e.getY();
-                }
-            }
+//            ScrollBar nonVirtualBar = isVertical() ? hbar : vbar;
+//            if (nonVirtualBar.isVisible()) {
+//                double newValue = nonVirtualBar.getValue() + nonVirtualDelta;
+//                if (newValue < nonVirtualBar.getMin()) {
+//                    nonVirtualBar.setValue(nonVirtualBar.getMin());
+//                } else if (newValue > nonVirtualBar.getMax()) {
+//                    nonVirtualBar.setValue(nonVirtualBar.getMax());
+//                } else {
+//                    nonVirtualBar.setValue(newValue);
+//
+//                    // same as the last* comment above
+//                    if (isVertical()) lastX = e.getX();
+//                    else lastY = e.getY();
+//                }
+//            }
         });
 
         /*
@@ -790,7 +790,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // ensure that the virtual scrollbar adjusts in size based on the current
             // cell count.
             if (countChanged) {
-                VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
+                VirtualScrollBar lengthBar =  vbar ;
                 lengthBar.setMax(cellCount);
             }
 
@@ -1130,7 +1130,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         sheet.moveAllCellsToPile();
         lastWidth = getWidth();
         lastHeight = getHeight();
-        hbar.setVisible(false);
+//        hbar.setVisible(false);
         vbar.setVisible(false);
 //        corner.setVisible(false);
     }
@@ -1350,8 +1350,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     private boolean scrollAtEightExtremity(final double delta){
         final boolean isVertical = isVertical();
-        if (((isVertical && (tempVisibility ? !needLengthBar : !vbar.isVisible())) ||
-                (! isVertical && (tempVisibility ? !needLengthBar : !hbar.isVisible())))) return true;
+        if (((isVertical && (tempVisibility ? !needLengthBar : !vbar.isVisible())) )) return true;
 
         double pos = getPosition();
         if (pos == 0.0f && delta < 0) return true;
@@ -1733,7 +1732,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         } else {
             // reset scrollbar to top, so if the flow sees cells again it starts at the top
             vbar.setValue(0);
-            hbar.setValue(0);
+//            hbar.setValue(0);
         }
     }
 
@@ -1959,8 +1958,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     private void updateViewportDimensions() {
         final boolean isVertical = isVertical();
-        final double breadthBarLength = isVertical ? snapSizeY(hbar.prefHeight(-1)) : snapSizeX(vbar.prefWidth(-1));
-        final double lengthBarBreadth = isVertical ? snapSizeX(vbar.prefWidth(-1)) : snapSizeY(hbar.prefHeight(-1));
+//        final double breadthBarLength = isVertical ? snapSizeY(hbar.prefHeight(-1)) : snapSizeX(vbar.prefWidth(-1));
+        final double lengthBarBreadth =  snapSizeX(vbar.prefWidth(-1)) ;
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
             sheet.setViewPortWidth((isVertical ? getWidth() : getHeight()) - (needLengthBar ? lengthBarBreadth : 0));
@@ -1981,70 +1980,69 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         updateViewportDimensions();
 
-        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
-        VirtualScrollBar lengthBar = isVertical ? vbar : hbar;
+//        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
+        VirtualScrollBar lengthBar =  vbar ;
 
         // If there has been a switch between the virtualized bar, then we
         // will want to do some stuff TODO.
-        breadthBar.setVirtual(false);
+//        breadthBar.setVirtual(false);
         lengthBar.setVirtual(true);
     }
 
 
     private void updateScrollBars(boolean recreate) {
         computeBarVisibility();
-        VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
-        VirtualScrollBar lengthBar = isVertical() ? vbar : hbar;
+//        VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
+        VirtualScrollBar lengthBar =  vbar ;
 //        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
 
         double sumCellLength = 0;
-        double flowLength = (isVertical() ? getHeight() : getWidth()) -
-                (breadthBar.isVisible() ? breadthBar.prefHeight(-1) : 0);
+        double flowLength =  getHeight();
 
         final double viewportBreadth = sheet.getViewPortWidth();
         final double viewportLength = sheet.getViewPortHeight();
 
         // Now position and update the scroll bars
-        if (breadthBar.isVisible()) {
-            /*
-             ** Positioning the ScrollBar
-             */
-            if (!Properties.IS_TOUCH_SUPPORTED) {
-                if (isVertical()) {
-                    hbar.resizeRelocate(0, viewportLength,
-                            viewportBreadth, hbar.prefHeight(viewportBreadth));
-                } else {
-                    vbar.resizeRelocate(viewportLength, 0,
-                            vbar.prefWidth(viewportBreadth), viewportBreadth);
-                }
-            }
-            else {
-                if (isVertical()) {
-                    double prefHeight = hbar.prefHeight(viewportBreadth);
-                    hbar.resizeRelocate(0, viewportLength - prefHeight,
-                            viewportBreadth, prefHeight);
-                } else {
-                    double prefWidth = vbar.prefWidth(viewportBreadth);
-                    vbar.resizeRelocate(viewportLength - prefWidth, 0,
-                            prefWidth, viewportBreadth);
-                }
-            }
-
-            if (getMaxPrefBreadth() != -1) {
-                double newMax = Math.max(1, getMaxPrefBreadth() - viewportBreadth);
-                if (newMax != breadthBar.getMax()) {
-                    breadthBar.setMax(newMax);
-
-                    double breadthBarValue = breadthBar.getValue();
-                    boolean maxed = breadthBarValue != 0 && newMax == breadthBarValue;
-                    if (maxed || breadthBarValue > newMax) {
-                        breadthBar.setValue(newMax);
-                    }
-
-                    breadthBar.setVisibleAmount((viewportBreadth / getMaxPrefBreadth()) * newMax);
-                }
-            }
-        }
+//        if (breadthBar.isVisible()) {
+//            /*
+//             ** Positioning the ScrollBar
+//             */
+//            if (!Properties.IS_TOUCH_SUPPORTED) {
+//                if (isVertical()) {
+//                    hbar.resizeRelocate(0, viewportLength,
+//                            viewportBreadth, hbar.prefHeight(viewportBreadth));
+//                } else {
+//                    vbar.resizeRelocate(viewportLength, 0,
+//                            vbar.prefWidth(viewportBreadth), viewportBreadth);
+//                }
+//            }
+//            else {
+//                if (isVertical()) {
+//                    double prefHeight = hbar.prefHeight(viewportBreadth);
+//                    hbar.resizeRelocate(0, viewportLength - prefHeight,
+//                            viewportBreadth, prefHeight);
+//                } else {
+//                    double prefWidth = vbar.prefWidth(viewportBreadth);
+//                    vbar.resizeRelocate(viewportLength - prefWidth, 0,
+//                            prefWidth, viewportBreadth);
+//                }
+//            }
+//
+//            if (getMaxPrefBreadth() != -1) {
+//                double newMax = Math.max(1, getMaxPrefBreadth() - viewportBreadth);
+//                if (newMax != breadthBar.getMax()) {
+//                    breadthBar.setMax(newMax);
+//
+//                    double breadthBarValue = breadthBar.getValue();
+//                    boolean maxed = breadthBarValue != 0 && newMax == breadthBarValue;
+//                    if (maxed || breadthBarValue > newMax) {
+//                        breadthBar.setValue(newMax);
+//                    }
+//
+//                    breadthBar.setVisibleAmount((viewportBreadth / getMaxPrefBreadth()) * newMax);
+//                }
+//            }
+//        }
 
         // determine how many cells there are on screen so that the scrollbar
         // thumb can be appropriately sized
@@ -2091,20 +2089,20 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
              ** Positioning the ScrollBar
              */
             if (!Properties.IS_TOUCH_SUPPORTED) {
-                if (isVertical()) {
+//                if (isVertical()) {
                     vbar.resizeRelocate(viewportBreadth, 0, vbar.prefWidth(viewportLength), viewportLength);
-                } else {
-                    hbar.resizeRelocate(0, viewportBreadth, viewportLength, hbar.prefHeight(-1));
-                }
+//                } else {
+//                    hbar.resizeRelocate(0, viewportBreadth, viewportLength, hbar.prefHeight(-1));
+//                }
             }
             else {
-                if (isVertical()) {
+//                if (isVertical()) {
                     double prefWidth = vbar.prefWidth(viewportLength);
                     vbar.resizeRelocate(viewportBreadth - prefWidth, 0, prefWidth, viewportLength);
-                } else {
-                    double prefHeight = hbar.prefHeight(-1);
-                    hbar.resizeRelocate(0, viewportBreadth - prefHeight, viewportLength, prefHeight);
-                }
+//                } else {
+//                    double prefHeight = hbar.prefHeight(-1);
+//                    hbar.resizeRelocate(0, viewportBreadth - prefHeight, viewportLength, prefHeight);
+//                }
             }
         }
 

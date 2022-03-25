@@ -228,7 +228,6 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
             }
         };
         flow.getVbar().addEventFilter(MouseEvent.MOUSE_PRESSED, ml);
-//        flow.getHbar().addEventFilter(MouseEvent.MOUSE_PRESSED, ml);
 
         updateItemCount();
 
