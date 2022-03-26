@@ -1021,7 +1021,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         initViewport();
 
         // Get the index of the "current" cell
-        int currentIndex = computeCurrentIndex(getItemsCount(), absoluteOffset);
+        int currentIndex = computeStartIndex(getItemsCount(), absoluteOffset);
 
         if (rebuild) {
            rebuild(currentIndex);
@@ -1275,8 +1275,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void layoutCells(){
 
         if (!sheet.isEmpty()) {
-
-            final int currIndex = computeCurrentIndex(getItemsCount(), absoluteOffset) - sheet.getFirst().getIndex();
+            final int currIndex = computeStartIndex(getItemsCount(), absoluteOffset) - sheet.getFirst().getIndex();
             final int size = sheet.size();
 
             for (int i = currIndex - 1; i >= 0 && i < size; i--) {
@@ -2121,9 +2120,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // once at 95% of the total estimated size, we want a correct size, not
         // an estimated size anymore.
         if (newPosition > .95) {
-            int cci = computeCurrentIndex(getItemsCount(), absoluteOffset);
+            int cci = computeStartIndex(getItemsCount(), absoluteOffset);
             while (cci < getItemsCount()) {
-                sheet.getOrCreateCacheCellSize(cci); cci++;
+                sheet.getOrCreateCacheCellSize(cci);
+                cci++;
             }
             recalculateEstimatedSize();
         }
@@ -2138,26 +2138,37 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Compute start cell index at a absolute position
      * @return
      */
-    private int computeCurrentIndex(int itemCount, double absoluteOffset) {
-        double total = 0;
-
+    private int computeStartIndex(int itemCount, double absoluteOffset) {
+        double totalY = 0;
         int index = -1;
         double layoutX = 0;
+        double maxHeight  = 0;
+
         for (int i = 0; i < itemCount; i++) {
             double[] nextSize = sheet.getOrCreateCacheCellSize(i);
 
-            if(!sheet.isInRow(layoutX)){
-                total = total + nextSize[1];
+            double checkLayoutX = layoutX + nextSize[0];
+
+            if(!sheet.isInRow(checkLayoutX)){ //new row
                 layoutX  = 0;
+                totalY = totalY + maxHeight;
+                maxHeight = nextSize[1];
             }
             else {
-                layoutX = layoutX + nextSize[0];
+                layoutX = checkLayoutX;
+                if(maxHeight < nextSize[1]){
+                    maxHeight = nextSize[1];
+                }
             }
 
-            if (total >= absoluteOffset) {
+
+            if (totalY >= absoluteOffset) {
                 index =  i;
                 break;
             }
+
+
+
         }
         if(index == -1) {
             index = itemCount == 0 ? 0 : itemCount - 1;

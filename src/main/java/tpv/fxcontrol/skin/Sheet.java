@@ -69,7 +69,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         int index = cell.getIndex();
         double layoutX = 0;
         double layoutY = 0;
-        double maxCellHeight = 0;
+        double maxHeight = 0;
 
         int start = getFirst().getIndex();
         System.out.println("start index: "+ start);
@@ -77,20 +77,33 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         for (int i = start; i < index; i++) {
             Cell calCel = get(i);
             if(calCel == null){
-                continue;
-            }
-            double prefWidth = calCel.prefWidth(-1) ;
-            double prefHeight = calCel.prefHeight(-1);
-
-            if(maxCellHeight < prefHeight){
-                maxCellHeight = prefHeight;
+                calCel   =  getCellFromPile(i);
             }
 
-            layoutX = layoutX + prefWidth;
+            double prefWidth = 0;
+            double prefHeight = 0;
+            if(cell.getParent() != null){
+                prefWidth  = calCel.prefWidth(-1) ;
+                prefHeight = calCel.prefHeight(-1);
+            }
+            else {
+                double[] size = getOrCreateCacheCellSize(i);
+                prefWidth  = size[0];
+                prefHeight = size[1];
+            }
+
+            double checkLayoutX = layoutX +  prefWidth;
+
             if(!isInRow(layoutX)) {
-                layoutX = 0;
-                layoutY = layoutY + maxCellHeight;
-                maxCellHeight = 0;
+                layoutX  = 0;
+                layoutY = layoutY + maxHeight;
+                maxHeight = prefHeight;
+            }
+            else {
+                layoutX = checkLayoutX;
+                if(maxHeight < prefHeight){
+                    maxHeight = prefHeight;
+                }
             }
         }
 
