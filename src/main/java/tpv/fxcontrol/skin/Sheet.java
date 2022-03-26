@@ -159,6 +159,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     public void addCell(T cell) {
         getChildren().add(cell);
+        cell.setVisible(true);
     }
 
     /**
@@ -407,7 +408,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return cell;
     }
 
-    double recalculateAndImproveEstimatedSize(int improve, int itemCount) {
+    double recalculateAndImproveEstimatedSize(final int improve, final int itemCount) {
         int added = 0;
 
         while (( itemSizeCache.size() < itemCount) && (added < improve)) {
@@ -415,20 +416,30 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             added++;
         }
         int cacheCount = itemSizeCache.size();
-        double totalX = 0d;
-        double totalY = 0d;
+        double layoutX = 0d;
+        double layoutY = 0d;
+        double maxHeight = 0d;
         int i = 0;
         for (; (i < itemCount && i < cacheCount); i++) {
-            double[] size = itemSizeCache.get(i);
-            if (size != null) {
-                totalX += size[0];
-                if(!isInRow(totalX)) {
-                    totalY = totalY + size[1];
-                    totalX = 0;
+            double[] nextSize = getOrCreateCacheCellSize(i);
+
+            double checkLayoutX = layoutX + nextSize[0];
+
+            if(!isInRow(checkLayoutX)){ //new row
+                layoutX  = 0;
+                layoutY = layoutY + maxHeight;
+                maxHeight = nextSize[1];
+            }
+            else {
+                layoutX = checkLayoutX;
+                if(maxHeight < nextSize[1]){
+                    maxHeight = nextSize[1];
                 }
             }
+
         }
-        double  size = i == 0 ? 1d: totalY * itemCount / i;
+
+        double  size = i == 0 ? 1d: layoutY * itemCount / i;
         return  size;
 
     }

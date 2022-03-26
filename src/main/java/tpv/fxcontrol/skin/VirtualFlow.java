@@ -1589,10 +1589,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             if(cell == null){
                 cell = sheet.createCell();
-
-                        sheet.addCell(cell);
-
-
+                sheet.addCell(cell);
             }
 
             sheet.setCellIndex(cell, index);
@@ -1610,7 +1607,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             Point2D p = sheet.computePosition(cell);
             sheet.positionCell(cell, p.getX(), p.getY());
             sheet.updateCellCacheSize(cell);
-//            setMaxPrefBreadth(Math.max(getMaxPrefBreadth(), getCellWidth(cell)));
             cell.setVisible(true);
             --index;
         }
@@ -1638,7 +1634,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         } else {
             // reset scrollbar to top, so if the flow sees cells again it starts at the top
             vbar.setValue(0);
-//            hbar.setValue(0);
         }
     }
 
@@ -1790,24 +1785,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         requestLayout();
     }
 
-    void updateHbar() {
-        if (! isVisible() || getScene() == null){
-            return;
-        }
-        // Bring the clipView.clipX back to 0 if control is vertical or
-        // the hbar isn't visible (fix for RT-11666)
-        if (isVertical()) {
-//            if (needBreadthBar) {
-//                clipView.setClipX(hbar.getValue());
-//            } else {
-                // all cells are now less than the width of the flow,
-                // so we should shift the hbar/clip such that
-                // everything is visible in the viewport.
-                clipView.setClipX(0);
-//                hbar.setValue(0);
-//            }
-        }
-    }
 
     /**
      * @return true if bar visibility changed
@@ -1819,13 +1796,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             return true;
         }
 
-//        final boolean isVertical = isVertical();
         boolean barVisibilityChanged = false;
 
-//        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
         VirtualScrollBar lengthBar =  vbar;
-
-//        final double viewportBreadth = sheet.getWidth();
 
         final int cellsSize = sheet.size();
         final int itemCount = getItemsCount();
@@ -1863,16 +1836,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     private void updateViewportDimensions() {
-        final boolean isVertical = isVertical();
-//        final double breadthBarLength = isVertical ? snapSizeY(hbar.prefHeight(-1)) : snapSizeX(vbar.prefWidth(-1));
         final double lengthBarBreadth =  snapSizeX(vbar.prefWidth(-1)) ;
 
         if (!Properties.IS_TOUCH_SUPPORTED) {
-            sheet.setViewPortWidth((isVertical ? getWidth() : getHeight()) - (needLengthBar ? lengthBarBreadth : 0));
+            sheet.setViewPortWidth(getWidth() - (needLengthBar ? lengthBarBreadth : 0));
             sheet.setViewPortHeight(getHeight()) ;
         } else {
-            sheet.setViewPortWidth((isVertical ? getWidth() : getHeight()));
-            sheet.setViewPortHeight((isVertical ? getHeight() : getWidth()));
+            sheet.setViewPortWidth((getWidth() ));
+            sheet.setViewPortHeight( getHeight() );
         }
         synchronizeAbsoluteOffsetWithPosition();
     }
@@ -1880,27 +1851,17 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
 
     private void initViewport() {
-        // Initialize the viewportLength and viewportBreadth to match the
-        // width/height of the flow
-        final boolean isVertical = isVertical();
 
         updateViewportDimensions();
 
-//        VirtualScrollBar breadthBar = isVertical ? hbar : vbar;
-        VirtualScrollBar lengthBar =  vbar ;
-
-        // If there has been a switch between the virtualized bar, then we
-        // will want to do some stuff TODO.
-//        breadthBar.setVirtual(false);
-        lengthBar.setVirtual(true);
+        vbar.setVirtual(true);
     }
 
 
     private void updateScrollBars(boolean recreate) {
         computeBarVisibility();
-//        VirtualScrollBar breadthBar = isVertical() ? hbar : vbar;
+
         VirtualScrollBar lengthBar =  vbar ;
-//        corner.setVisible(breadthBar.isVisible() && lengthBar.isVisible());
 
         double sumCellLength = 0;
         double flowLength =  getHeight();
@@ -1908,50 +1869,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final double viewportBreadth = sheet.getViewPortWidth();
         final double viewportLength = sheet.getViewPortHeight();
 
-        // Now position and update the scroll bars
-//        if (breadthBar.isVisible()) {
-//            /*
-//             ** Positioning the ScrollBar
-//             */
-//            if (!Properties.IS_TOUCH_SUPPORTED) {
-//                if (isVertical()) {
-//                    hbar.resizeRelocate(0, viewportLength,
-//                            viewportBreadth, hbar.prefHeight(viewportBreadth));
-//                } else {
-//                    vbar.resizeRelocate(viewportLength, 0,
-//                            vbar.prefWidth(viewportBreadth), viewportBreadth);
-//                }
-//            }
-//            else {
-//                if (isVertical()) {
-//                    double prefHeight = hbar.prefHeight(viewportBreadth);
-//                    hbar.resizeRelocate(0, viewportLength - prefHeight,
-//                            viewportBreadth, prefHeight);
-//                } else {
-//                    double prefWidth = vbar.prefWidth(viewportBreadth);
-//                    vbar.resizeRelocate(viewportLength - prefWidth, 0,
-//                            prefWidth, viewportBreadth);
-//                }
-//            }
-//
-//            if (getMaxPrefBreadth() != -1) {
-//                double newMax = Math.max(1, getMaxPrefBreadth() - viewportBreadth);
-//                if (newMax != breadthBar.getMax()) {
-//                    breadthBar.setMax(newMax);
-//
-//                    double breadthBarValue = breadthBar.getValue();
-//                    boolean maxed = breadthBarValue != 0 && newMax == breadthBarValue;
-//                    if (maxed || breadthBarValue > newMax) {
-//                        breadthBar.setValue(newMax);
-//                    }
-//
-//                    breadthBar.setVisibleAmount((viewportBreadth / getMaxPrefBreadth()) * newMax);
-//                }
-//            }
-//        }
-
-        // determine how many cells there are on screen so that the scrollbar
-        // thumb can be appropriately sized
         if (recreate && (lengthBar.isVisible() || Properties.IS_TOUCH_SUPPORTED)) {
             final int cellCount = getItemsCount();
             int numCellsVisibleOnScreen = 0;
@@ -1995,38 +1912,22 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
              ** Positioning the ScrollBar
              */
             if (!Properties.IS_TOUCH_SUPPORTED) {
-//                if (isVertical()) {
+
                     vbar.resizeRelocate(viewportBreadth, 0, vbar.prefWidth(viewportLength), viewportLength);
-//                } else {
-//                    hbar.resizeRelocate(0, viewportBreadth, viewportLength, hbar.prefHeight(-1));
-//                }
+
             }
             else {
-//                if (isVertical()) {
+
                     double prefWidth = vbar.prefWidth(viewportLength);
                     vbar.resizeRelocate(viewportBreadth - prefWidth, 0, prefWidth, viewportLength);
-//                } else {
-//                    double prefHeight = hbar.prefHeight(-1);
-//                    hbar.resizeRelocate(0, viewportBreadth - prefHeight, viewportLength, prefHeight);
-//                }
+
             }
         }
 
-//        if (corner.isVisible()) {
-//            if (!Properties.IS_TOUCH_SUPPORTED) {
-//                corner.resize(vbar.getWidth(), hbar.getHeight());
-//                corner.relocate(hbar.getLayoutX() + hbar.getWidth(), vbar.getLayoutY() + vbar.getHeight());
-//            }
-//            else {
-//                corner.resize(vbar.getWidth(), hbar.getHeight());
-//                corner.relocate(hbar.getLayoutX() + (hbar.getWidth()-vbar.getWidth()), vbar.getLayoutY() + (vbar.getHeight()-hbar.getHeight()));
-//                hbar.resize(hbar.getWidth()-vbar.getWidth(), hbar.getHeight());
-//                vbar.resize(vbar.getWidth(), vbar.getHeight()-hbar.getHeight());
-//            }
-//        }
 
-        clipView.resize(snapSizeX(isVertical() ? viewportBreadth : viewportLength),
-                snapSizeY(isVertical() ? viewportLength : viewportBreadth));
+
+        clipView.resize(snapSizeX( viewportBreadth ),
+                snapSizeY(viewportLength));
 
         // If the viewportLength becomes large enough that all cells fit
         // within the viewport, then we want to update the value to match.
@@ -2035,18 +1936,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-
-
-//
-//    /**
-//     * After using the accum cell, it needs to be released!
-//     */
-//     void releaseIfCellIsAccum(T cell) {
-//        if (accumCell != null && cell == accumCell) {
-//            accumCell.setVisible(false);
-//            accumCell.updateIndex(-1);
-//        }
-//    }
 
 
     private double getPrefBreadth(double oppDimension) {
