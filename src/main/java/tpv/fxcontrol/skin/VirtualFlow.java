@@ -1021,7 +1021,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         initViewport();
 
         // Get the index of the "current" cell
-        int currentIndex = computeCurrentIndex();
+        int currentIndex = computeCurrentIndex(getItemsCount(), absoluteOffset);
 
         if (rebuild) {
            rebuild(currentIndex);
@@ -1276,7 +1276,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         if (!sheet.isEmpty()) {
 
-            final int currIndex = computeCurrentIndex() - sheet.getFirst().getIndex();
+            final int currIndex = computeCurrentIndex(getItemsCount(), absoluteOffset) - sheet.getFirst().getIndex();
             final int size = sheet.size();
 
             for (int i = currIndex - 1; i >= 0 && i < size; i--) {
@@ -2121,7 +2121,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // once at 95% of the total estimated size, we want a correct size, not
         // an estimated size anymore.
         if (newPosition > .95) {
-            int cci = computeCurrentIndex();
+            int cci = computeCurrentIndex(getItemsCount(), absoluteOffset);
             while (cci < getItemsCount()) {
                 sheet.getOrCreateCacheCellSize(cci); cci++;
             }
@@ -2133,17 +2133,25 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     }
     //TODO need to re-implement
-    private int computeCurrentIndex() {
+
+    /**
+     * Compute start cell index at a absolute position
+     * @return
+     */
+    private int computeCurrentIndex(int itemCount, double absoluteOffset) {
         double total = 0;
-        int currentCellCount = getItemsCount();
+
         int index = -1;
         double layoutX = 0;
-        for (int i = 0; i < currentCellCount; i++) {
+        for (int i = 0; i < itemCount; i++) {
             double[] nextSize = sheet.getOrCreateCacheCellSize(i);
-            layoutX += nextSize[0];
+
             if(!sheet.isInRow(layoutX)){
                 total = total + nextSize[1];
                 layoutX  = 0;
+            }
+            else {
+                layoutX = layoutX + nextSize[0];
             }
 
             if (total >= absoluteOffset) {
@@ -2151,9 +2159,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 break;
             }
         }
-        if(index == -1)
-        index =  currentCellCount == 0 ? 0 : currentCellCount - 1;
-        System.out.printf("index: %s, offset %s\n",index, absoluteOffset);
+        if(index == -1) {
+            index = itemCount == 0 ? 0 : itemCount - 1;
+        }
+        System.out.printf("current index: %s, offset %s\n",index, absoluteOffset);
         return index;
     }
 

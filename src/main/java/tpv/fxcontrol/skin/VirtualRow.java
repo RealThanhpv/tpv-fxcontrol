@@ -2,22 +2,30 @@ package tpv.fxcontrol.skin;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Cell;
-import javafx.scene.layout.HBox;
 import tpv.fxcontrol.FlowIndexedCell;
 
 class VirtualRow<T extends FlowIndexedCell> extends Group {
     private Sheet<T> sheet;
+    private double height;
 
     VirtualRow(Sheet<T> sheet){
         this.sheet = sheet;
     }
 
+    double getWidth(){
+        return sheet.getViewPortWidth();
+    }
+
+
+
     boolean isAddable(T cell){
        double[] size = sheet.getOrCreateCacheCellSize(cell.getIndex());
-       double w = getLayoutBounds().getWidth() + size[0];
+       double cw = size !=  null? size[0]: 0;
+       double w = getLayoutBounds().getWidth() + cw;
        return w < sheet.getViewPortWidth();
     }
+
+
 
     boolean appendCell(T cell){
         boolean addable = isAddable(cell);
@@ -25,8 +33,13 @@ class VirtualRow<T extends FlowIndexedCell> extends Group {
             return false;
         }
         double layoutX  = getLayoutBounds().getWidth();
+        double cellHeight  = cell.getLayoutBounds().getHeight();
+
         getChildren().add(cell);
         cell.setLayoutX(layoutX);
+        if(cellHeight > height){
+            height  = cellHeight;
+        }
         return true;
     }
 
@@ -52,7 +65,7 @@ class VirtualRow<T extends FlowIndexedCell> extends Group {
         return true;
     }
 
-    T prependFalloff(T cell){
+    T prependFallOff(T cell){
         throw new NullPointerException("Need implementation");
     }
 

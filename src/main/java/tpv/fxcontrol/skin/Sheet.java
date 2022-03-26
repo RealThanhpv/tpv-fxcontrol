@@ -10,6 +10,8 @@ import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class Sheet<T extends FlowIndexedCell> extends Region {
@@ -42,27 +44,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         this.viewportBreadth = value;
     }
 
-    VirtualRow<T> getLastRow(){
-        if(getChildren().isEmpty()){
-            return null;
-        }
-        return (VirtualRow<T>) getChildren().get(getChildren().size()-1);
-    }
-
-    VirtualRow<T> getFirstRow(){
-        if(getChildren().isEmpty()){
-            return null;
-        }
-        return (VirtualRow<T>) getChildren().get(0);
-    }
-
-    void appendRow(VirtualRow<T>  row){
-        getChildren().add(row);
-    }
-
-    void prependRow(VirtualRow<T> row){
-        getChildren().add(0, row);
-    }
 
     final double getViewPortWidth() {
         return viewportBreadth;
@@ -91,6 +72,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double maxCellHeight = 0;
 
         int start = getFirst().getIndex();
+        System.out.println("start index: "+ start);
 
         for (int i = start; i < index; i++) {
             Cell calCel = get(i);
@@ -156,6 +138,10 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     void clearCompletely() {
         clear();
+    }
+
+    private List<VirtualRow<T>> getRows(){
+       return getChildren().stream().map(n->(VirtualRow<T>)n).collect(Collectors.toList());
     }
 
     public void addCell(T cell) {
@@ -370,7 +356,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     double[] updateCellCacheSize(T cell) {
         int cellIndex = cell.getIndex();
 
-        if (cellIndex <itemSizeCache.size()) {
+        if (cellIndex <itemSizeCache.size() && cellIndex > -1) {
 
             double newW = cell.getLayoutBounds().getWidth();
             double newH = cell.getLayoutBounds().getHeight();
@@ -472,6 +458,9 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * @return the size of the element; or 1 in case there are no cells yet
      */
    private double[] getCacheCellSize(int idx) {
+       if(idx < 0){
+           return null;
+       }
         // is the current cache long enough to contain idx?
         if (itemSizeCache.size() > idx) {
             // is there a non-null value stored in the cache?
@@ -542,7 +531,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
     void positionCell(T cell, double positionX, double positionY) {
-        cell.setLayoutX(snapSpaceX(positionX));
+        cell.setLayoutX(snapSizeX(positionX));
         cell.setLayoutY(snapSpaceY(positionY));
 
     }
@@ -583,7 +572,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * Gets the breadth of a specific cell
      */
     double getCellWidth(Cell cell) {
-
         return cell.getLayoutBounds().getWidth();
     }
 
