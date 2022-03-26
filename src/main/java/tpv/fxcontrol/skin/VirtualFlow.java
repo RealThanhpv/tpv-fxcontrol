@@ -916,11 +916,9 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
         if (needsRecreateCells) {
             invalidateSizes();
-//            releaseIfCellIsAccum(accumCell);
             sheet.clearCompletely();
         } else if (needsRebuildCells) {
             invalidateSizes();
-//            releaseIfCellIsAccum(accumCell);
             sheet.dumpAllToPile();
             sheet.clearChildren();
         } else if (needsReconfigureCells) {
@@ -1013,11 +1011,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                 lastWidth != width||
                 (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
 
-        if (!rebuild) {
-            if (isSizeExpanded()) {
-                addTrailingCells();
-            }
-        }
+
+        addTrailingCells();
+
+
         initViewport();
 
         // Get the index of the "current" cell
@@ -1652,14 +1649,16 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         T lastCell = sheet.getLast();
 
         Point2D pos = sheet.computePosition(lastCell);
-        double offsetX = pos.getX() + sheet.getCellWidth(lastCell);
-        double offsetY = pos.getY() + sheet.getCellHeight(lastCell);
+
+        double layoutX = pos.getX() + sheet.getCellWidth(lastCell);
+        double layoutY = pos.getY() + sheet.getCellHeight(lastCell);
+        double maxHeight = 0;
 
         int nextIndex = lastCell.getIndex() + 1;
         final int itemCount = getItemsCount();
         boolean isEmptyCell = nextIndex <= itemCount;
 
-        if ((offsetY < 0 )|| offsetY  > viewPortHeight) {
+        if ((layoutY < 0 )|| layoutY  > viewPortHeight) {
             return false;
         }
 
@@ -1667,31 +1666,36 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         final double maxCellCount = viewPortHeight;//cell size = 1
 
 
-        while (offsetY < viewPortHeight) {
-            if (nextIndex >= itemCount) {
-                notifyIndexExceedsItemCount();
-                return false;
-            }
-
-            if(nextIndex > maxCellCount) {
+        while (layoutY < viewPortHeight) {
+            if (nextIndex > maxCellCount) {
                 notifyIndexExceedsMaximum();
                 return false;
             }
+
 
             T cell = sheet.getAndRemoveCellFromPile(nextIndex);
             if(cell ==  null){
                 cell  = sheet.createCell();
                 sheet.addCell(cell);
-
             }
+
             sheet.setCellIndex(cell, nextIndex);
             sheet.addLastCellToSheet(cell);
-            double cellBreadth = sheet.getCellWidth(cell);
 
-            offsetX += cellBreadth;
-            if(!sheet.isInRow(offsetX)){
-                offsetY += sheet.getCellHeight(cell);
-                offsetX = 0;
+            double[] size = sheet.getOrCreateCacheCellSize(nextIndex);
+
+            double checkLayoutX = layoutX + size[0];
+
+            if(!sheet.isInRow(checkLayoutX)){ //new row
+                layoutX  = 0;
+                layoutY = layoutY + maxHeight;
+                maxHeight = size[1];
+            }
+            else {
+                layoutX = checkLayoutX;
+                if(maxHeight < size[1]){
+                    maxHeight = size[1];
+                }
             }
 
             cell.setVisible(true);
@@ -1701,12 +1705,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return isEmptyCell;
     }
 
-    private void notifyIndexExceedsItemCount() {
-        final PlatformLogger logger = Logging.getControlsLogger();
-        if (logger.isLoggable(PlatformLogger.Level.INFO)) {
-            logger.info("index exceeds itemCount." );
-        }
-    }
 
 
 
@@ -1715,7 +1713,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
             final PlatformLogger logger = Logging.getControlsLogger();
             if (logger.isLoggable(PlatformLogger.Level.INFO)) {
-                logger.info("index exceeds maxCellCount. Check size calculations " );
+                logger.info("index exceeds maxCellCount of %s. Check size calculations.", getItemsCount() );
             }
 
     }
@@ -1838,13 +1836,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private void updateViewportDimensions() {
         final double lengthBarBreadth =  snapSizeX(vbar.prefWidth(-1)) ;
 
-        if (!Properties.IS_TOUCH_SUPPORTED) {
-            sheet.setViewPortWidth(getWidth() - (needLengthBar ? lengthBarBreadth : 0));
-            sheet.setViewPortHeight(getHeight()) ;
-        } else {
-            sheet.setViewPortWidth((getWidth() ));
-            sheet.setViewPortHeight( getHeight() );
-        }
+        sheet.setViewPortWidth(getWidth() - (needLengthBar ? lengthBarBreadth : 0));
+        sheet.setViewPortHeight(getHeight()) ;
         synchronizeAbsoluteOffsetWithPosition();
     }
 
@@ -2062,7 +2055,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         if(index == -1) {
             index = itemCount == 0 ? 0 : itemCount - 1;
         }
-        System.out.printf("current index: %s, offset %s\n",index, absoluteOffset);
+//        System.out.printf("current index: %s, offset %s\n",index, absoluteOffset);
         return index;
     }
 

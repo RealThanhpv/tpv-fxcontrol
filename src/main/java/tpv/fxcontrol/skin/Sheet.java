@@ -72,7 +72,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double maxHeight = 0;
 
         int start = getFirst().getIndex();
-        System.out.println("start index: "+ start);
+//        System.out.println("start index: "+ start);
 
         for (int i = start; i < index; i++) {
             Cell calCel = get(i);
@@ -198,6 +198,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
     T getLast() {
+         System.out.println("cells size: "+ cells.size());
         return cells.getLast();
     }
 
@@ -223,9 +224,11 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
      void addFirst(T cell) {
         cells.addFirst(cell);
+
     }
 
     void addLast(T cell) {
+
         cells.addLast(cell);
     }
 
