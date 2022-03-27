@@ -661,9 +661,11 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double maxHeight = 0;
         double[] size ;
 
+        double checkWidth;
+
         for (int i = start; i < end; i++) {
              size = getOrCreateCacheCellSize(i);
-            double checkWidth = totalWidth + size[0] + getHorizontalGap();
+             checkWidth = totalWidth + size[0] + getHorizontalGap();
 
             if (maxHeight < size[1]) {
                 maxHeight = size[1];
