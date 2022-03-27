@@ -96,7 +96,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
     // Locale may change between instances.
     private static final String EMPTY_LIST_TEXT = ControlResources.getString("ListView.noContent");
 
-    private final VirtualFlow<FlowCell<T>> flow;
+    final VirtualFlow<FlowCell<T>> flow;
 
     /**
      * Region placed over the top of the flow (and possibly the header row) if
@@ -580,7 +580,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
      * if this is a horizontal container, then the scrolling will be to the right.
      */
     private int onScrollPageDown(boolean isFocusDriven) {
-        FlowCell<T> lastVisibleCell = flow.getLastVisibleCellWithinViewport();
+        FlowCell<T> lastVisibleCell = flow.getLastVisibleCell();
         if (lastVisibleCell == null) return -1;
 
         final SelectionModel<T> sm = getSkinnable().getSelectionModel();
@@ -607,7 +607,7 @@ public class FlowViewSkin<T> extends VirtualContainerBase<FlowView<T>, FlowCell<
                 // to be the top-most cell, or at least as far to the top as we can go.
                 flow.scrollToTop(lastVisibleCell);
 
-                FlowCell<T> newLastVisibleCell = flow.getLastVisibleCellWithinViewport();
+                FlowCell<T> newLastVisibleCell = flow.getLastVisibleCell();
                 lastVisibleCell = newLastVisibleCell == null ? lastVisibleCell : newLastVisibleCell;
             }
         } else {

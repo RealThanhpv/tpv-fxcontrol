@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 
 public class Sheet<T extends FlowIndexedCell> extends Region {
-    private static final double MAGIC_X = 24;
+    private static final double MAGIC_X = 120;
     /**
      * Indicates that this is a newly created cell and we need call processCSS for it.
      *
@@ -38,7 +38,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * When the size of the items in the backing list changes, this list is
      * cleared.
      */
-    private ArrayList<double[]> itemSizeCache = new ArrayList<>();
+    ArrayList<double[]> itemSizeCache = new ArrayList<>();
     private final BitSet dirtyCells = new BitSet();
     final void setViewPortWidth(double value) {
         this.viewportBreadth = value;
@@ -62,6 +62,13 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     VirtualFlow<T> flow;
     Sheet(VirtualFlow<T> flow){
         this.flow = flow;
+    }
+
+    /**
+     * For test only
+     */
+    Sheet(){
+
     }
 
     Point2D computePosition(T cell) {
@@ -184,8 +191,8 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
 
 
-     T get(int i) {
-        return cells.get(i);
+     T get(int cellIndex) {
+        return cells.get(cellIndex);
     }
 
      int size() {
@@ -198,7 +205,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
     T getLast() {
-         System.out.println("cells size: "+ cells.size());
         return cells.getLast();
     }
 
@@ -396,6 +402,8 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
 
     }
+
+
 
     /**
      * Get a cell which can be used in the layout. This function will reuse
@@ -603,7 +611,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
 
-
-
-
+    public int getCacheSize() {
+        return itemSizeCache.size();
+    }
 }

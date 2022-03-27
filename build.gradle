@@ -47,7 +47,8 @@ compileJava {
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
 
             '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol'
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.application=org.testfx'
 
     ]
 }
@@ -65,10 +66,32 @@ run {
             '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
             '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
-            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol'
-
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.application=org.testfx'
     ]
 }
+
+
+
+test {
+    jvmArgs = [
+            '--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol',
+            '--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol',
+            '--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
+            "--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol",
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
+            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.application=org.testfx'
+    ]
+}
+
 
 dependencies {
     implementation ('org.kordamp.ikonli:ikonli-javafx:12.2.0')
@@ -78,6 +101,14 @@ dependencies {
     implementation fileTree(dir: rootProject.rootDir.toString() + "/libs", include: '*.jar')
 
     implementation "fr.brouillard.oss:cssfx:11.4.0"
+
+    // https://mvnrepository.com/artifact/junit/junit
+    testImplementation 'junit:junit:4.13.2'
+// https://mvnrepository.com/artifact/org.testfx/testfx-junit
+    testImplementation 'org.testfx:testfx-junit:4.0.15-alpha'
+
+//    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
+
 }
 
 application {

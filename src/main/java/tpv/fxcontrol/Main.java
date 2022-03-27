@@ -42,27 +42,14 @@ public class Main extends Application {
         AnchorPane.setLeftAnchor(flView, 0.0);
 
         for (int i = 0; i < 500; i++) {
-            flView.getItems().add("Number " + i);
+            flView.getItems().add("Number "+i);
         }
         flView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        System.out.println(flView.getItems().size());
 
         root.getChildren().add(flView);
         flView.prefWidthProperty().bind(scene.widthProperty());
 
-
-
-
-
-//        container.getChildren().add(colorOptionNullable);
-//        container.getChildren().add(new ColorPicker());
-
-//        SVGView svgView = new SVGView();
-//        svgView.setUrl("https://upload.wikimedia.org/wikipedia/commons/f/f7/Bananas.svg");
-//        svgView.setUrl("tiger.svg");
-//        container.getChildren().add(svgView);
-//        container.getChildren().add(new Test());
 
         scene.setFill(Color.DARKGRAY);
 

@@ -41,7 +41,6 @@ import javafx.collections.WeakListChangeListener;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
-
 import javafx.scene.control.*;
 import tpv.fxcontrol.skin.FlowCellSkin;
 
@@ -85,7 +84,6 @@ public class FlowCell<T> extends FlowIndexedCell<T> {
     public FlowCell() {
         getStyleClass().addAll(DEFAULT_STYLE_CLASS);
         setAccessibleRole(AccessibleRole.LIST_ITEM);
-
     }
 
 
