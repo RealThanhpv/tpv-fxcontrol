@@ -87,7 +87,7 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 26});
 
         double averageHeight =  sheet.sampleAverageRowHeight(205, 1);
-        System.out.println(averageHeight);
+        System.out.println("test3: "+averageHeight);
         Assert.assertTrue(averageHeight == 26.0);
 
     }

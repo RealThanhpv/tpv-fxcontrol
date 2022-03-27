@@ -1,5 +1,7 @@
 package tpv.fxcontrol.skin;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -235,7 +237,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
     void addLast(T cell) {
-
         cells.addLast(cell);
     }
 
@@ -460,6 +461,49 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         itemSizeCache.clear();
     }
 
+    //TODO need to re-implement
+
+    /**
+     * Compute start cell index at a absolute position
+     * @return
+     */
+    int computeStartIndex(int itemCount, double absoluteOffset) {
+        double totalY = 0;
+        int index = -1;
+        double layoutX = 0;
+        double maxHeight  = 0;
+
+        for (int i = 0; i < itemCount; i++) {
+            double[] nextSize = getOrCreateCacheCellSize(i);
+
+            double checkLayoutX = layoutX + nextSize[0];
+
+            if(!isInRow(checkLayoutX)){ //new row
+                layoutX  = 0;
+                totalY = totalY + maxHeight;
+                maxHeight = nextSize[1];
+            }
+            else {
+                layoutX = checkLayoutX;
+                if(maxHeight < nextSize[1]){
+                    maxHeight = nextSize[1];
+                }
+            }
+
+            if (totalY >= absoluteOffset) {
+                index =  i;
+                break;
+            }
+
+
+
+        }
+        if(index == -1) {
+            index = itemCount == 0 ? 0 : itemCount - 1;
+        }
+        return index;
+    }
+
      void updateDirtyCells() {
         if (!dirtyCells.isEmpty()) {
             int index;
@@ -621,12 +665,27 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     }
 
-    double sampleAverageRowHeight(double newWidth, int rowSampleNumber) {
-        int max =  getCacheSize();
+
+
+    public double getHorizontalGap() {
+        return horizontalGap.get();
+    }
+
+    public DoubleProperty horizontalGapProperty() {
+        return horizontalGap;
+    }
+
+    public void setHorizontalGap(double horizontalGap) {
+        this.horizontalGap.set(horizontalGap);
+    }
+
+    private DoubleProperty horizontalGap = new SimpleDoubleProperty(this, "horizontal-gap", 0);
+
+    private double computeTotalHeight(double width, int start, int end, int rowLimit, int[] outCount){
 
         int count = 0;
-        if(max < 1 || rowSampleNumber < 1){
-            return 1d;
+        if(end < 1 ){
+            return 0;
         }
 
         double totalWidth = 0;
@@ -634,39 +693,52 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double maxHeight = 0;
 
 
-        for (int i = 0; i < max; i++) {
+        for (int i = start; i < end; i++) {
             double[] size = getOrCreateCacheCellSize(i);
-            double checkWidth = totalWidth + size[0];
+            double checkWidth = totalWidth + size[0] + getHorizontalGap();
 
-
-            if(maxHeight < size[1]){
+            if (maxHeight < size[1]) {
                 maxHeight = size[1];
             }
 
-            if(checkWidth < newWidth){
-                totalWidth += size[0];
+            if (checkWidth < width) {
+                totalWidth += size[0] + getHorizontalGap();
 
-            }
-            else { //new row
+            } else { //new row
                 totalWidth = 0;
                 totalHeight += maxHeight;
                 maxHeight = size[1];
                 count++;
             }
 
-            System.out.printf("max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n",max, size[0], size[1], checkWidth,maxHeight,totalHeight, count);
-            if(count >= rowSampleNumber){
+            System.out.printf("max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n", end, size[0], size[1], checkWidth, maxHeight, totalHeight, count);
+            if (rowLimit > 0 && count >= rowLimit) {
                 break;
             }
-
         }
-
-        if(count == 0){ //only one unfinished row
+        if(count == 0){
             count = 1;
             totalHeight = maxHeight;
         }
 
-        return totalHeight/count;
+        outCount[0] = count;
+
+        return totalHeight;
+    }
+
+    double sampleAverageRowHeight(double width, int rowLimit) {
+        int start = 0;
+        int end = getCacheSize();
+        if(end < 1 ){
+            return 1;
+        }
+        int[] outCount = new int[1];
+        double height = computeTotalHeight(width, start, end, rowLimit, outCount);
+        if(height == 0){
+            return 1;
+        }
+
+        return height/outCount[0];
     }
 
     void changeHeight(double oldHeight,  double newHeight){
