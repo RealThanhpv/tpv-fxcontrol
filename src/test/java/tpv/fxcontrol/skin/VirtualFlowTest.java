@@ -17,11 +17,10 @@ import org.testfx.matcher.control.LabeledMatchers;
 import static org.junit.Assert.*;
 
 public class VirtualFlowTest extends ApplicationTest {
-//    Sheet<FlowCell<String>> sheet;
-    FlowView view;
-    FlowViewSkin skin;
-    VirtualFlow  flow;
-    Sheet  sheet;
+    private FlowView view;
+    private FlowViewSkin skin;
+    private VirtualFlow  flow;
+    private Sheet  sheet;
 
     /**
      * Will be called with {@code @Before} semantics, i. e. before each test method.
@@ -33,15 +32,21 @@ public class VirtualFlowTest extends ApplicationTest {
         stage.setScene(new Scene(new StackPane(button), 100, 100));
 
         view = new FlowView<>();
-//        skin = (FlowViewSkin) ((FlowView<?>) view).createDefaultSkin();
-        flow = new VirtualFlow<>();
+
+        skin = (FlowViewSkin) view.getSkin();
+        flow = skin.flow;
         sheet = flow.sheet;
         sheet.setViewPortWidth(400);
         sheet.setViewPortHeight(600);
 
+    }
 
-
-//        stage.show();
+    @Test
+    public void testSetup(){
+        Assert.assertNotNull(view);
+        Assert.assertNotNull(skin);
+        Assert.assertNotNull(flow);
+        Assert.assertNotNull(sheet);
     }
 
 

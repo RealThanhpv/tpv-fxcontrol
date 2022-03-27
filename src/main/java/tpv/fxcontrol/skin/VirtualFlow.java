@@ -580,6 +580,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     void changeWidth(double oldWidth, double newWidth){
         double averageRowHeight =  sampleAverageRowHeight(newWidth, ROW_SAMPLE_NUMBER);
+
     }
 
     double sampleAverageRowHeight(double newWidth, int rowSampleNumber) {
@@ -631,7 +632,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     void changeHeight(double oldHeight,  double newHeight){
-
+        //TODO adding more cells
+        //re-compute vertical bar
     }
 
 
@@ -1251,8 +1253,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
     // will return true if scroll is successful
     private boolean scrollOneCell(int targetIndex, boolean downOrRight) {
-        // if going down, cell diff is -1, because it will get the target cell index and check if previous
-        // cell is visible to base the position
+        /*
         int indexDiff = downOrRight ? -1 : 1;
 
         T targetCell = sheet.getVisibleCell(targetIndex + indexDiff);
@@ -1276,7 +1277,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             }
             return true;
         }
-
+*/
         return false;
     }
 
@@ -1287,7 +1288,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     public void scrollToTop(int index) {
         boolean posSet = false;
-
+        /*
         if (index > getItemsCount() - 1) {
             setScrollBarPosition(1);
             posSet = true;
@@ -1301,6 +1302,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         requestLayout();
+
+         */
     }
 
 
@@ -1314,6 +1317,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @return the number of pixels actually moved
      */
     private boolean scrollAtEightExtremity(final double delta){
+        /*
         if ((( (tempVisibility ? !needLengthBar : !vbar.isVisible())) )) {
             return true;
         }
@@ -1327,7 +1331,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             // to occur when we hit either extremity
             return true;
         }
-
+*/
         return false;
     }
 

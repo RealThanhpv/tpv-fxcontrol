@@ -361,7 +361,11 @@ public class FlowView<T> extends Control {
             }
         });
 
+        //For test only
+        setSkin(createDefaultSkin());
+
         pseudoClassStateChanged(PSEUDO_CLASS_VERTICAL, true);
+
 
 
     }
