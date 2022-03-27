@@ -659,9 +659,9 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double totalWidth = 0;
         double totalHeight = 0;
         double maxHeight = 0;
-        double[] size ;
+        double[] size;
 
-        double checkWidth;
+        double checkWidth = 0;
 
         for (int i = start; i < end; i++) {
              size = getOrCreateCacheCellSize(i);
@@ -674,28 +674,27 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             if (checkWidth < width) {
                 totalWidth = checkWidth;
 
-
             } else { //new row
                 totalWidth = size[0];
                 totalHeight += maxHeight;
+                checkWidth = size[0];
                 maxHeight = size[1];
                 count++;
-//                size = null;
+                System.out.println("new row at: "+i);
             }
 
-            System.out.printf("i: %s,max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, width: %s, totalWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n", i, end, size[0], size[1], checkWidth, width, totalWidth, maxHeight, totalHeight, count);
+//            System.out.printf("i: %s,max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, width: %s, totalWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n", i, end, size[0], size[1], checkWidth, width, totalWidth, maxHeight, totalHeight, count);
             if (rowLimit > 0 && count >= rowLimit) {
                 break;
             }
         }
-        if (count == 0) {
-            count = 1;
-            totalHeight = maxHeight;
+
+
+        if(checkWidth < width){
+            totalHeight += maxHeight;
+            count++;
         }
 
-//        if(size == null){
-//            totalHeight += maxHeight;
-//        }
 
         outCount[0] = count;
 
