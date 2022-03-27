@@ -82,7 +82,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      *                                                                         *
      **************************************************************************/
 
-    private static final int ROW_SAMPLE_NUMBER = 10;
 
     /**
      * Scroll events may request to scroll about a number of "lines". We first
@@ -578,63 +577,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }));
     }
 
-    void changeWidth(double oldWidth, double newWidth){
-        double averageRowHeight =  sampleAverageRowHeight(newWidth, ROW_SAMPLE_NUMBER);
-
-    }
-
-    double sampleAverageRowHeight(double newWidth, int rowSampleNumber) {
-        int max =  sheet.getCacheSize();
-
-        int count = 0;
-        if(max < 1 || rowSampleNumber < 1){
-            return 1d;
-        }
-
-        double totalWidth = 0;
-        double totalHeight = 0;
-        double maxHeight = 0;
-
-
-        for (int i = 0; i < max; i++) {
-            double[] size = sheet.getOrCreateCacheCellSize(i);
-            double checkWidth = totalWidth + size[0];
-
-
-            if(maxHeight < size[1]){
-                maxHeight = size[1];
-            }
-
-            if(checkWidth < newWidth){
-                totalWidth += size[0];
-
-            }
-            else { //new row
-                totalWidth = 0;
-                totalHeight += maxHeight;
-                maxHeight = size[1];
-                count++;
-            }
-
-            System.out.printf("max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n",max, size[0], size[1], checkWidth,maxHeight,totalHeight, count);
-            if(count >= rowSampleNumber){
-                break;
-            }
-
-        }
-
-        if(count == 0){ //only one unfinished row
-            count = 1;
-            totalHeight = maxHeight;
-        }
-
-        return totalHeight/count;
-    }
-
-    void changeHeight(double oldHeight,  double newHeight){
-        //TODO adding more cells
-        //re-compute vertical bar
-    }
 
 
 

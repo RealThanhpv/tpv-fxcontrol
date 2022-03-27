@@ -60,7 +60,7 @@ public class VirtualFlowTest extends ApplicationTest {
             sheet.itemSizeCache.add(new double[]{100, 20});
         }
 
-        double averageHeight =  flow.sampleAverageRowHeight(201, 10);
+        double averageHeight =  sheet.sampleAverageRowHeight(201, 10);
         System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 20.0);
 
@@ -74,7 +74,7 @@ public class VirtualFlowTest extends ApplicationTest {
             sheet.itemSizeCache.add(new double[]{100, 20});
         }
 
-        double averageHeight =  flow.sampleAverageRowHeight(201, 1);
+        double averageHeight =  sheet.sampleAverageRowHeight(201, 1);
         Assert.assertTrue(averageHeight == 20.0);
 
     }
@@ -86,7 +86,7 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 20});
         sheet.itemSizeCache.add(new double[]{100, 26});
 
-        double averageHeight =  flow.sampleAverageRowHeight(205, 1);
+        double averageHeight =  sheet.sampleAverageRowHeight(205, 1);
         System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 26.0);
 
@@ -99,7 +99,7 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 20});
         sheet.itemSizeCache.add(new double[]{100, 26});
 
-        double averageHeight =  flow.sampleAverageRowHeight(100, 1);
+        double averageHeight =  sheet.sampleAverageRowHeight(100, 1);
         System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 20.0);
 
@@ -112,7 +112,7 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 20});
         sheet.itemSizeCache.add(new double[]{100, 26});
 
-        double averageHeight =  flow.sampleAverageRowHeight(100, 2);
+        double averageHeight =  sheet.sampleAverageRowHeight(100, 2);
         System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 23.0);
 
@@ -125,7 +125,7 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 20});
         sheet.itemSizeCache.add(new double[]{100, 26});
 
-        double averageHeight =  flow.sampleAverageRowHeight(100, 10);
+        double averageHeight =  sheet.sampleAverageRowHeight(100, 10);
         System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 23.0);
 
