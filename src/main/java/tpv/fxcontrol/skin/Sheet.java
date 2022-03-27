@@ -12,19 +12,18 @@ import tpv.fxcontrol.FlowIndexedCell;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class Sheet<T extends FlowIndexedCell> extends Region {
-    private static final double MAGIC_X = 120;
+    private static final double MAGIC_X = 0;
     /**
      * Indicates that this is a newly created cell and we need call processCSS for it.
-     *
+     * <p>
      * See RT-23616 for more details.
      */
-     static final String NEW_CELL = "newcell";
+    static final String NEW_CELL = "newcell";
     private static final int ROW_SAMPLE_NUMBER = 10;
+    private DoubleProperty horizontalGap = new SimpleDoubleProperty(this, "horizontal-gap", 0);
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
      * the layout pass. In a vertical flow this would be the same as the clip
@@ -43,6 +42,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      */
     ArrayList<double[]> itemSizeCache = new ArrayList<>();
     private final BitSet dirtyCells = new BitSet();
+
     final void setViewPortWidth(double value) {
         this.viewportBreadth = value;
     }
@@ -51,6 +51,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     final double getViewPortWidth() {
         return viewportBreadth;
     }
+
     /**
      * The length of the viewport portion of the VirtualFlow as computed
      * during the layout pass. In a vertical flow this would be the same as the
@@ -58,19 +59,22 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * The access on this variable is package ONLY FOR TESTING.
      */
     private double viewportLength;
+
     void setViewPortHeight(double value) {
         this.viewportLength = value;
 
     }
+
     VirtualFlow<T> flow;
-    Sheet(VirtualFlow<T> flow){
+
+    Sheet(VirtualFlow<T> flow) {
         this.flow = flow;
     }
 
     /**
      * For test only
      */
-    Sheet(){
+    Sheet() {
 
     }
 
@@ -86,47 +90,47 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
         for (int i = start; i < index; i++) {
             Cell calCel = get(i);
-            if(calCel == null){
-                calCel   =  getCellFromPile(i);
+            if (calCel == null) {
+                calCel = getCellFromPile(i);
             }
 
             double prefWidth = 0;
             double prefHeight = 0;
-            if(cell.getParent() != null){
-                prefWidth  = calCel.prefWidth(-1) ;
+            if (cell.getParent() != null) {
+                prefWidth = calCel.prefWidth(-1);
                 prefHeight = calCel.prefHeight(-1);
-            }
-            else {
+            } else {
                 double[] size = getOrCreateCacheCellSize(i);
-                prefWidth  = size[0];
+                prefWidth = size[0];
                 prefHeight = size[1];
             }
 
-            double checkLayoutX = layoutX +  prefWidth;
+            double checkLayoutX = layoutX + prefWidth;
 
-            if(!isInRow(layoutX)) {
-                layoutX  = 0;
+            if (!isInRow(layoutX)) {
+                layoutX = 0;
                 layoutY = layoutY + maxHeight;
                 maxHeight = prefHeight;
-            }
-            else {
+            } else {
                 layoutX = checkLayoutX;
-                if(maxHeight < prefHeight){
+                if (maxHeight < prefHeight) {
                     maxHeight = prefHeight;
                 }
             }
         }
 
-        Point2D p =  new Point2D(layoutX, layoutY);
+        Point2D p = new Point2D(layoutX, layoutY);
         return p;
     }
 
-    boolean isInRow(double x){
+    boolean isInRow(double x) {
         return x < (getViewPortWidth() - MAGIC_X);
     }
 
     T getFirstVisibleCellWithinViewport() {
-        if (isEmpty() || getViewPortHeight() <= 0) {return null;}
+        if (isEmpty() || getViewPortHeight() <= 0) {
+            return null;
+        }
 
         T cell;
         for (int i = 0; i < size(); i++) {
@@ -143,17 +147,17 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
 
-
     double getViewPortHeight() {
         return viewportLength;
     }
-     void clearChildren() {
+
+    void clearChildren() {
         getChildren().clear();
     }
 
     void dumpAllToPile() {
         for (int i = 0, max = size(); i < max; i++) {
-            T cell  = removeFirst();
+            T cell = removeFirst();
             cell.updateIndex(-1);
             addToPile(cell);
         }
@@ -163,9 +167,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         clear();
     }
 
-    private List<VirtualRow<T>> getRows(){
-       return getChildren().stream().map(n->(VirtualRow<T>)n).collect(Collectors.toList());
-    }
+
 
     public void addCell(T cell) {
         getChildren().add(cell);
@@ -193,16 +195,15 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     final ArrayLinkedList<T> pile = new ArrayLinkedList<T>();
 
 
-
-     T get(int cellIndex) {
+    T get(int cellIndex) {
         return cells.get(cellIndex);
     }
 
-     int size() {
+    int size() {
         return cells.size();
     }
 
-     void clear() {
+    void clear() {
         cells.clear();
         pile.clear();
     }
@@ -215,8 +216,8 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return cells.getFirst();
     }
 
-     boolean contains(Parent p) {
-         return cells.contains(p);
+    boolean contains(Parent p) {
+        return cells.contains(p);
     }
 
     boolean isEmpty() {
@@ -227,11 +228,11 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return cells.contains(owner);
     }
 
-     T remove(int i) {
+    T remove(int i) {
         return cells.remove(i);
     }
 
-     void addFirst(T cell) {
+    void addFirst(T cell) {
         cells.addFirst(cell);
 
     }
@@ -244,7 +245,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return cells.removeFirst();
     }
 
-    T getAndRemoveCellFromPile(int prefIndex){
+    T getAndRemoveCellFromPile(int prefIndex) {
         T cell = null;
 
         for (int i = 0, max = pile.size(); i < max; i++) {
@@ -260,14 +261,14 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             cell = pile.removeLast();
         }
 
-        return  cell;
+        return cell;
     }
 
     /**
      * Puts the given cell onto the pile. This is called whenever a cell has
      * fallen off the flow's start.
      */
-     void addToPile(T cell) {
+    void addToPile(T cell) {
         pile.addLast(cell);
     }
 
@@ -277,7 +278,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * at a later date). This method is protected to allow subclasses to clean up
      * appropriately.
      */
-     void moveAllCellsToPile() {
+    void moveAllCellsToPile() {
         for (int i = 0, max = size(); i < max; i++) {
             addToPile(removeFirst());
         }
@@ -306,6 +307,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * viewport (it may be clipped), but does distinguish between cells that
      * have been created and are in use vs. those that are in the pile or
      * not created.
+     *
      * @param index the index
      * @return the visible cell
      */
@@ -339,8 +341,8 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
 
-   private T getCellFromPile(int index){
-        T cell  = null;
+    private T getCellFromPile(int index) {
+        T cell = null;
         for (int i = 0; i < pile.size(); i++) {
             cell = pile.get(i);
             if (cell.getIndex() == index) {
@@ -351,7 +353,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return cell;
     }
 
-     boolean doesCellContainFocus(Cell<?> c) {
+    boolean doesCellContainFocus(Cell<?> c) {
         Scene scene = c.getScene();
         final Node focusOwner = scene == null ? null : scene.getFocusOwner();
 
@@ -361,7 +363,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             }
 
             Parent p = focusOwner.getParent();
-            while (p != null && ! (p instanceof VirtualFlow)) {
+            while (p != null && !(p instanceof VirtualFlow)) {
                 if (c.equals(p)) {
                     return true;
                 }
@@ -376,21 +378,21 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * Update the size of a specific cell.
      * If this cell was already in the cache, its old value is replaced by the
      * new size.
+     *
      * @param cell
      */
     double[] updateCellCacheSize(T cell) {
         int cellIndex = cell.getIndex();
 
-        if (cellIndex <itemSizeCache.size() && cellIndex > -1) {
+        if (cellIndex < itemSizeCache.size() && cellIndex > -1) {
 
             double newW = cell.getLayoutBounds().getWidth();
             double newH = cell.getLayoutBounds().getHeight();
 
             double[] size = itemSizeCache.get(cellIndex);
-            if(size == null){
+            if (size == null) {
                 size = new double[]{newW, newH};
-            }
-            else {
+            } else {
                 size[0] = newW;
                 size[1] = newH;
             }
@@ -406,55 +408,19 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     }
 
 
-
     /**
      * Get a cell which can be used in the layout. This function will reuse
      * cells from the pile where possible, and will create new cells when
      * necessary.
+     *
      * @param prefIndex the preferred index
      * @return the available cell
      */
 
-    T createCell(){
+    T createCell() {
         T cell = flow.getCellFactory().call(flow);
         cell.getProperties().put(Sheet.NEW_CELL, null);
         return cell;
-    }
-
-    double recalculateAndImproveEstimatedSize(final int improve, final int itemCount) {
-        int added = 0;
-
-        while (( itemSizeCache.size() < itemCount) && (added < improve)) {
-            getOrCreateCacheCellSize(itemSizeCache.size());
-            added++;
-        }
-        int cacheCount = itemSizeCache.size();
-        double layoutX = 0d;
-        double layoutY = 0d;
-        double maxHeight = 0d;
-        int i = 0;
-        for (; (i < itemCount && i < cacheCount); i++) {
-            double[] nextSize = getOrCreateCacheCellSize(i);
-
-            double checkLayoutX = layoutX + nextSize[0];
-
-            if(!isInRow(checkLayoutX)){ //new row
-                layoutX  = 0;
-                layoutY = layoutY + maxHeight;
-                maxHeight = nextSize[1];
-            }
-            else {
-                layoutX = checkLayoutX;
-                if(maxHeight < nextSize[1]){
-                    maxHeight = nextSize[1];
-                }
-            }
-
-        }
-
-        double  size = i == 0 ? 1d: layoutY * itemCount / i;
-        return  size;
-
     }
 
     void resetSizeCache() {
@@ -465,46 +431,45 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     /**
      * Compute start cell index at a absolute position
+     *
      * @return
      */
     int computeStartIndex(int itemCount, double absoluteOffset) {
         double totalY = 0;
         int index = -1;
         double layoutX = 0;
-        double maxHeight  = 0;
+        double maxHeight = 0;
 
         for (int i = 0; i < itemCount; i++) {
             double[] nextSize = getOrCreateCacheCellSize(i);
 
             double checkLayoutX = layoutX + nextSize[0];
 
-            if(!isInRow(checkLayoutX)){ //new row
-                layoutX  = 0;
+            if (!isInRow(checkLayoutX)) { //new row
+                layoutX = 0;
                 totalY = totalY + maxHeight;
                 maxHeight = nextSize[1];
-            }
-            else {
+            } else {
                 layoutX = checkLayoutX;
-                if(maxHeight < nextSize[1]){
+                if (maxHeight < nextSize[1]) {
                     maxHeight = nextSize[1];
                 }
             }
 
             if (totalY >= absoluteOffset) {
-                index =  i;
+                index = i;
                 break;
             }
 
 
-
         }
-        if(index == -1) {
+        if (index == -1) {
             index = itemCount == 0 ? 0 : itemCount - 1;
         }
         return index;
     }
 
-     void updateDirtyCells() {
+    void updateDirtyCells() {
         if (!dirtyCells.isEmpty()) {
             int index;
             final int cellsSize = size();
@@ -522,6 +487,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
         }
     }
+
     void setCellDirty(int index) {
         dirtyCells.set(index);
     }
@@ -535,12 +501,13 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * Get the size of the considered element.
      * If the requested element has a size that is not yet in the cache,
      * it will be computed and cached now.
+     *
      * @return the size of the element; or 1 in case there are no cells yet
      */
-   private double[] getCacheCellSize(int idx) {
-       if(idx < 0){
-           return null;
-       }
+    private double[] getCacheCellSize(int idx) {
+        if (idx < 0) {
+            return null;
+        }
         // is the current cache long enough to contain idx?
         if (itemSizeCache.size() > idx) {
             // is there a non-null value stored in the cache?
@@ -557,23 +524,23 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     private double[] getOrCreateCacheCellSize(int idx, boolean create) {
 
-        double[] cached  = getCacheCellSize(idx);
-        if(cached != null){
+        double[] cached = getCacheCellSize(idx);
+        if (cached != null) {
             return cached;
         }
 
-        if(!create){
+        if (!create) {
             return null;
         }
 
         T cell = getVisibleCell(idx);
 
         if (cell == null) { // we might get the accumcell here
-            cell =  getCellFromPile(idx);
+            cell = getCellFromPile(idx);
         }
 
-        if(cell == null){
-            cell =  flow.getOrCreateAccumCell();
+        if (cell == null) {
+            cell = flow.getOrCreateAccumCell();
             setCellIndex(cell, idx);
         }
         // Make sure we have enough space in the cache to store this index
@@ -581,7 +548,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             itemSizeCache.add(itemSizeCache.size(), null);
         }
 
-        double[] answer =  updateCellCacheSize(cell);
+        double[] answer = updateCellCacheSize(cell);
 
 
         return answer;
@@ -593,7 +560,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * {@link FlowIndexedCell#updateIndex(int)} directly), so it is a perfect place
      * for subclasses to override if this if of interest.
      *
-     * @param cell The cell whose index will be updated.
+     * @param cell  The cell whose index will be updated.
      * @param index The new index for the cell.
      */
     protected void setCellIndex(T cell, int index) {
@@ -615,7 +582,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         cell.setLayoutY(snapSpaceY(positionY));
 
     }
-
 
 
     public T getLastVisibleCell() {
@@ -660,12 +626,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return itemSizeCache.size();
     }
 
-    void changeWidth(double oldWidth, double newWidth){
-        double averageRowHeight =  sampleAverageRowHeight(newWidth, ROW_SAMPLE_NUMBER);
-
-    }
-
-
 
     public double getHorizontalGap() {
         return horizontalGap.get();
@@ -679,22 +639,30 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         this.horizontalGap.set(horizontalGap);
     }
 
-    private DoubleProperty horizontalGap = new SimpleDoubleProperty(this, "horizontal-gap", 0);
 
-    private double computeTotalHeight(double width, int start, int end, int rowLimit, int[] outCount){
+
+    /**
+     * @param width
+     * @param start
+     * @param end
+     * @param rowLimit -1 to exclude row limit condition
+     * @param outCount the number of row from start to end
+     * @return
+     */
+    private double computeTotalHeight(final double width, final int start, final int end, final int rowLimit, final int[] outCount) {
 
         int count = 0;
-        if(end < 1 ){
+        if (end < 1) {
             return 0;
         }
 
         double totalWidth = 0;
         double totalHeight = 0;
         double maxHeight = 0;
-
+        double[] size ;
 
         for (int i = start; i < end; i++) {
-            double[] size = getOrCreateCacheCellSize(i);
+             size = getOrCreateCacheCellSize(i);
             double checkWidth = totalWidth + size[0] + getHorizontalGap();
 
             if (maxHeight < size[1]) {
@@ -702,24 +670,30 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             }
 
             if (checkWidth < width) {
-                totalWidth += size[0] + getHorizontalGap();
+                totalWidth = checkWidth;
+
 
             } else { //new row
-                totalWidth = 0;
+                totalWidth = size[0];
                 totalHeight += maxHeight;
                 maxHeight = size[1];
                 count++;
+//                size = null;
             }
 
-            System.out.printf("max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n", end, size[0], size[1], checkWidth, maxHeight, totalHeight, count);
+            System.out.printf("i: %s,max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, width: %s, totalWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n", i, end, size[0], size[1], checkWidth, width, totalWidth, maxHeight, totalHeight, count);
             if (rowLimit > 0 && count >= rowLimit) {
                 break;
             }
         }
-        if(count == 0){
+        if (count == 0) {
             count = 1;
             totalHeight = maxHeight;
         }
+
+//        if(size == null){
+//            totalHeight += maxHeight;
+//        }
 
         outCount[0] = count;
 
@@ -729,21 +703,36 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
     double sampleAverageRowHeight(double width, int rowLimit) {
         int start = 0;
         int end = getCacheSize();
-        if(end < 1 ){
+        if (end < 1) {
             return 1;
         }
         int[] outCount = new int[1];
         double height = computeTotalHeight(width, start, end, rowLimit, outCount);
-        if(height == 0){
+        if (height == 0) {
             return 1;
         }
 
-        return height/outCount[0];
+        return height / outCount[0];
     }
 
-    void changeHeight(double oldHeight,  double newHeight){
-        //TODO adding more cells
-        //re-compute vertical bar
+    double estimateLength(final int improve, final int itemCount) {
+        int added = 0;
+
+        while ((itemSizeCache.size() < itemCount) && (added < improve)) {
+            getOrCreateCacheCellSize(itemSizeCache.size());
+            added++;
+        }
+        int start = 0;
+        int end = itemSizeCache.size();
+        double width = getViewPortWidth();
+        int rowLimit = -1;
+        int[] countOut = new int[1];
+
+        double totalHeight = computeTotalHeight(width, start, end, rowLimit, countOut);
+
+        return totalHeight;
+
     }
+
 
 }

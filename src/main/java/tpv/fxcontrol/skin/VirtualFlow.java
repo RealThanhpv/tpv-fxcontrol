@@ -1023,7 +1023,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         initViewport();
 
         // Get the index of the "current" cell
-        int currentIndex =sheet.computeStartIndex(getItemsCount(), absoluteOffset);
+        int currentIndex = sheet.computeStartIndex(getItemsCount(), absoluteOffset);
 
         if (rebuild) {
            rebuild(currentIndex);
@@ -1913,7 +1913,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * cache.
      */
     private void recalculateEstimatedSize() {
-        estimatedSize = sheet.recalculateAndImproveEstimatedSize(DEFAULT_IMPROVEMENT, getItemsCount());
+        estimatedSize = sheet.estimateLength(DEFAULT_IMPROVEMENT, getItemsCount());
     }
 
     T getFirstVisibleCellWithinViewport() {

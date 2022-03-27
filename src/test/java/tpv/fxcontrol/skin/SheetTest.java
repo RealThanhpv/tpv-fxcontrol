@@ -1,22 +1,17 @@
 package tpv.fxcontrol.skin;
 
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import tpv.fxcontrol.FlowCell;
-import tpv.fxcontrol.FlowView;
-import org.testfx.api.FxAssert;
 import org.testfx.framework.junit.ApplicationTest;
-import org.testfx.matcher.control.LabeledMatchers;
+import tpv.fxcontrol.FlowView;
 
 import static org.junit.Assert.*;
 
-public class VirtualFlowTest extends ApplicationTest {
+public class SheetTest extends ApplicationTest {
     private FlowView view;
     private FlowViewSkin skin;
     private VirtualFlow  flow;
@@ -54,14 +49,13 @@ public class VirtualFlowTest extends ApplicationTest {
 
     @Test
     public void sampleAverageRowHeight1() {
-            Assert.assertNotNull(sheet);
+        Assert.assertNotNull(sheet);
 
         for (int i = 0; i < 100; i++) {
             sheet.itemSizeCache.add(new double[]{100, 20});
         }
 
         double averageHeight =  sheet.sampleAverageRowHeight(201, 10);
-        System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 20.0);
 
     }
@@ -87,7 +81,7 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 26});
 
         double averageHeight =  sheet.sampleAverageRowHeight(205, 1);
-        System.out.println("test3: "+averageHeight);
+        System.out.println("height: "+averageHeight);
         Assert.assertTrue(averageHeight == 26.0);
 
     }
@@ -112,8 +106,8 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 20});
         sheet.itemSizeCache.add(new double[]{100, 26});
 
-        double averageHeight =  sheet.sampleAverageRowHeight(100, 2);
-        System.out.println(averageHeight);
+        double averageHeight =  sheet.sampleAverageRowHeight(100, 3);
+
         Assert.assertTrue(averageHeight == 23.0);
 
     }
@@ -126,8 +120,26 @@ public class VirtualFlowTest extends ApplicationTest {
         sheet.itemSizeCache.add(new double[]{100, 26});
 
         double averageHeight =  sheet.sampleAverageRowHeight(100, 10);
-        System.out.println(averageHeight);
         Assert.assertTrue(averageHeight == 23.0);
 
     }
+
+    @Test
+    public void estimateLength() {
+        Assert.assertNotNull(sheet);
+
+        for (int i = 0; i < 100; i++) {
+            sheet.itemSizeCache.add(new double[]{101, 20});
+        }
+
+        double shouldLength = ((int)100/3)*20 + 20;
+        System.out.println("should length: "+ shouldLength);
+
+        double length =  sheet.estimateLength(0, 100);
+        System.out.println("length: "+ length);
+        Assert.assertTrue(length == shouldLength);
+
+    }
+
+
 }
