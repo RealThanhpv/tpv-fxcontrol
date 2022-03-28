@@ -560,19 +560,22 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
 
     /**
-     * @param width
+     *
      * @param start
      * @param end
      * @param rowLimit -1 to exclude row limit condition
      * @param outCount the number of row from start to end
-     * @return
+     * @return total height of visible cells
      */
-    private double computeTotalHeight(final double width, final int start, final int end, final int rowLimit, final int[] outCount) {
+    double computeTotalHeight(final int start, final int end, final int rowLimit, final int[] outCount) {
 
         int count = 0;
         if (end < 1) {
             return 0;
         }
+
+        double width = getViewPortWidth();
+        double height = getViewPortHeight();
 
         double totalWidth = 0;
         double totalHeight = 0;
@@ -580,8 +583,8 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double[] size;
 
         double checkWidth = 0;
-
-        for (int i = start; i < end; i++) {
+        int i = start;
+        for (; i < end; i++) {
              size = getOrCreateCacheCellSize(i);
              checkWidth = totalWidth + size[0] + getHorizontalGap();
 
@@ -601,7 +604,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
             }
 
-            if (rowLimit > 0 && count >= rowLimit) {
+            if (rowLimit > -1 && count >= rowLimit || totalHeight > height) {
                 break;
             }
         }
@@ -614,6 +617,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
 
         outCount[0] = count;
+        outCount[1] = i;
 
         return totalHeight;
     }
@@ -625,7 +629,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             return 1;
         }
         int[] outCount = new int[1];
-        double height = computeTotalHeight(width, start, end, rowLimit, outCount);
+        double height = computeTotalHeight( start, end, rowLimit, outCount);
         if (height == 0) {
             return 1;
         }
@@ -642,11 +646,10 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         }
         int start = 0;
         int end = itemSizeCache.size();
-        double width = getViewPortWidth();
         int rowLimit = -1;
-        int[] countOut = new int[1];
+        int[] countOut = new int[2];
 
-        double totalHeight = computeTotalHeight(width, start, end, rowLimit, countOut);
+        double totalHeight = computeTotalHeight(start, end, rowLimit, countOut);
 
         return totalHeight;
 
@@ -712,7 +715,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             checkWidth = layoutX + size[0] + getHorizontalGap();
 
             if(layoutY >= absoluteOffset){
-                System.out.printf("layoutY: %s, absoluteOffset: %s\n", layoutY, absoluteOffset);
+//                System.out.printf("layoutY: %s, absoluteOffset: %s\n", layoutY, absoluteOffset);
                 index = i;
                 break;
             }
@@ -731,8 +734,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
                 maxHeight = size[1];
 
             }
-
-
 
         }
         if (index == -1) {

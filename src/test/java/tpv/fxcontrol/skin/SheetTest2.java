@@ -131,6 +131,86 @@ public class SheetTest2 extends ApplicationTest {
         Assert.assertTrue(p9.getY() == 100.0);
     }
 
+    @Test
+    public void computeTotalHeight(){
+        int[] outCount = new int[2];
+        sheet.setViewPortWidth(401);
+        double height = sheet.computeTotalHeight(0, 4, -1, outCount);
+        Assert.assertEquals(1, outCount[0]);
+        System.out.println("height: "+height);
+        Assert.assertTrue(height == 50.0);
+
+        height = sheet.computeTotalHeight(0, 5, -1, outCount);
+        Assert.assertEquals(2, outCount[0]);
+        System.out.println("height with 5: "+height);
+        Assert.assertTrue(height == 100.0);
+
+
+        height = sheet.computeTotalHeight(0, 8, -1, outCount);
+        System.out.println("sheet cached size: "+ sheet.getCacheSize());
+        Assert.assertEquals(2, outCount[0]);
+        System.out.println("height with 8: "+height);
+        Assert.assertTrue(height == 100.0);
+
+        height = sheet.computeTotalHeight(0, 12, -1, outCount);
+        Assert.assertEquals(3, outCount[0]);
+        Assert.assertTrue(height ==  150.0);
+
+
+        height = sheet.computeTotalHeight( 0, 16, -1, outCount);
+        Assert.assertEquals(4, outCount[0]);
+        Assert.assertTrue(height ==  200.0);
+
+        height = sheet.computeTotalHeight( 0, 20, -1, outCount);
+//        System.out.println("count at 100: "+ outCount[0]);
+        Assert.assertEquals(5, outCount[0]);
+//        System.out.println("height with 12: "+height);
+        Assert.assertTrue(height ==  250.0);
+
+        height = sheet.computeTotalHeight(0, 24, -1, outCount);
+        Assert.assertEquals(6, outCount[0]);
+        Assert.assertTrue(height ==  300.0);
+
+        height = sheet.computeTotalHeight( 0, 25, -1, outCount);
+        Assert.assertEquals(7, outCount[0]);
+        Assert.assertTrue(height ==  350.0);
+
+        height = sheet.computeTotalHeight( 0, 28, -1, outCount);
+        Assert.assertEquals(7, outCount[0]);
+        Assert.assertTrue(height ==  350.0);
+
+        height = sheet.computeTotalHeight( 0, 32, -1, outCount);
+        Assert.assertEquals(8, outCount[0]);
+        Assert.assertTrue(height ==  400.0);
+
+        height = sheet.computeTotalHeight(0, 36, -1, outCount);
+        Assert.assertEquals(9, outCount[0]);
+        Assert.assertTrue(height ==  450.0);
+
+        height = sheet.computeTotalHeight(0, 40, -1, outCount);
+        Assert.assertEquals(10, outCount[0]);
+        Assert.assertTrue(height ==  500.0);
+
+        height = sheet.computeTotalHeight( 0, 44, -1, outCount);
+        Assert.assertEquals(11, outCount[0]);
+        Assert.assertTrue(height ==  550.0);
+
+        height = sheet.computeTotalHeight( 0, 48, -1, outCount);
+        Assert.assertEquals(12, outCount[0]);
+        Assert.assertTrue(height ==  600.0);
+
+        height = sheet.computeTotalHeight(0, 52, -1, outCount);
+        Assert.assertEquals(13, outCount[0]);
+        Assert.assertTrue(height ==  650.0);
+
+        //reach viewport height
+        height = sheet.computeTotalHeight(0, 56, -1, outCount);
+        System.out.println("outCount: "+outCount[0]);
+        Assert.assertEquals(13, outCount[0]);
+        Assert.assertTrue(height ==  650.0);
+    }
+
+
     /**
      * Compute start index  for a absolute offset
      */
@@ -151,6 +231,35 @@ public class SheetTest2 extends ApplicationTest {
         start =  sheet.computeStartIndex(1000, 100);
         System.out.println("start at 100: "+ start);
         Assert.assertEquals(8, start);
+    }
+
+
+//    @Test
+    public void estimateLength() {
+        Assert.assertNotNull(sheet);
+
+
+        double shouldLength = 25*50;
+        double length =  sheet.estimateLength(0, 4);
+        System.out.println("length: "+length);
+        Assert.assertTrue(length == shouldLength);
+
+    }
+
+//    @Test
+    public void estimateLength2() {
+        Assert.assertNotNull(sheet);
+
+        sheet.setViewPortWidth(320);
+        for (int i = 0; i < 6; i++) {
+            sheet.itemSizeCache.add(new double[]{101, 20});
+        }
+
+        double shouldLength = ((int)6/3)*20;
+
+        double length =  sheet.estimateLength(0, 100);
+        Assert.assertTrue(length == shouldLength);
+
     }
 
 
