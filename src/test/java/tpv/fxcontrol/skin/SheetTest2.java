@@ -65,7 +65,7 @@ public class SheetTest2 extends ApplicationTest {
 
     @Test
     public void computePositions(){
-
+        sheet.setViewPortHeight(401);
         FlowIndexedCell<Rectangle> first = sheet.getFirst();
         System.out.println(first.getLayoutBounds());
         Point2D p0  = sheet.computePosition(first);
@@ -129,6 +129,26 @@ public class SheetTest2 extends ApplicationTest {
         System.out.println("p[9]: "+ p9);
         Assert.assertTrue(p9.getX() == 100.0);
         Assert.assertTrue(p9.getY() == 100.0);
+
+        sheet.setViewPortWidth(401);
+        sheet.setViewPortHeight(600);
+        sheet.addTrailingCells();
+
+
+        FlowIndexedCell<Rectangle> c59 = sheet.get(9);
+        Point2D p59  = sheet.computePosition(c59);
+        System.out.println("p[59]: "+ p59);
+        Assert.assertTrue(p59.getX() == 300.0);
+        Assert.assertTrue(p59.getY() == 550.0);
+
+        FlowIndexedCell<Rectangle> last = sheet.getLast();
+        System.out.println("last index: "+last.getIndex());
+        Assert.assertEquals(59, last.getIndex());
+
+        Point2D lastPos = sheet.computePosition(last);
+        System.out.println("last pos: "+ lastPos);
+        Assert.assertTrue(lastPos.getX() == 300.0);
+        Assert.assertTrue(lastPos.getY() == 550.0);
     }
 
     @Test
@@ -185,30 +205,51 @@ public class SheetTest2 extends ApplicationTest {
 
         height = sheet.computeTotalHeight(0, 36, -1, outCount);
         Assert.assertEquals(9, outCount[0]);
+        Assert.assertEquals(36, outCount[1]);
         Assert.assertTrue(height ==  450.0);
 
         height = sheet.computeTotalHeight(0, 40, -1, outCount);
         Assert.assertEquals(10, outCount[0]);
+        Assert.assertEquals(40, outCount[1]);
         Assert.assertTrue(height ==  500.0);
 
         height = sheet.computeTotalHeight( 0, 44, -1, outCount);
         Assert.assertEquals(11, outCount[0]);
+        Assert.assertEquals(44, outCount[1]);
         Assert.assertTrue(height ==  550.0);
 
         height = sheet.computeTotalHeight( 0, 48, -1, outCount);
         Assert.assertEquals(12, outCount[0]);
+        Assert.assertEquals(48, outCount[1]);
         Assert.assertTrue(height ==  600.0);
 
         height = sheet.computeTotalHeight(0, 52, -1, outCount);
         Assert.assertEquals(13, outCount[0]);
+        Assert.assertEquals(48, outCount[1]);
         Assert.assertTrue(height ==  650.0);
 
         //reach viewport height
         height = sheet.computeTotalHeight(0, 56, -1, outCount);
-        System.out.println("outCount: "+outCount[0]);
         Assert.assertEquals(13, outCount[0]);
+        Assert.assertEquals(48, outCount[1]);
+        Assert.assertTrue(height ==  650.0);
+
+        height = sheet.computeTotalHeight(0, 100, -1, outCount);
+        Assert.assertEquals(13, outCount[0]);
+        Assert.assertEquals(48, outCount[1]);
         Assert.assertTrue(height ==  650.0);
     }
+
+    @Test
+    public void estimateHeight(){
+        sheet.setViewPortWidth(401);
+        double height = sheet.estimateLength(0, flow.getItemsCount());
+        double shouldHeight = 100*650/48;
+        System.out.println("item count: "+ flow.getItemsCount());
+        System.out.println("estimated height: "+ height);
+        System.out.println("should height: "+ shouldHeight);
+    }
+
 
 
     /**

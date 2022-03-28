@@ -24,7 +24,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
      * See RT-23616 for more details.
      */
     static final String NEW_CELL = "newcell";
-    private static final int ROW_SAMPLE_NUMBER = 10;
     private DoubleProperty horizontalGap = new SimpleDoubleProperty(this, "horizontal-gap", 0);
     /**
      * The breadth of the viewport portion of the VirtualFlow as computed during
@@ -604,7 +603,11 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
             }
 
-            if (rowLimit > -1 && count >= rowLimit || totalHeight > height) {
+            if(totalHeight >= height){ //out of visible
+                break;
+            }
+
+            if (rowLimit > -1 && count >= rowLimit ) {
                 break;
             }
         }
@@ -637,6 +640,12 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return height / outCount[0];
     }
 
+    /**
+     * Estimate overall length of the view
+     * @param improve
+     * @param itemCount
+     * @return
+     */
     double estimateLength(final int improve, final int itemCount) {
         int added = 0;
 
@@ -645,13 +654,12 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             added++;
         }
         int start = 0;
-        int end = itemSizeCache.size();
-        int rowLimit = -1;
+        int end = itemCount;
         int[] countOut = new int[2];
 
-        double totalHeight = computeTotalHeight(start, end, rowLimit, countOut);
+        double totalHeight = computeTotalHeight(start, end, itemCount, countOut);
 
-        return totalHeight;
+        return itemCount*totalHeight/countOut[1];
 
     }
 
@@ -661,7 +669,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double layoutX = 0;
         double layoutY = 0;
         double maxHeight = 0;
-        double[] size;
+        double[] size = new double[2];
         double checkWidth = 0;
         int start = getFirst().getIndex();
         double width = getViewPortWidth();
@@ -741,6 +749,90 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         }
         return index;
     }
+
+    /**
+     * Adds all the trailing cells that come <em>after</em> the last index in
+     * the cells ObservableList.
+     */
+
+    boolean addTrailingCells() {
+
+        if (isEmpty()) {
+            return false;
+        }
+
+        final double viewPortHeight = getViewPortHeight();
+        final double width = getViewPortWidth();
+        T lastCell = getLast();
+
+        Point2D pos = computePosition(lastCell);
+
+        double layoutX = pos.getX() + getCellWidth(lastCell);
+        double layoutY = pos.getY() + getCellHeight(lastCell);
+        double maxHeight = 0;
+
+        int nextIndex = lastCell.getIndex() + 1;
+        final int itemCount = flow.getItemsCount();
+        boolean isEmptyCell = nextIndex <= itemCount;
+
+        if ((layoutY < 0 )|| layoutY  > viewPortHeight) {
+            return false;
+        }
+
+
+        final double maxCellCount = viewPortHeight;//cell size = 1
+
+        while (layoutY < viewPortHeight) {
+            if (nextIndex > maxCellCount) {
+                notifyIndexExceedsMaximum();
+                return false;
+            }
+
+            T cell = getAndRemoveCellFromPile(nextIndex);
+            if(cell ==  null){
+                cell  = createCell();
+                addCell(cell);
+            }
+
+            setCellIndex(cell, nextIndex);
+            addLastCellToSheet(cell);
+
+            double[] size = getOrCreateCacheCellSize(nextIndex);
+
+            double checkWidth = layoutX + size[0] + getHorizontalGap();
+
+            if (maxHeight < size[1]) {
+                maxHeight = size[1];
+            }
+
+            if (checkWidth < width) {
+                layoutX = checkWidth;
+
+            } else { //new row
+                layoutX = 0;
+                layoutY += maxHeight;
+                checkWidth = 0;
+                maxHeight = size[1];
+
+            }
+
+            cell.setVisible(true);
+            ++nextIndex;
+        }
+
+        return isEmptyCell;
+    }
+
+
+    private void notifyIndexExceedsMaximum() {
+
+        final PlatformLogger logger = Logging.getControlsLogger();
+        if (logger.isLoggable(PlatformLogger.Level.INFO)) {
+            logger.info("index exceeds maxCellCount of %s. Check size calculations.", flow.getItemsCount() );
+        }
+
+    }
+
 
 
 

@@ -26,7 +26,6 @@
 package tpv.fxcontrol.skin;
 
 import com.sun.javafx.scene.ParentHelper;
-import com.sun.javafx.scene.control.Logging;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.Direction;
@@ -61,7 +60,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import com.sun.javafx.logging.PlatformLogger;
 import tpv.fxcontrol.FlowIndexedCell;
 
 
@@ -226,10 +224,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private boolean isPanning = false;
 
     private boolean fixedCellSizeEnabled = false;
-    private boolean needsReconfigureCells = false; // when cell contents are the same
-    private boolean needsRecreateCells = false; // when cell factory changed
+//    private boolean needsReconfigureCells = false; // when cell contents are the same
+//    private boolean needsRecreateCells = false; // when cell factory changed
     private boolean needsRebuildCells = false; // when cell contents have changed
-    private boolean sizeChanged = false;
+//    private boolean sizeChanged = false;
 
 
 
@@ -919,30 +917,22 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         } else {
             synchronizeAbsoluteOffsetWithPosition();
         }
-        if (needsRecreateCells) {
-            invalidateSizes();
-            sheet.clearCompletely();
-        } else if (needsRebuildCells) {
+
+        if (needsRebuildCells) {
             invalidateSizes();
             sheet.dumpAllToPile();
             sheet.clearChildren();
-        } else if (needsReconfigureCells) {
-           invalidateSizes();
         }
         sheet.updateDirtyCells();
         invalidateSizes();
 
+        boolean recreatedOrRebuilt = needsRebuildCells;
 
-        boolean recreatedOrRebuilt = needsRebuildCells || needsRecreateCells || sizeChanged;
-
-        needsRecreateCells = false;
-        needsReconfigureCells = false;
         needsRebuildCells = false;
 
 
         final double width = getWidth();
         final double height = getHeight();
-        final boolean isVertical = isVertical();
         final double position = getPosition();
         // if the width and/or height is 0, then there is no point doing
         // any of this work. In particular, this can happen during startup
@@ -953,71 +943,18 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         boolean cellNeedsLayout = cellNeedsLayout();
 
-
-
-        /*
-         * This function may get called under a variety of circumstances.
-         * It will determine what has changed from the last time it was laid
-         * out, and will then take one of several execution paths based on
-         * what has changed so as to perform minimal layout work and also to
-         * give the expected behavior. One or more of the following may have
-         * happened:
-         *
-         *  1) width/height has changed
-         *      - If the width and/or height has been reduced (but neither of
-         *        them has been expanded), then we simply have to reposition and
-         *        resize the scroll bars
-         *      - If the width (in the vertical case) has expanded, then we
-         *        need to resize the existing cells and reposition and resize
-         *        the scroll bars
-         *      - If the height (in the vertical case) has expanded, then we
-         *        need to resize and reposition the scroll bars and add
-         *        any trailing cells
-         *
-         *  2) cell count has changed
-         *      - If the number of cells is bigger, or it is smaller but not
-         *        so small as to move the position then we can just update the
-         *        cells in place without performing layout and update the
-         *        scroll bars.
-         *      - If the number of cells has been reduced and it affects the
-         *        position, then move the position and rebuild all the cells
-         *        and update the scroll bars
-         *
-         *  3) size of the cell has changed
-         *      - If the size changed in the virtual direction (ie: height
-         *        in the case of vertical) then layout the cells, adding
-         *        trailing cells as necessary and updating the scroll bars
-         *      - If the size changed in the non virtual direction (ie: width
-         *        in the case of vertical) then simply adjust the widths of
-         *        the cells as appropriate and adjust the scroll bars
-         *
-         *  4) vertical changed, cells is empty, maxPrefBreadth == -1, etc
-         *      - Full rebuild.
-         *
-         * Each of the conditions really resolves to several of a handful of
-         * possible outcomes:
-         *  a) reposition & rebuild scroll bars
-         *  b) resize cells in non-virtual direction
-         *  c) add trailing cells
-         *  d) update cells
-         *  e) resize cells in the virtual direction
-         *  f) all of the above
-         *
-         * So this function first determines what outcomes need to occur, and
-         * then will execute all the ones that really need to happen. Every code
-         * path ends up touching the "reposition & rebuild scroll bars" outcome,
-         * so that one will be executed every time.
-         */
-        boolean rebuild = cellNeedsLayout  ||
+        boolean rebuild =
+//                cellNeedsLayout  ||
                 sheet.isEmpty()            ||
                 getMaxPrefBreadth() == -1  ||
                 position != lastPosition   ||
                 lastHeight != height ||
-                lastWidth != width||
-                (isVertical && height < lastHeight) || (! isVertical && width < lastWidth);
+                lastWidth != width
+
+                ;
 
 
-        addTrailingCells();
+//        sheet.addTrailingCells();
 
 
         initViewport();
@@ -1025,12 +962,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // Get the index of the "current" cell
         int currentIndex = sheet.computeStartIndex(getItemsCount(), absoluteOffset);
 
-        if (rebuild) {
+//        if (rebuild) {
            rebuild(currentIndex);
-        }
+//        }
 
         layoutCells();
-        updateScrollBars(recreatedOrRebuilt || rebuild);
+        updateScrollBars();
         reportSizesAndPosition();
         sheet.cleanPile();
 
@@ -1044,9 +981,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         vbar.setVisible(false);
     }
 
-    private boolean isSizeExpanded() {
-        return (isVertical() && getHeight() > lastHeight) || (!isVertical() && getWidth() > lastWidth);
-    }
 
     private void reportSizesAndPosition(){
 
@@ -1059,7 +993,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         setMaxPrefBreadth(-1);
         sheet.moveAllCellsToPile();
         addLeadingCells(currentIndex);
-        addTrailingCells();
+        sheet.addTrailingCells();
     }
 
     private boolean cellNeedsLayout() {
@@ -1258,7 +1192,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @param delta the delta value
      * @return the number of pixels actually moved
      */
-    private boolean scrollAtEightExtremity(final double delta){
+    private boolean scrollAtExtremity(final double delta){
         /*
         if ((( (tempVisibility ? !needLengthBar : !vbar.isVisible())) )) {
             return true;
@@ -1305,7 +1239,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         // Short cut this method for cases where nothing should be done
         if (delta == 0) {return 0;}
 
-       if(scrollAtEightExtremity(delta)){
+       if(scrollAtExtremity(delta)){
            return  0;
        }
 
@@ -1373,17 +1307,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Private implementation                                                  *
      *                                                                         *
      **************************************************************************/
-//
-//    /**
-//     * Returns the scroll bar used for scrolling horizontally. A developer who needs to be notified when a scroll is
-//     * happening could attach a listener to the {@link ScrollBar#valueProperty()}.
-//     *
-//     * @return the scroll bar used for scrolling horizontally
-//     * @since 12
-//     */
-//    public final ScrollBar getHbar() {
-//        return hbar;
-//    }
+
 
     /**
      * Returns the scroll bar used for scrolling vertically. A developer who needs to be notified when a scroll is
@@ -1498,88 +1422,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
     }
 
-    /**
-     * Adds all the trailing cells that come <em>after</em> the last index in
-     * the cells ObservableList.
-     */
-    //TODO re-implement
-    boolean addTrailingCells() {
-
-        if (sheet.isEmpty()) {
-            return false;
-        }
-
-        final double viewPortHeight = sheet.getViewPortHeight();
-        final double viewPortWidth = sheet.getViewPortWidth();
-        T lastCell = sheet.getLast();
-
-        Point2D pos = sheet.computePosition(lastCell);
-
-        double layoutX = pos.getX() + sheet.getCellWidth(lastCell);
-        double layoutY = pos.getY() + sheet.getCellHeight(lastCell);
-        double maxHeight = 0;
-
-        int nextIndex = lastCell.getIndex() + 1;
-        final int itemCount = getItemsCount();
-        boolean isEmptyCell = nextIndex <= itemCount;
-
-        if ((layoutY < 0 )|| layoutY  > viewPortHeight) {
-            return false;
-        }
-
-
-        final double maxCellCount = viewPortHeight;//cell size = 1
-
-        while (layoutY < viewPortHeight) {
-            if (nextIndex > maxCellCount) {
-                notifyIndexExceedsMaximum();
-                return false;
-            }
-
-            T cell = sheet.getAndRemoveCellFromPile(nextIndex);
-            if(cell ==  null){
-                cell  = sheet.createCell();
-                sheet.addCell(cell);
-            }
-
-            sheet.setCellIndex(cell, nextIndex);
-            sheet.addLastCellToSheet(cell);
-
-            double[] size = sheet.getOrCreateCacheCellSize(nextIndex);
-
-            double checkLayoutX = layoutX + size[0];
-
-            if(!sheet.isInRow(checkLayoutX)){ //new row
-                layoutX  = 0;
-                layoutY = layoutY + maxHeight;
-                maxHeight = size[1];
-            }
-            else {
-                layoutX = checkLayoutX;
-                if(maxHeight < size[1]){
-                    maxHeight = size[1];
-                }
-            }
-
-            cell.setVisible(true);
-            ++nextIndex;
-        }
-
-        return isEmptyCell;
-    }
 
 
 
 
 
-    private void notifyIndexExceedsMaximum() {
-
-            final PlatformLogger logger = Logging.getControlsLogger();
-            if (logger.isLoggable(PlatformLogger.Level.INFO)) {
-                logger.info("index exceeds maxCellCount of %s. Check size calculations.", getItemsCount() );
-            }
-
-    }
 
     /**
      * Informs the {@code VirtualFlow} that a layout pass should be done, and the cell contents have not changed. For
@@ -1589,7 +1436,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     public void reconfigureCells() {
-        needsReconfigureCells = true;
         requestLayout();
     }
 
@@ -1600,7 +1446,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     protected void recreateCells() {
-        needsRecreateCells = true;
         requestLayout();
     }
 
@@ -1647,56 +1492,8 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
 
-    /**
-     * @return true if bar visibility changed
-     */
-    private boolean computeBarVisibility() {
-        if (sheet.isEmpty()) {
-            // In case no cells are set yet, we assume no bars are needed
-            needLengthBar = false;
-            return true;
-        }
-
-        boolean barVisibilityChanged = false;
-
-        VirtualScrollBar lengthBar =  vbar;
-
-        final int cellsSize = sheet.size();
-        final int itemCount = getItemsCount();
-        T lastCell = sheet.getLast();
-        for (int i = 0; i < 2; i++) {
-
-            Point2D lastPos = sheet.computePosition(lastCell);
-            final boolean lengthBarVisible =
-                    getPosition() > 0
-                    || itemCount > cellsSize
-                    || (itemCount == cellsSize && (lastPos.getY() + sheet.getCellHeight(lastCell)) > sheet.getViewPortHeight());
-
-            if (lengthBarVisible ^ needLengthBar) {
-                needLengthBar = lengthBarVisible;
-                barVisibilityChanged = true;
-            }
-
-
-        }
-
-        // Start by optimistically deciding whether the length bar and
-        // breadth bar are needed and adjust the viewport dimensions
-        // accordingly. If during layout we find that one or the other of the
-        // bars actually is needed, then we will perform a cleanup pass
-
-        if (!Properties.IS_TOUCH_SUPPORTED) {
-            updateViewportDimensions();
-            lengthBar.setVisible(needLengthBar);
-        } else {
-            lengthBar.setVisible(needLengthBar && tempVisibility);
-        }
-        return barVisibilityChanged;
-    }
-
     private void updateViewportDimensions() {
-        final double lengthBarBreadth =  snapSizeX(vbar.prefWidth(-1)) ;
-        sheet.setViewPortWidth(getWidth() - (needLengthBar ? lengthBarBreadth : 0));
+        sheet.setViewPortWidth(getWidth() - (vbar.isVisible() ? snapSizeX(vbar.prefWidth(-1)) : 0));
         sheet.setViewPortHeight(getHeight()) ;
         synchronizeAbsoluteOffsetWithPosition();
     }
@@ -1710,109 +1507,40 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         vbar.setVirtual(true);
     }
 
-    private double  computeSumCellHeight(){
 
-        double totalY = 0;
-        double layoutX = 0;
-        double maxHeight  = 0;
-        int size = sheet.size();
+    private void updateScrollBars() {
 
-        for (int i = 0; i < size; i++) {
-            double[] nextSize = sheet.getOrCreateCacheCellSize(i);
-
-            double checkLayoutX = layoutX + nextSize[0];
-
-            if(!sheet.isInRow(checkLayoutX)){ //new row
-                layoutX  = 0;
-                totalY = totalY + maxHeight;
-                maxHeight = nextSize[1];
-            }
-            else {
-                layoutX = checkLayoutX;
-                if(maxHeight < nextSize[1]){
-                    maxHeight = nextSize[1];
-                }
-            }
-
-        }
-
-        return totalY;
-
-    }
-
-    private void updateScrollBars(boolean recreate) {
-        computeBarVisibility();
-
-        VirtualScrollBar lengthBar =  vbar ;
-
-        double sumCellLength = 0;
         double flowLength =  getHeight();
 
         final double viewportBreadth = sheet.getViewPortWidth();
         final double viewportLength = sheet.getViewPortHeight();
 
-        if (recreate && (lengthBar.isVisible() || Properties.IS_TOUCH_SUPPORTED)) {
-            final int cellCount = getItemsCount();
-            int numCellsVisibleOnScreen = 0;
-            for (int i = 0, max = sheet.size(); i < max; i++) {
-                T cell = sheet.get(i);
-                if (cell != null && !cell.isEmpty()) {
-                    sumCellLength +=  cell.getHeight();
-                    if (sumCellLength > flowLength) {
-                        break;
-                    }
-                    numCellsVisibleOnScreen++;
-                }
-            }
-
-            lengthBar.setMax(1);
-            if (numCellsVisibleOnScreen == 0 && cellCount == 1) {
-                // special case to help resolve RT-17701 and the case where we have
-                // only a single row and it is bigger than the viewport
-                lengthBar.setVisibleAmount(flowLength / sumCellLength);
-            } else {
-                lengthBar.setVisibleAmount(viewportLength / estimatedSize);
-            }
+        double totalHeight = sheet.estimateLength(0, getItemsCount());
+        if(totalHeight > viewportLength){
+            vbar.setVisible(true);
+            vbar.setMax(1);
+            vbar.setVisibleAmount(flowLength / totalHeight);
+        }
+        else {
+            vbar.setVisible(false);
         }
 
-        if (lengthBar.isVisible()) {
-            // Fix for RT-11873. If this isn't here, we can have a situation where
-            // the scrollbar scrolls endlessly. This is possible when the cell
-            // count grows as the user hits the maximal position on the scrollbar
-            // (i.e. the list size dynamically grows as the user needs more).
-            //
-            // This code was commented out to resolve RT-14477 after testing
-            // whether RT-11873 can be recreated. It could not, and therefore
-            // for now this code will remained uncommented until it is deleted
-            // following further testing.
-//            if (lengthBar.getValue() == 1.0 && lastCellCount != cellCount) {
-//                lengthBar.setValue(0.99);
-//            }
-
-            /*
-             ** Positioning the ScrollBar
-             */
+        if (vbar.isVisible()) {
             if (!Properties.IS_TOUCH_SUPPORTED) {
-
-                    vbar.resizeRelocate(viewportBreadth, 0, vbar.prefWidth(viewportLength), viewportLength);
-
+                vbar.resizeRelocate(viewportBreadth, 0, vbar.prefWidth(viewportLength), viewportLength);
             }
             else {
-                    double prefWidth = vbar.prefWidth(viewportLength);
-                    vbar.resizeRelocate(viewportBreadth - prefWidth, 0, prefWidth, viewportLength);
-
+                double prefWidth = vbar.prefWidth(viewportLength);
+                vbar.resizeRelocate(viewportBreadth - prefWidth, 0, prefWidth, viewportLength);
             }
         }
-
 
 
         clipView.resize(snapSizeX( viewportBreadth ),
                 snapSizeY(viewportLength));
 
-        // If the viewportLength becomes large enough that all cells fit
-        // within the viewport, then we want to update the value to match.
-        if (getPosition() != lengthBar.getValue()) {
-            lengthBar.setValue(getPosition());
+        if (getPosition() != vbar.getValue()) {
+            vbar.setValue(getPosition());
         }
     }
 
@@ -1898,6 +1626,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         setScrollBarPosition(newPosition);
+        sheet.addTrailingCells();
         return absoluteOffset - origAbsoluteOffset;
 
     }
@@ -1911,7 +1640,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * Recalculate the estimated size for this list based on what we have in the
      * cache.
      */
-    private void recalculateEstimatedSize() {
+     void recalculateEstimatedSize() {
         estimatedSize = sheet.estimateLength(DEFAULT_IMPROVEMENT, getItemsCount());
     }
 
