@@ -3,18 +3,20 @@ package tpv.fxcontrol.skin;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import tpv.fxcontrol.FlowIndexedCell;
 import tpv.fxcontrol.FlowView;
 
 
 public class SheetTest extends ApplicationTest {
-    private FlowView view;
-    private FlowViewSkin skin;
+    private FlowView<Rectangle> view;
+    private FlowViewSkin<Rectangle> skin;
     private VirtualFlow  flow;
-    private Sheet  sheet;
+    private Sheet sheet;
 
     /**
      * Will be called with {@code @Before} semantics, i. e. before each test method.

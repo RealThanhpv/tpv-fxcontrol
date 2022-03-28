@@ -1510,6 +1510,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         }
 
         final double viewPortHeight = sheet.getViewPortHeight();
+        final double viewPortWidth = sheet.getViewPortWidth();
         T lastCell = sheet.getLast();
 
         Point2D pos = sheet.computePosition(lastCell);
@@ -1529,13 +1530,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
 
         final double maxCellCount = viewPortHeight;//cell size = 1
 
-
         while (layoutY < viewPortHeight) {
             if (nextIndex > maxCellCount) {
                 notifyIndexExceedsMaximum();
                 return false;
             }
-
 
             T cell = sheet.getAndRemoveCellFromPile(nextIndex);
             if(cell ==  null){

@@ -1,5 +1,7 @@
 package tpv.fxcontrol.skin;
 
+import com.sun.javafx.logging.PlatformLogger;
+import com.sun.javafx.scene.control.Logging;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
@@ -78,50 +80,6 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
     }
 
-    Point2D computePosition(T cell) {
-        //vertical layout
-        int index = cell.getIndex();
-        double layoutX = 0;
-        double layoutY = 0;
-        double maxHeight = 0;
-
-        int start = getFirst().getIndex();
-//        System.out.println("start index: "+ start);
-
-        for (int i = start; i < index; i++) {
-            Cell calCel = get(i);
-            if (calCel == null) {
-                calCel = getCellFromPile(i);
-            }
-
-            double prefWidth = 0;
-            double prefHeight = 0;
-            if (cell.getParent() != null) {
-                prefWidth = calCel.prefWidth(-1);
-                prefHeight = calCel.prefHeight(-1);
-            } else {
-                double[] size = getOrCreateCacheCellSize(i);
-                prefWidth = size[0];
-                prefHeight = size[1];
-            }
-
-            double checkLayoutX = layoutX + prefWidth;
-
-            if (!isInRow(layoutX)) {
-                layoutX = 0;
-                layoutY = layoutY + maxHeight;
-                maxHeight = prefHeight;
-            } else {
-                layoutX = checkLayoutX;
-                if (maxHeight < prefHeight) {
-                    maxHeight = prefHeight;
-                }
-            }
-        }
-
-        Point2D p = new Point2D(layoutX, layoutY);
-        return p;
-    }
 
     boolean isInRow(double x) {
         return x < (getViewPortWidth() - MAGIC_X);
@@ -680,10 +638,9 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
                 checkWidth = size[0];
                 maxHeight = size[1];
                 count++;
-                System.out.println("new row at: "+i);
+
             }
 
-//            System.out.printf("i: %s,max: %s, size[0]: %s, size[1]: %s, checkWidth: %s, width: %s, totalWidth: %s, maxHeight: %s, totalHeight %s, count: %s\n", i, end, size[0], size[1], checkWidth, width, totalWidth, maxHeight, totalHeight, count);
             if (rowLimit > 0 && count >= rowLimit) {
                 break;
             }
@@ -732,6 +689,123 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         double totalHeight = computeTotalHeight(width, start, end, rowLimit, countOut);
 
         return totalHeight;
+
+    }
+
+    Point2D computePosition(T cell) {
+        //vertical layout
+        int index = cell.getIndex();
+        double layoutX = 0;
+        double layoutY = 0;
+        double maxHeight = 0;
+        double[] size;
+        double checkWidth = 0;
+        int start = getFirst().getIndex();
+        double width = getViewPortWidth();
+
+
+        for (int i = start; i < index; i++) {
+            size = getOrCreateCacheCellSize(i);
+            checkWidth = layoutX + size[0] + getHorizontalGap();
+
+            if (maxHeight < size[1]) {
+                maxHeight = size[1];
+            }
+
+            if (checkWidth < width) {
+                layoutX = checkWidth;
+
+            } else { //new row
+                layoutX = 0;
+                layoutY += maxHeight;
+                checkWidth = 0;
+                maxHeight = size[1];
+
+            }
+
+        }
+
+        Point2D p = new Point2D(layoutX, layoutY);
+        return p;
+    }
+
+
+    /**
+     * Adds all the trailing cells that come <em>after</em> the last index in
+     * the cells ObservableList.
+     */
+    //TODO re-implement
+    boolean addTrailingCells() {
+
+        if (isEmpty()) {
+            return false;
+        }
+
+        final double viewPortHeight = getViewPortHeight();
+        final double viewPortWidth = getViewPortWidth();
+        T lastCell = getLast();
+
+        Point2D pos = computePosition(lastCell);
+
+        double layoutX = pos.getX() + getCellWidth(lastCell);
+        double layoutY = pos.getY() + getCellHeight(lastCell);
+        double maxHeight = 0;
+
+        int nextIndex = lastCell.getIndex() + 1;
+        final int itemCount = flow.getItemsCount();
+        boolean isEmptyCell = nextIndex <= itemCount;
+
+        if ((layoutY < 0 )|| layoutY  > viewPortHeight) {
+            return false;
+        }
+
+
+        final double maxCellCount = viewPortHeight;//cell size = 1
+
+        while (layoutY < viewPortHeight) {
+            if (nextIndex > maxCellCount) {
+                notifyIndexExceedsMaximum();
+                return false;
+            }
+
+            T cell = getAndRemoveCellFromPile(nextIndex);
+            if(cell ==  null){
+                cell  = createCell();
+                addCell(cell);
+            }
+
+            setCellIndex(cell, nextIndex);
+            addLastCellToSheet(cell);
+
+            double[] size = getOrCreateCacheCellSize(nextIndex);
+
+            double checkLayoutX = layoutX + size[0];
+
+            if(!isInRow(checkLayoutX)){ //new row
+                layoutX  = 0;
+                layoutY = layoutY + maxHeight;
+                maxHeight = size[1];
+            }
+            else {
+                layoutX = checkLayoutX;
+                if(maxHeight < size[1]){
+                    maxHeight = size[1];
+                }
+            }
+
+            cell.setVisible(true);
+            ++nextIndex;
+        }
+
+        return isEmptyCell;
+    }
+
+    private void notifyIndexExceedsMaximum() {
+
+        final PlatformLogger logger = Logging.getControlsLogger();
+        if (logger.isLoggable(PlatformLogger.Level.INFO)) {
+            logger.info("index exceeds maxCellCount of %s. Check size calculations.", flow.getItemsCount() );
+        }
 
     }
 
