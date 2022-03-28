@@ -40,7 +40,7 @@ public class SheetTest2 extends ApplicationTest {
 
         Random random = new Random();
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             Rectangle rect  = new Rectangle();
             rect.setWidth(85); //100
             rect.setHeight(43); // 50
@@ -130,6 +130,30 @@ public class SheetTest2 extends ApplicationTest {
         Assert.assertTrue(p9.getX() == 100.0);
         Assert.assertTrue(p9.getY() == 100.0);
     }
+
+    /**
+     * Compute start index  for a absolute offset
+     */
+    @Test
+    public void computeStartIndex(){
+       int start =  sheet.computeStartIndex(1000, 0);
+       Assert.assertEquals(0, start);
+
+       start =  sheet.computeStartIndex(1000, 50);
+       System.out.println("start at 50: "+ start);
+        Assert.assertEquals(4, start);
+
+        start =  sheet.computeStartIndex(1000, 10);
+        System.out.println("start at 50: "+ start);
+        Assert.assertEquals(4, start);
+
+
+        start =  sheet.computeStartIndex(1000, 100);
+        System.out.println("start at 100: "+ start);
+        Assert.assertEquals(8, start);
+    }
+
+
 
 
 

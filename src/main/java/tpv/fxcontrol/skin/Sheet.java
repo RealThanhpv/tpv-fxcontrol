@@ -385,47 +385,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         itemSizeCache.clear();
     }
 
-    //TODO need to re-implement
 
-    /**
-     * Compute start cell index at a absolute position
-     *
-     * @return
-     */
-    int computeStartIndex(int itemCount, double absoluteOffset) {
-        double totalY = 0;
-        int index = -1;
-        double layoutX = 0;
-        double maxHeight = 0;
-
-        for (int i = 0; i < itemCount; i++) {
-            double[] nextSize = getOrCreateCacheCellSize(i);
-
-            double checkLayoutX = layoutX + nextSize[0];
-
-            if (!isInRow(checkLayoutX)) { //new row
-                layoutX = 0;
-                totalY = totalY + maxHeight;
-                maxHeight = nextSize[1];
-            } else {
-                layoutX = checkLayoutX;
-                if (maxHeight < nextSize[1]) {
-                    maxHeight = nextSize[1];
-                }
-            }
-
-            if (totalY >= absoluteOffset) {
-                index = i;
-                break;
-            }
-
-
-        }
-        if (index == -1) {
-            index = itemCount == 0 ? 0 : itemCount - 1;
-        }
-        return index;
-    }
 
     void updateDirtyCells() {
         if (!dirtyCells.isEmpty()) {
@@ -729,6 +689,57 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         return p;
     }
 
+
+
+    /**
+     * Compute start cell index at a absolute position
+     *
+     * @return
+     */
+    int computeStartIndex(int itemCount, double absoluteOffset) {
+
+        double layoutX = 0;
+        double layoutY = 0;
+        double maxHeight = 0;
+        double[] size;
+        double checkWidth = 0;
+        double width = getViewPortWidth();
+
+        int index = -1;
+
+        for (int i = 0; i < itemCount; i++) {
+            size = getOrCreateCacheCellSize(i);
+            checkWidth = layoutX + size[0] + getHorizontalGap();
+
+            if(layoutY >= absoluteOffset){
+                System.out.printf("layoutY: %s, absoluteOffset: %s\n", layoutY, absoluteOffset);
+                index = i;
+                break;
+            }
+
+            if (maxHeight < size[1]) {
+                maxHeight = size[1];
+            }
+
+            if (checkWidth < width) {
+                layoutX = checkWidth;
+
+            } else { //new row
+                layoutX = 0;
+                layoutY += maxHeight;
+                checkWidth = 0;
+                maxHeight = size[1];
+
+            }
+
+
+
+        }
+        if (index == -1) {
+            index = itemCount == 0 ? 0 : itemCount - 1;
+        }
+        return index;
+    }
 
 
 
