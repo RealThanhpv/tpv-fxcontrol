@@ -62,7 +62,7 @@ public class Main extends Application {
         scene.setFill(Color.DARKGRAY);
 
         stage.setScene(scene);
-        org.scenicview.ScenicView.show(scene);
+//        org.scenicview.ScenicView.show(scene);
         CSSFX.start(scene);
         stage.show();
 
