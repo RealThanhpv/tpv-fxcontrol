@@ -223,20 +223,12 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private double lastY;
     private boolean isPanning = false;
 
-//    private boolean fixedCellSizeEnabled = false;
-//    private boolean needsReconfigureCells = false; // when cell contents are the same
-//    private boolean needsRecreateCells = false; // when cell factory changed
-//    private boolean needsRebuildCells = false; // when cell contents have changed
-//    private boolean sizeChanged = false;
 
 
 
     Timeline sbTouchTimeline;
     KeyFrame sbTouchKF1;
     KeyFrame sbTouchKF2;
-
-    private boolean needLengthBar;
-    private boolean tempVisibility = false;
 
 
 
@@ -259,10 +251,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         sheet.getStyleClass().add("sheet");
 
         vbar = new VirtualScrollBar(this);
-
-
-//
-
 
         // --- clipView
         clipView = new ClippedContainer(this);
@@ -319,10 +307,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                             break;
                         case LINES:
                             double lineSize;
-//                            if (fixedCellSizeEnabled) {
-//                                lineSize = getFixedCellSize();
-//                            } else
-                            {
+
                                 // For the scrolling to be reasonably consistent
                                 // we set the lineSize to the average size
                                 // of all currently loaded lines.
@@ -332,7 +317,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                                             + sheet.getCellHeight(lastCell)
                                             - sheet.computePosition(sheet.getFirst()).getY())
                                         / sheet.size();
-                            }
 
                             if (lastHeight / lineSize < MIN_SCROLLING_LINES_PER_PAGE) {
                                 lineSize = lastHeight / MIN_SCROLLING_LINES_PER_PAGE;
@@ -1313,6 +1297,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     void addLeadingCells(int currentIndex) {
 
         int index = currentIndex;
+        System.out.println("current index: "+currentIndex);
 
         boolean first = true; // first time in, we just fudge the offset and let
 
@@ -1410,7 +1395,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     public void rebuildCells() {
-//        needsRebuildCells = true;
         requestLayout();
     }
 
@@ -1425,13 +1409,11 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             */
             sbTouchTimeline = new Timeline();
             sbTouchKF1 = new KeyFrame(Duration.millis(0), event -> {
-                tempVisibility = true;
                 requestLayout();
             });
 
             sbTouchKF2 = new KeyFrame(Duration.millis(1000), event -> {
                 if (touchDetected == false && mouseDown == false) {
-                    tempVisibility = false;
                     requestLayout();
                 }
             });
@@ -1441,7 +1423,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     }
 
     private void scrollBarOn() {
-        tempVisibility = true;
         requestLayout();
     }
 

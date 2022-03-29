@@ -780,7 +780,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         }
 
 
-        final double maxCellCount = viewPortHeight;//cell size = 1
+        final double maxCellCount = flow.getItemsCount();//cell size = 1
 
         while (layoutY < viewPortHeight) {
             if (nextIndex > maxCellCount) {
@@ -828,7 +828,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
 
         final PlatformLogger logger = Logging.getControlsLogger();
         if (logger.isLoggable(PlatformLogger.Level.INFO)) {
-            logger.info("index exceeds maxCellCount of %s. Check size calculations.", flow.getItemsCount() );
+            logger.info("index exceeds maxCellCount of "+flow.getItemsCount()+". Check size calculations." );
         }
 
     }
