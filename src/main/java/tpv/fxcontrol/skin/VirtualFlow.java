@@ -1297,7 +1297,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     void addLeadingCells(int currentIndex) {
 
         int index = currentIndex;
-        System.out.println("current index: "+currentIndex);
+//        System.out.println("current index: "+currentIndex);
 
         boolean first = true; // first time in, we just fudge the offset and let
 

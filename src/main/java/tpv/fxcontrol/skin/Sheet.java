@@ -761,7 +761,7 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
             return false;
         }
 
-        final double viewPortHeight = getViewPortHeight();
+        final double height = getViewPortHeight();
         final double width = getViewPortWidth();
         T lastCell = getLast();
 
@@ -775,14 +775,14 @@ public class Sheet<T extends FlowIndexedCell> extends Region {
         final int itemCount = flow.getItemsCount();
         boolean isEmptyCell = nextIndex <= itemCount;
 
-        if ((layoutY < 0 )|| layoutY  > viewPortHeight) {
+        if ((layoutY < 0 )|| layoutY  > height) {
             return false;
         }
 
 
         final double maxCellCount = flow.getItemsCount();//cell size = 1
 
-        while (layoutY < viewPortHeight) {
+        while (layoutY < height) {
             if (nextIndex > maxCellCount) {
                 notifyIndexExceedsMaximum();
                 return false;
