@@ -223,10 +223,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     private double lastY;
     private boolean isPanning = false;
 
-    private boolean fixedCellSizeEnabled = false;
+//    private boolean fixedCellSizeEnabled = false;
 //    private boolean needsReconfigureCells = false; // when cell contents are the same
 //    private boolean needsRecreateCells = false; // when cell factory changed
-    private boolean needsRebuildCells = false; // when cell contents have changed
+//    private boolean needsRebuildCells = false; // when cell contents have changed
 //    private boolean sizeChanged = false;
 
 
@@ -319,9 +319,10 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
                             break;
                         case LINES:
                             double lineSize;
-                            if (fixedCellSizeEnabled) {
-                                lineSize = getFixedCellSize();
-                            } else {
+//                            if (fixedCellSizeEnabled) {
+//                                lineSize = getFixedCellSize();
+//                            } else
+                            {
                                 // For the scrolling to be reasonably consistent
                                 // we set the lineSize to the average size
                                 // of all currently loaded lines.
@@ -777,11 +778,13 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * between 0 and 1. This is usually modified by the scroll bar
      */
     private DoubleProperty position = new SimpleDoubleProperty(this, "position") {
-        @Override public void setValue(Number v) {
+        @Override
+        public void setValue(Number v) {
             super.setValue(com.sun.javafx.util.Utils.clamp(0, get(), 1));
         }
 
-        @Override protected void invalidated() {
+        @Override
+        protected void invalidated() {
             super.invalidated();
             requestLayout();
         }
@@ -804,7 +807,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      */
     private DoubleProperty fixedCellSize = new SimpleDoubleProperty(this, "fixedCellSize") {
         @Override protected void invalidated() {
-            fixedCellSizeEnabled = get() > 0;
+//            fixedCellSizeEnabled = get() > 0;
             layoutChildren();
         }
     };
@@ -905,12 +908,6 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
     @Override
     protected void layoutChildren() {
          recalculateEstimatedSize();
-        // if the last modification to the position was done via scrollPixels,
-        // the absoluteOffset and position are already in sync.
-        // However, the position can be modified via different ways (e.g. by
-        // moving the scrollbar thumb), so we need to recalculate absoluteOffset
-        // There is an exception to this: if cells are added/removed, we want
-        // to keep the absoluteOffset constant, hence we need to adjust the position.
 
         if (lastCellCount != getItemsCount()) {
             synchronizePositionWithAbsoluteOffset();
@@ -918,18 +915,15 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             synchronizeAbsoluteOffsetWithPosition();
         }
 
-        if (needsRebuildCells) {
-            invalidateSizes();
-            sheet.dumpAllToPile();
-            sheet.clearChildren();
-        }
+//        if (needsRebuildCells) {
+//            invalidateSizes();
+//            sheet.dumpAllToPile();
+//            sheet.clearChildren();
+//        }
         sheet.updateDirtyCells();
         invalidateSizes();
 
-        boolean recreatedOrRebuilt = needsRebuildCells;
-
-        needsRebuildCells = false;
-
+//        needsRebuildCells = false;
 
         final double width = getWidth();
         final double height = getHeight();
@@ -941,32 +935,14 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
             return;
         }
 
-        boolean cellNeedsLayout = cellNeedsLayout();
-
-        boolean rebuild =
-//                cellNeedsLayout  ||
-                sheet.isEmpty()            ||
-                getMaxPrefBreadth() == -1  ||
-                position != lastPosition   ||
-                lastHeight != height ||
-                lastWidth != width
-
-                ;
-
-
-//        sheet.addTrailingCells();
-
 
         initViewport();
 
         // Get the index of the "current" cell
         int currentIndex = sheet.computeStartIndex(getItemsCount(), absoluteOffset);
 
-//        if (rebuild) {
-           rebuild(currentIndex);
-//        }
+        rebuild(currentIndex);
 
-        layoutCells();
         updateScrollBars();
         reportSizesAndPosition();
         sheet.cleanPile();
@@ -1211,29 +1187,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
         return false;
     }
 
-    private void layoutCells(){
 
-        if (!sheet.isEmpty()) {
-            final int currIndex = sheet.computeStartIndex(getItemsCount(), absoluteOffset) - sheet.getFirst().getIndex();
-            final int size = sheet.size();
-
-            for (int i = currIndex - 1; i >= 0 && i < size; i--) {
-                final T cell = sheet.get(i);
-                Point2D pos = sheet.computePosition(cell);
-                sheet.positionCell(cell, pos.getX(), pos.getY());
-                sheet.updateCellCacheSize(cell);
-            }
-
-            // position trailing cells
-            for (int i = currIndex; i >= 0 && i < size; i++) {
-                final T cell = sheet.get(i);
-                Point2D pos = sheet.computePosition(cell);
-                sheet.positionCell(cell, pos.getX(), pos.getY());
-                sheet.updateCellCacheSize(cell);
-
-            }
-        }
-    }
 
     public double scrollPixels(final double delta) {
         // Short cut this method for cases where nothing should be done
@@ -1456,7 +1410,7 @@ public class VirtualFlow<T extends FlowIndexedCell> extends Region {
      * @since 12
      */
     public void rebuildCells() {
-        needsRebuildCells = true;
+//        needsRebuildCells = true;
         requestLayout();
     }
 
