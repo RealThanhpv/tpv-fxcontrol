@@ -37,6 +37,7 @@ public class TextAreaResizable extends Control {
         this.setText(text);
     }
 
+    @Override
     protected Skin<?> createDefaultSkin() {
         return new TextAreaResizable.TextAreaResizableSkin(this);
     }
