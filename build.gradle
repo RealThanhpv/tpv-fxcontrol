@@ -9,7 +9,7 @@
 plugins {
     id 'java-library'
     id 'maven'
-    id 'application'
+//    id 'application'
     id "org.openjfx.javafxplugin" version "0.0.11"
 }
 projects {
@@ -17,7 +17,7 @@ projects {
     version = '1.0'
 }
 javafx {
-    version = "19-ea+3"
+    version = "18"
     modules = ['javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.web', 'javafx.swing']
 }
 
@@ -52,25 +52,25 @@ compileJava {
 
     ]
 }
-
-run {
-    jvmArgs = [
-            '--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol',
-            '--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol',
-            '--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
-            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
-            "--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol",
-            '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
-            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
-            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.application=org.testfx'
-    ]
-}
+//
+//run {
+//    jvmArgs = [
+//            '--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol',
+//            '--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol',
+//            '--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol',
+//            '--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol',
+//            '--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol',
+//            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol',
+//            '--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol',
+//            "--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol",
+//            '--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol',
+//            '--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol',
+//            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
+//            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
+//            '--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol',
+//            '--add-exports=javafx.graphics/com.sun.javafx.application=org.testfx'
+//    ]
+//}
 
 
 
@@ -101,7 +101,7 @@ dependencies {
 
     implementation fileTree(dir: rootProject.rootDir.toString() + "/libs", include: '*.jar')
 
-    implementation "fr.brouillard.oss:cssfx:11.4.0"
+//    implementation "fr.brouillard.oss:cssfx:11.4.0"
 
     // https://mvnrepository.com/artifact/junit/junit
     testImplementation 'junit:junit:4.13.2'
@@ -112,7 +112,3 @@ dependencies {
 
 }
 
-
-application {
-    mainClassName = 'tpv.fxcontrol.Main'
-}
