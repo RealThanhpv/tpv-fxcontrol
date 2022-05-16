@@ -86,25 +86,19 @@
         <configuration>
           <compilerArgs>
             <arg>--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol</arg>
-            <arg>--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol</arg>
-            <arg>--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol</arg>
-            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</arg>
-            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol</arg>
-            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</arg>
-            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</arg>
 
-            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
-            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
           </compilerArgs>
         </configuration>
 
