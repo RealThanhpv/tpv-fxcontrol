@@ -1,0 +1,117 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tpv.fxcontrol</groupId>
+  <artifactId>fxcontrol</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>FxControls</name>
+
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>11</maven.compiler.release>
+    <javafx.version>18</javafx.version>
+  </properties>
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.RealThanhpv</groupId>
+      <artifactId>JFxSvgLoader</artifactId>
+      <version>master-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kordamp.ikonli</groupId>
+      <artifactId>ikonli-materialdesign-pack</artifactId>
+      <version>12.3.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.kordamp.ikonli/ikonli-javafx -->
+    <dependency>
+      <groupId>org.kordamp.ikonli</groupId>
+      <artifactId>ikonli-javafx</artifactId>
+      <version>12.3.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit</artifactId>
+      <version>4.0.15-alpha</version>
+      <scope>test</scope>
+    </dependency>
+
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <compilerArgs>
+            <arg>--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.graphics/com.sun.javafx.scene.input=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol</arg>
+
+            '--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol',
+            '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol',
+          </compilerArgs>
+        </configuration>
+
+      </plugin>
+
+
+    </plugins>
+  </build>
+
+</project>

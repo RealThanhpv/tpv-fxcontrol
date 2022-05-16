@@ -9,7 +9,7 @@ module tpv.fxcontrol {
     requires tpv.jfxsvg;
     requires javafx.fxml;
 
-    requires fr.brouillard.oss.cssfx;
+//    requires fr.brouillard.oss.cssfx;
 //    requires org.scenicview.scenicview;
 
 }

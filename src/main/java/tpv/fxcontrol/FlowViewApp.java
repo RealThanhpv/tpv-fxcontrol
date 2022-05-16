@@ -1,6 +1,5 @@
 package tpv.fxcontrol;
 
-import fr.brouillard.oss.cssfx.CSSFX;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -63,7 +62,7 @@ public class FlowViewApp extends Application {
 
         stage.setScene(scene);
 //        org.scenicview.ScenicView.show(scene);
-        CSSFX.start(scene);
+//        CSSFX.start(scene);
         stage.show();
 
     }
