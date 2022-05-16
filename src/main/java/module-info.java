@@ -7,7 +7,7 @@ module tpv.fxcontrol {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.materialdesign;
     requires tpv.jfxsvg;
-    requires javafx.fxml;
+//    requires javafx.fxml;
 
 //    requires fr.brouillard.oss.cssfx;
 //    requires org.scenicview.scenicview;
