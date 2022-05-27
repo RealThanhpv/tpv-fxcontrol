@@ -50,13 +50,11 @@
       <artifactId>ikonli-materialdesign-pack</artifactId>
       <version>12.3.1</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.kordamp.ikonli/ikonli-javafx -->
     <dependency>
       <groupId>org.kordamp.ikonli</groupId>
       <artifactId>ikonli-javafx</artifactId>
       <version>12.3.1</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
