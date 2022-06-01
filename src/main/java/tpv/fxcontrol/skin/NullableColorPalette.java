@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
+ */
+
 package tpv.fxcontrol.skin;
 
 import com.sun.javafx.scene.NodeHelper;
@@ -8,6 +33,7 @@ import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalContext;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -19,6 +45,7 @@ import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -48,11 +75,12 @@ class NullableColorPalette extends Region {
 
     private static final int SQUARE_SIZE = 15;
 
-    private final ColorPickerGrid colorPickerGrid;
+    // package protected for testing purposes
+    ColorPickerGrid colorPickerGrid;
     final Hyperlink customColorLink = new Hyperlink(getColorPickerString("customColorLink"));
-    private CustomColorDialog customColorDialog = null;
+    CustomColorDialog customColorDialog = null;
 
-    private final NullableColorPicker colorPicker;
+    private NullableColorPicker colorPicker;
     private final GridPane standardColorGrid = new GridPane();
     private final GridPane customColorGrid = new GridPane();
     private final Separator separator = new Separator();
@@ -83,14 +111,15 @@ class NullableColorPalette extends Region {
         customColorLink.setFocusTraversable(true);
         customColorLink.setVisited(true); // so that it always appears blue
         customColorLink.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-
+            @Override public void handle(ActionEvent t) {
                 if (customColorDialog == null) {
                     customColorDialog = new CustomColorDialog(popupControl);
 
                     customColorDialog.customColorProperty().addListener((ov, t1, t2) -> {
-                        colorPicker.setValue(customColorDialog.customColorProperty().get());
+
+                            colorPicker.setValue(customColorDialog.customColorProperty().get());
+
+
                     });
                     customColorDialog.setOnSave(() -> {
                         Color customColor = customColorDialog.customColorProperty().get();
@@ -104,18 +133,14 @@ class NullableColorPalette extends Region {
                         Event.fireEvent(colorPicker, new ActionEvent());
                         colorPicker.hide();
                     });
-
                 }
                 customColorDialog.setCurrentColor(colorPicker.valueProperty().get());
-                if (popupControl != null) {
-                    popupControl.setAutoHide(false);
-                }
-                 customColorDialog.show();
-                 customColorDialog.setOnHidden(event -> {
+                if (popupControl != null) popupControl.setAutoHide(false);
+
+                customColorDialog.show();
+                customColorDialog.setOnHidden(event -> {
                     if (popupControl != null) popupControl.setAutoHide(true);
-                 });
-
-
+                });
             }
         });
 
@@ -135,7 +160,9 @@ class NullableColorPalette extends Region {
 
         VBox paletteBox = new VBox();
         paletteBox.getStyleClass().add("color-palette");
-        paletteBox.getChildren().addAll(standardColorGrid, colorPickerGrid, customColorLabel, customColorGrid, separator, customColorLink);
+        paletteBox.getChildren().addAll(standardColorGrid, colorPickerGrid, customColorLabel, customColorGrid
+//                , separator, customColorLink
+        );
 
         hoverSquare.setMouseTransparent(true);
         hoverSquare.getStyleClass().addAll("hover-square");
@@ -188,18 +215,18 @@ class NullableColorPalette extends Region {
         // in case more colors are added as separate row(s) in future.
 
         final Color[] STANDARD_COLORS = {
-            Color.AQUA,
-            Color.TEAL,
-            Color.BLUE,
-            Color.NAVY,
-            Color.FUCHSIA,
-            Color.PURPLE,
-            Color.RED,
-            Color.MAROON,
-            Color.YELLOW,
-            Color.OLIVE,
-            Color.GREEN,
-            Color.LIME
+                Color.AQUA,
+                Color.TEAL,
+                Color.BLUE,
+                Color.NAVY,
+                Color.FUCHSIA,
+                Color.PURPLE,
+                Color.RED,
+                Color.MAROON,
+                Color.YELLOW,
+                Color.OLIVE,
+                Color.GREEN,
+                Color.LIME
         };
 
         standardColorGrid.getChildren().clear();
@@ -521,7 +548,7 @@ class NullableColorPalette extends Region {
         // if found, set focus to it
 
         List<GridPane> gridList = List.of(standardColorGrid, colorPickerGrid,
-                                          customColorGrid);
+                customColorGrid);
 
         for (GridPane grid : gridList) {
             ColorSquare sq = findColorSquare(grid, color);

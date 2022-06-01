@@ -49,6 +49,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
@@ -112,6 +113,8 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
         behavior = new NullableColorPickerBehavior(control);
 
+        ColorPicker c;
+
         this.control = control;
 
         getChildren().clear();
@@ -124,6 +127,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
         getChildren().add(root);
 
         Rectangle boundary = new Rectangle();
+        boundary.getStyleClass().addAll("boundary");
         boundary.setWidth(PICKER_SIZE+BOUNDARY_WIDTH);
         boundary.setHeight(PICKER_SIZE+BOUNDARY_WIDTH);
         boundary.setStrokeWidth(BOUNDARY_WIDTH);
@@ -133,6 +137,7 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
 
 
         colorRect = new Rectangle();
+        colorRect.getStyleClass().addAll("color-indicator");
         colorRect.setWidth(PICKER_SIZE);
         colorRect.setHeight(PICKER_SIZE);
         colorRect.setFill(control.getValue());
@@ -155,11 +160,15 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
             if(newValue != null) {
                 colorRect.setFill(newValue);
                 root.getChildren().remove(nullLine);
+
             }
             else {
                 if(!root.getChildren().contains(nullLine)) {
                     root.getChildren().add(nullLine);
                 }
+
+
+
             }
         });
 
@@ -193,6 +202,13 @@ public class NullableColorPickerSkin extends SkinBase<NullableColorPicker> {
             }
         });
     }
+
+    private void updateColor(Paint color) {
+        colorRect.setFill(color);
+
+    }
+
+
 
 
 
