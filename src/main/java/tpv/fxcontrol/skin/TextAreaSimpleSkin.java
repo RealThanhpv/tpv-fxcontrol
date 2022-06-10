@@ -136,7 +136,7 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
     private double pressX, pressY; // For dragging handles on embedded
     private boolean handlePressed;
 
-    private EventHandler<ScrollEvent> scrollEventFilter;
+
 
     /**
      * Remembers horizontal position when traversing up / down.
@@ -190,17 +190,11 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
 //        setManaged(false);
 
         // Initialize content
-//        scrollPane = new ScrollPane();
-//        scrollPane.setFitToWidth(control.isWrapText());
-//        scrollPane.setContent(contentView);
+
         getChildren().add(contentView);
 
-        scrollEventFilter = event -> {
-            if (event.isDirect() && handlePressed) {
-                event.consume();
-            }
-        };
-        getSkinnable().addEventFilter(ScrollEvent.ANY, scrollEventFilter);
+
+
 
         // Add selection
         selectionHighlightGroup.setManaged(false);
@@ -830,8 +824,6 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
     /** {@inheritDoc} */
     @Override public void dispose() {
         if (getSkinnable() == null) return;
-        getSkinnable().removeEventFilter(ScrollEvent.ANY, scrollEventFilter);
-//        getChildren().remove(scrollPane);
         super.dispose();
 
         if (behavior != null) {

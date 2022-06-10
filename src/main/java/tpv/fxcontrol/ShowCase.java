@@ -20,7 +20,7 @@ public class ShowCase extends Application {
 
         root.getChildren().add(textArea);
 
-//        org.scenicview.ScenicView.show(scene);
+        org.scenicview.ScenicView.show(scene);
         stage.setScene(scene);
         stage.show();
 
