@@ -250,12 +250,12 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
 
         registerChangeListener(control.prefColumnCountProperty(), e -> {
             invalidateMetrics();
-//            updatePrefViewportWidth();
+
         });
 
         registerChangeListener(control.prefRowCountProperty(), e -> {
             invalidateMetrics();
-//            updatePrefViewportHeight();
+
         });
 
         updateFontMetrics();
@@ -263,41 +263,7 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
             updateFontMetrics();
         });
 
-//        contentView.paddingProperty().addListener(valueModel -> {
-//            updatePrefViewportWidth();
-//            updatePrefViewportHeight();
-//        });
 
-//        scrollPane.viewportBoundsProperty().addListener(valueModel -> {
-//            if (scrollPane.getViewportBounds() != null) {
-//                // ScrollPane creates a new Bounds instance for each
-//                // layout pass, so we need to check if the width/height
-//                // have really changed to avoid infinite layout requests.
-//                Bounds newViewportBounds = scrollPane.getViewportBounds();
-//                if (oldViewportBounds == null ||
-//                        oldViewportBounds.getWidth() != newViewportBounds.getWidth() ||
-//                        oldViewportBounds.getHeight() != newViewportBounds.getHeight()) {
-//
-//                    invalidateMetrics();
-//                    oldViewportBounds = newViewportBounds;
-//                    contentView.requestLayout();
-//                }
-//            }
-//        });
-
-        registerChangeListener(control.scrollTopProperty(), e -> {
-            double newValue = control.getScrollTop();
-            double vValue = (newValue < getScrollTopMax())
-                    ? (newValue / getScrollTopMax()) : 1.0;
-//            scrollPane.setVvalue(vValue);
-        });
-
-        registerChangeListener(control.scrollLeftProperty(), e -> {
-            double newValue = control.getScrollLeft();
-            double hValue = (newValue < getScrollLeftMax())
-                    ? (newValue / getScrollLeftMax()) : 1.0;
-//            scrollPane.setHvalue(hValue);
-        });
 
         if (USE_MULTIPLE_NODES) {
             registerListChangeListener(control.getParagraphs(), change -> {
