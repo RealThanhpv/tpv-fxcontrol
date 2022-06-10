@@ -112,7 +112,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
     private ObservableIntegerValue caretPosition;
     private Group selectionHighlightGroup = new Group();
 
-    private ScrollPane scrollPane;
+//    private ScrollPane scrollPane;
     private Bounds oldViewportBounds;
 
     private VerticalDirection scrollDirection = null;
@@ -191,10 +191,10 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 //        setManaged(false);
 
         // Initialize content
-        scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(control.isWrapText());
-        scrollPane.setContent(contentView);
-        getChildren().add(scrollPane);
+//        scrollPane = new ScrollPane();
+//        scrollPane.setFitToWidth(control.isWrapText());
+//        scrollPane.setContent(contentView);
+        getChildren().add(contentView);
 
         scrollEventFilter = event -> {
             if (event.isDirect() && handlePressed) {
@@ -231,13 +231,13 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
             contentView.getChildren().addAll(caretHandle, selectionHandle1, selectionHandle2);
         }
 
-        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> {
-            getSkinnable().setScrollLeft(newValue.doubleValue() * getScrollLeftMax());
-        });
-
-        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
-            getSkinnable().setScrollTop(newValue.doubleValue() * getScrollTopMax());
-        });
+//        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> {
+//            getSkinnable().setScrollLeft(newValue.doubleValue() * getScrollLeftMax());
+//        });
+//
+//        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
+//            getSkinnable().setScrollTop(newValue.doubleValue() * getScrollTopMax());
+//        });
 
         // Initialize the scroll selection timeline
         scrollSelectionTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -259,7 +259,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 
         registerChangeListener(control.wrapTextProperty(), e -> {
             invalidateMetrics();
-            scrollPane.setFitToWidth(control.isWrapText());
+//            contentView.setFitToWidth(control.isWrapText());
         });
 
         registerChangeListener(control.prefColumnCountProperty(), e -> {
@@ -282,35 +282,35 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
             updatePrefViewportHeight();
         });
 
-        scrollPane.viewportBoundsProperty().addListener(valueModel -> {
-            if (scrollPane.getViewportBounds() != null) {
-                // ScrollPane creates a new Bounds instance for each
-                // layout pass, so we need to check if the width/height
-                // have really changed to avoid infinite layout requests.
-                Bounds newViewportBounds = scrollPane.getViewportBounds();
-                if (oldViewportBounds == null ||
-                        oldViewportBounds.getWidth() != newViewportBounds.getWidth() ||
-                        oldViewportBounds.getHeight() != newViewportBounds.getHeight()) {
-
-                    invalidateMetrics();
-                    oldViewportBounds = newViewportBounds;
-                    contentView.requestLayout();
-                }
-            }
-        });
+//        scrollPane.viewportBoundsProperty().addListener(valueModel -> {
+//            if (scrollPane.getViewportBounds() != null) {
+//                // ScrollPane creates a new Bounds instance for each
+//                // layout pass, so we need to check if the width/height
+//                // have really changed to avoid infinite layout requests.
+//                Bounds newViewportBounds = scrollPane.getViewportBounds();
+//                if (oldViewportBounds == null ||
+//                        oldViewportBounds.getWidth() != newViewportBounds.getWidth() ||
+//                        oldViewportBounds.getHeight() != newViewportBounds.getHeight()) {
+//
+//                    invalidateMetrics();
+//                    oldViewportBounds = newViewportBounds;
+//                    contentView.requestLayout();
+//                }
+//            }
+//        });
 
         registerChangeListener(control.scrollTopProperty(), e -> {
             double newValue = control.getScrollTop();
             double vValue = (newValue < getScrollTopMax())
                     ? (newValue / getScrollTopMax()) : 1.0;
-            scrollPane.setVvalue(vValue);
+//            scrollPane.setVvalue(vValue);
         });
 
         registerChangeListener(control.scrollLeftProperty(), e -> {
             double newValue = control.getScrollLeft();
             double hValue = (newValue < getScrollLeftMax())
                     ? (newValue / getScrollLeftMax()) : 1.0;
-            scrollPane.setHvalue(hValue);
+//            scrollPane.setHvalue(hValue);
         });
 
         if (USE_MULTIPLE_NODES) {
@@ -466,7 +466,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 
     /** {@inheritDoc} */
     @Override protected void layoutChildren(double contentX, double contentY, double contentWidth, double contentHeight) {
-        scrollPane.resizeRelocate(contentX, contentY, contentWidth, contentHeight);
+        contentView.resizeRelocate(contentX, contentY, contentWidth, contentHeight);
     }
 
     /** {@inheritDoc} */
@@ -658,13 +658,13 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
     }
 
     private void previousPage(boolean select) {
-        downLines(-(int)(scrollPane.getViewportBounds().getHeight() / lineHeight),
-                select, false);
+//        downLines(-(int)(scrollPane.getViewportBounds().getHeight() / lineHeight),
+//                select, false);
     }
 
     private void nextPage(boolean select) {
-        downLines((int)(scrollPane.getViewportBounds().getHeight() / lineHeight),
-                select, false);
+//        downLines((int)(scrollPane.getViewportBounds().getHeight() / lineHeight),
+//                select, false);
     }
 
     private void lineStart(boolean select, boolean extendSelection) {
@@ -832,7 +832,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
     @Override public void dispose() {
         if (getSkinnable() == null) return;
         getSkinnable().removeEventFilter(ScrollEvent.ANY, scrollEventFilter);
-        getChildren().remove(scrollPane);
+//        getChildren().remove(scrollPane);
         super.dispose();
 
         if (behavior != null) {
@@ -1050,11 +1050,11 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
     }
 
     private double getScrollTopMax() {
-        return Math.max(0, contentView.getHeight() - scrollPane.getViewportBounds().getHeight());
+        return Math.max(0, contentView.getHeight() );
     }
 
     private double getScrollLeftMax() {
-        return Math.max(0, contentView.getWidth() - scrollPane.getViewportBounds().getWidth());
+        return Math.max(0, contentView.getWidth() );
     }
 
     private int getInsertionPoint(Text paragraphNode, double x, double y) {
@@ -1094,7 +1094,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 
     private void scrollBoundsToVisible(Rectangle2D bounds) {
         TextArea textArea = getSkinnable();
-        Bounds viewportBounds = scrollPane.getViewportBounds();
+        Bounds viewportBounds = contentView.getLayoutBounds(); //scrollPane.getViewportBounds();
 
         double viewportWidth = viewportBounds.getWidth();
         double viewportHeight = viewportBounds.getHeight();
@@ -1134,14 +1134,14 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 
     private void updatePrefViewportWidth() {
         int columnCount = getSkinnable().getPrefColumnCount();
-        scrollPane.setPrefViewportWidth(columnCount * characterWidth + contentView.snappedLeftInset() + contentView.snappedRightInset());
-        scrollPane.setMinViewportWidth(characterWidth + contentView.snappedLeftInset() + contentView.snappedRightInset());
+//        scrollPane.setPrefViewportWidth(columnCount * characterWidth + contentView.snappedLeftInset() + contentView.snappedRightInset());
+//        scrollPane.setMinViewportWidth(characterWidth + contentView.snappedLeftInset() + contentView.snappedRightInset());
     }
 
     private void updatePrefViewportHeight() {
         int rowCount = getSkinnable().getPrefRowCount();
-        scrollPane.setPrefViewportHeight(rowCount * lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
-        scrollPane.setMinViewportHeight(lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
+//        scrollPane.setPrefViewportHeight(rowCount * lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
+//        scrollPane.setMinViewportHeight(lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
     }
 
     private void updateFontMetrics() {
@@ -1190,9 +1190,9 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
     }
 
     // for testing
-    ScrollPane getScrollPane() {
-        return scrollPane;
-    }
+//    ScrollPane getScrollPane() {
+//        return scrollPane;
+//    }
 
     // for testing
     Text getPromptNode() {
@@ -1246,7 +1246,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 
                 prefWidth += snappedLeftInset() + snappedRightInset();
 
-                Bounds viewPortBounds = scrollPane.getViewportBounds();
+                Bounds viewPortBounds = contentView.getBoundsInLocal(); //scrollPane.getViewportBounds();
                 computedPrefWidth = Math.max(prefWidth, (viewPortBounds != null) ? viewPortBounds.getWidth() : 0);
             }
             return computedPrefWidth;
@@ -1279,7 +1279,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
 
                 prefHeight += snappedTopInset() + snappedBottomInset();
 
-                Bounds viewPortBounds = scrollPane.getViewportBounds();
+                Bounds viewPortBounds = contentView.getBoundsInLocal() ; //scrollPane.getViewportBounds();
                 computedPrefHeight = Math.max(prefHeight, (viewPortBounds != null) ? viewPortBounds.getHeight() : 0);
             }
             return computedPrefHeight;
@@ -1459,31 +1459,31 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
                 }
             }
 
-            if (scrollPane.getPrefViewportWidth() == 0
-                    || scrollPane.getPrefViewportHeight() == 0) {
-                updatePrefViewportWidth();
-                updatePrefViewportHeight();
-                if (getParent() != null && scrollPane.getPrefViewportWidth() > 0
-                        || scrollPane.getPrefViewportHeight() > 0) {
-                    // Force layout of viewRect in ScrollPaneSkin
-                    getParent().requestLayout();
-                }
-            }
+//            if (scrollPane.getPrefViewportWidth() == 0
+//                    || scrollPane.getPrefViewportHeight() == 0) {
+//                updatePrefViewportWidth();
+//                updatePrefViewportHeight();
+//                if (getParent() != null && scrollPane.getPrefViewportWidth() > 0
+//                        || scrollPane.getPrefViewportHeight() > 0) {
+//                    // Force layout of viewRect in ScrollPaneSkin
+//                    getParent().requestLayout();
+//                }
+//            }
 
             // RT-36454: Fit to width/height only if smaller than viewport.
             // That is, grow to fit but don't shrink to fit.
-            Bounds viewportBounds = scrollPane.getViewportBounds();
-            boolean wasFitToWidth = scrollPane.isFitToWidth();
-            boolean wasFitToHeight = scrollPane.isFitToHeight();
-            boolean setFitToWidth = textArea.isWrapText() || computePrefWidth(-1) <= viewportBounds.getWidth();
-            boolean setFitToHeight = computePrefHeight(width) <= viewportBounds.getHeight();
-            if (wasFitToWidth != setFitToWidth || wasFitToHeight != setFitToHeight) {
-                Platform.runLater(() -> {
-                    scrollPane.setFitToWidth(setFitToWidth);
-                    scrollPane.setFitToHeight(setFitToHeight);
-                });
-                getParent().requestLayout();
-            }
+//            Bounds viewportBounds = scrollPane.getViewportBounds();
+//            boolean wasFitToWidth = scrollPane.isFitToWidth();
+//            boolean wasFitToHeight = scrollPane.isFitToHeight();
+//            boolean setFitToWidth = textArea.isWrapText() || computePrefWidth(-1) <= viewportBounds.getWidth();
+//            boolean setFitToHeight = computePrefHeight(width) <= viewportBounds.getHeight();
+//            if (wasFitToWidth != setFitToWidth || wasFitToHeight != setFitToHeight) {
+//                Platform.runLater(() -> {
+//                    scrollPane.setFitToWidth(setFitToWidth);
+//                    scrollPane.setFitToHeight(setFitToHeight);
+//                });
+//                getParent().requestLayout();
+//            }
         }
     }
 }
