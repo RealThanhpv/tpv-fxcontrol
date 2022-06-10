@@ -50,7 +50,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
@@ -224,13 +223,7 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
             contentView.getChildren().addAll(caretHandle, selectionHandle1, selectionHandle2);
         }
 
-//        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> {
-//            getSkinnable().setScrollLeft(newValue.doubleValue() * getScrollLeftMax());
-//        });
-//
-//        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
-//            getSkinnable().setScrollTop(newValue.doubleValue() * getScrollTopMax());
-//        });
+
 
         // Initialize the scroll selection timeline
         scrollSelectionTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -252,17 +245,17 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
 
         registerChangeListener(control.wrapTextProperty(), e -> {
             invalidateMetrics();
-//            contentView.setFitToWidth(control.isWrapText());
+
         });
 
         registerChangeListener(control.prefColumnCountProperty(), e -> {
             invalidateMetrics();
-            updatePrefViewportWidth();
+//            updatePrefViewportWidth();
         });
 
         registerChangeListener(control.prefRowCountProperty(), e -> {
             invalidateMetrics();
-            updatePrefViewportHeight();
+//            updatePrefViewportHeight();
         });
 
         updateFontMetrics();
@@ -270,10 +263,10 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
             updateFontMetrics();
         });
 
-        contentView.paddingProperty().addListener(valueModel -> {
-            updatePrefViewportWidth();
-            updatePrefViewportHeight();
-        });
+//        contentView.paddingProperty().addListener(valueModel -> {
+//            updatePrefViewportWidth();
+//            updatePrefViewportHeight();
+//        });
 
 //        scrollPane.viewportBoundsProperty().addListener(valueModel -> {
 //            if (scrollPane.getViewportBounds() != null) {
@@ -361,8 +354,8 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
         });
 
         updateHighlightFill();
-        updatePrefViewportWidth();
-        updatePrefViewportHeight();
+//        updatePrefViewportWidth();
+//        updatePrefViewportHeight();
         if (control.isFocused()) setCaretAnimating(true);
 
         if (SHOW_HANDLES) {
@@ -1123,17 +1116,15 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
         }
     }
 
-    private void updatePrefViewportWidth() {
-        int columnCount = getSkinnable().getPrefColumnCount();
-//        scrollPane.setPrefViewportWidth(columnCount * characterWidth + contentView.snappedLeftInset() + contentView.snappedRightInset());
-//        scrollPane.setMinViewportWidth(characterWidth + contentView.snappedLeftInset() + contentView.snappedRightInset());
-    }
-
-    private void updatePrefViewportHeight() {
-        int rowCount = getSkinnable().getPrefRowCount();
-//        scrollPane.setPrefViewportHeight(rowCount * lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
-//        scrollPane.setMinViewportHeight(lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
-    }
+//    private void updatePrefViewportWidth() {
+//        int columnCount = getSkinnable().getPrefColumnCount();
+//    }
+//
+//    private void updatePrefViewportHeight() {
+//        int rowCount = getSkinnable().getPrefRowCount();
+////        scrollPane.setPrefViewportHeight(rowCount * lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
+////        scrollPane.setMinViewportHeight(lineHeight + contentView.snappedTopInset() + contentView.snappedBottomInset());
+//    }
 
     private void updateFontMetrics() {
         Text firstParagraph = (Text)paragraphNodes.getChildren().get(0);
