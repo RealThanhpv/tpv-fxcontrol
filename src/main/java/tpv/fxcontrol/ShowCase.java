@@ -5,8 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import tpv.fxcontrol.skin.TextAreaExtendableSkin;
-import tpv.fxcontrol.skin.TextInputControlSkin;
+import tpv.fxcontrol.skin.TextAreaSimpleSkin;
+
 
 public class ShowCase extends Application {
     @Override
@@ -15,7 +15,7 @@ public class ShowCase extends Application {
         Scene scene = new Scene(root, 600, 400);
         TextArea textArea = new TextArea();
 
-        TextAreaExtendableSkin skin = new TextAreaExtendableSkin(textArea);
+        TextAreaSimpleSkin skin = new TextAreaSimpleSkin(textArea);
         textArea.setSkin(skin);
 
         root.getChildren().add(textArea);

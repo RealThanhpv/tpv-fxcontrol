@@ -11,6 +11,6 @@ module tpv.fxcontrol {
 //    requires javafx.fxml;
 
 //    requires fr.brouillard.oss.cssfx;
-    requires org.scenicview.scenicview;
+//    requires org.scenicview.scenicview;
 
 }

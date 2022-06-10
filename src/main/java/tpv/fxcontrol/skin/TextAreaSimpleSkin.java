@@ -48,7 +48,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.IndexRange;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -69,7 +68,7 @@ import static com.sun.javafx.PlatformUtil.isWindows;
  * @see TextArea
  * @since 9
  */
-public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
+public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
 
     /* ************************************************************************
      *
@@ -159,7 +158,7 @@ public class TextAreaExtendableSkin extends TextInputControlSkin<TextArea> {
      *
      * @param control The control that this skin should be installed onto.
      */
-    public TextAreaExtendableSkin(final TextArea control) {
+    public TextAreaSimpleSkin(final TextArea control) {
         super(control);
 
         // install default input map for the text area control

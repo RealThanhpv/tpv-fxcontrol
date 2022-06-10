@@ -26,18 +26,13 @@
 package tpv.fxcontrol.skin;
 
 import com.sun.javafx.PlatformUtil;
-import com.sun.javafx.geom.transform.Affine3D;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.behavior.TwoLevelFocusBehavior;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.skin.TextAreaSkin;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
 import com.sun.javafx.scene.control.skin.Utils;
 import javafx.scene.input.ContextMenuEvent;
 import com.sun.javafx.scene.control.inputmap.InputMap;
@@ -53,7 +48,6 @@ import java.util.function.Predicate;
 
 import static com.sun.javafx.PlatformUtil.isMac;
 import static com.sun.javafx.PlatformUtil.isWindows;
-import com.sun.javafx.stage.WindowHelper;
 import static tpv.fxcontrol.skin.TextInputControlSkin.TextUnit;
 import static tpv.fxcontrol.skin.TextInputControlSkin.Direction;
 import static javafx.scene.input.KeyCode.*;
@@ -63,7 +57,7 @@ import static javafx.scene.input.KeyCode.*;
  * Text area behavior.
  */
 public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
-    private TextAreaExtendableSkin skin;
+    private TextAreaSimpleSkin skin;
     private TwoLevelFocusBehavior tlFocus;
 
     private ChangeListener<Boolean> focusListener;
@@ -185,7 +179,7 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     // An unholy back-reference!
-    public void setTextAreaSkin(TextAreaExtendableSkin skin) {
+    public void setTextAreaSkin(TextAreaSimpleSkin skin) {
         this.skin = skin;
     }
 
