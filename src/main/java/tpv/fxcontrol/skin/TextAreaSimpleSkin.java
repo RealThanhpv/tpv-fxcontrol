@@ -320,8 +320,6 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
         });
 
         updateHighlightFill();
-//        updatePrefViewportWidth();
-//        updatePrefViewportHeight();
         if (control.isFocused()) setCaretAnimating(true);
 
         if (SHOW_HANDLES) {
@@ -482,10 +480,8 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
             case PAGE:
                 switch (dir) {
                     case UP:
-                        previousPage(select);
                         break;
                     case DOWN:
-                        nextPage(select);
                         break;
                     default:
                         throw new IllegalArgumentException(""+dir);
@@ -609,15 +605,7 @@ public class TextAreaSimpleSkin extends TextInputControlSkin<TextArea> {
         downLines(1, select, false);
     }
 
-    private void previousPage(boolean select) {
-//        downLines(-(int)(scrollPane.getViewportBounds().getHeight() / lineHeight),
-//                select, false);
-    }
 
-    private void nextPage(boolean select) {
-//        downLines((int)(scrollPane.getViewportBounds().getHeight() / lineHeight),
-//                select, false);
-    }
 
     private void lineStart(boolean select, boolean extendSelection) {
         targetCaretX = 0;
