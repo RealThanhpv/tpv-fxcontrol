@@ -128,7 +128,7 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
      *                                                                     *
      **********************************************************************/
 
-    ListChangeListener.Change selectedItemChange;
+    protected ListChangeListener.Change selectedItemChange;
 
 
 
