@@ -53,7 +53,7 @@ import javafx.util.Pair;
  *
  * @param <T> The type of the underlying data model for the UI control.
  */
-abstract class MultipleSelectionModelBase<T> extends MultipleSelectionModel<T> {
+public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionModel<T> {
 
     /* *********************************************************************
      *                                                                     *
