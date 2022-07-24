@@ -672,10 +672,10 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
         boolean isAtomic() {
             return atomicityCount > 0;
         }
-        void startAtomic() {
+        public void startAtomic() {
             atomicityCount++;
         }
-        void stopAtomic() {
+        public void stopAtomic() {
             atomicityCount = Math.max(0, atomicityCount - 1);
         }
 
