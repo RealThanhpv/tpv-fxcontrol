@@ -322,15 +322,15 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
         }
     }
 
-    void startAtomic() {
+    public void startAtomic() {
         selectedIndices.startAtomic();
     }
 
-    void stopAtomic() {
+    public void stopAtomic() {
         selectedIndices.stopAtomic();
     }
 
-    boolean isAtomic() {
+    public boolean isAtomic() {
         return selectedIndices.isAtomic();
     }
 
