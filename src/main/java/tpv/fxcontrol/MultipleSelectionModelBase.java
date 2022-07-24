@@ -195,11 +195,11 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
     }
 
     // package only
-    void shiftSelection(int position, int shift, final Callback<ShiftParams, Void> callback) {
+    public void shiftSelection(int position, int shift, final Callback<ShiftParams, Void> callback) {
         shiftSelection(Arrays.asList(new Pair<>(position, shift)), callback);
     }
 
-    void shiftSelection(List<Pair<Integer, Integer>> shifts, final Callback<ShiftParams, Void> callback) {
+    public void shiftSelection(List<Pair<Integer, Integer>> shifts, final Callback<ShiftParams, Void> callback) {
         int selectedIndicesCardinality = selectedIndices.size(); // number of true bits
         if (selectedIndicesCardinality == 0) return;
 
