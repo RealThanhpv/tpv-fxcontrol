@@ -26,6 +26,7 @@
  */
 package tpv.fxcontrol.skin;
 
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.WeakListChangeListener;
@@ -51,7 +52,7 @@ public class GridViewSkin<T> extends VirtualContainerBase<GridView<T>, GridRow<T
         super(control);
 
         flow = getVirtualFlow();
-        updateGridViewItems();
+
 
         flow.setId("virtual-flow"); //$NON-NLS-1$
         flow.setPannable(false);
@@ -60,7 +61,7 @@ public class GridViewSkin<T> extends VirtualContainerBase<GridView<T>, GridRow<T
         flow.setCellFactory(param -> createCell());
         getChildren().add(flow);
 
-        updateItemCount();
+
 
         // Register listeners
         registerChangeListener(control.itemsProperty(), e -> updateGridViewItems());
@@ -82,6 +83,11 @@ public class GridViewSkin<T> extends VirtualContainerBase<GridView<T>, GridRow<T
         registerChangeListener(control.verticalCellSpacingProperty(), e -> getFlow().recreateCells());
         registerChangeListener(control.widthProperty(), e ->  updateItemCount());
         registerChangeListener(control.heightProperty(), e ->  updateItemCount());
+        Platform.runLater(()->{
+            updateGridViewItems();
+            updateItemCount();
+        });
+
     }
 
     @Override

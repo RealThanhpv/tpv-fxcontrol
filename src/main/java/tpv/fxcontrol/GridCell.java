@@ -29,14 +29,15 @@ package tpv.fxcontrol;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.WeakInvalidationListener;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.WeakListChangeListener;
+import javafx.css.PseudoClass;
+import javafx.scene.AccessibleRole;
 import javafx.scene.control.*;
 import tpv.fxcontrol.skin.GridCellSkin;
 
@@ -63,8 +64,13 @@ public class GridCell<T> extends IndexedCell<T> {
     /**
      * Creates a default GridCell instance.
      */
+
+
     public GridCell() {
         getStyleClass().add("grid-cell"); //$NON-NLS-1$
+        setAccessibleRole(AccessibleRole.LIST_ITEM);
+        setEditable(false);
+
 
 //		itemProperty().addListener(new ChangeListener<T>() {
 //            @Override public void changed(ObservableValue<? extends T> arg0, T oldItem, T newItem) {
@@ -92,6 +98,7 @@ public class GridCell<T> extends IndexedCell<T> {
             }
         });
     }
+
 
     /**
      * {@inheritDoc}
@@ -149,7 +156,6 @@ public class GridCell<T> extends IndexedCell<T> {
             if (newValue != null) {
                 newValue.getSelectedIndices().addListener(weakSelectedListener);
             }
-
             updateSelection();
         }
 
@@ -171,6 +177,7 @@ public class GridCell<T> extends IndexedCell<T> {
 
         updateSelected(isSelected);
     }
+
 
     private void updateEditing() {
         final int index = getIndex();
@@ -296,7 +303,7 @@ public class GridCell<T> extends IndexedCell<T> {
                 }
 
                 // Remove the listeners of the properties on ListView
-//                oldListView.editingIndexProperty().removeListener(weakEditingListener);
+                oldListView.editingIndexProperty().removeListener(weakEditingListener);
                 oldListView.itemsProperty().removeListener(weakItemsPropertyListener);
                 oldListView.focusModelProperty().removeListener(weakFocusModelPropertyListener);
                 oldListView.selectionModelProperty().removeListener(weakSelectionModelPropertyListener);
@@ -368,33 +375,10 @@ public class GridCell<T> extends IndexedCell<T> {
      * is changed (updated), the selected property on the ListCell is updated accordingly.
      */
     private final ListChangeListener<Integer> selectedListener = c -> {
-        System.out.println("selection changed");
+
         updateSelection();
     };
 
-//    /**
-//     * Listens to the selectionModel property on the ListView. Whenever the entire model is changed,
-//     * we have to unhook the weakSelectedListener and update the selection.
-//     */
-//    private final ChangeListener<MultipleSelectionModel<T>> selectionModelPropertyListener = new ChangeListener<MultipleSelectionModel<T>>() {
-//        @Override
-//        public void changed(
-//                ObservableValue<? extends MultipleSelectionModel<T>> observable,
-//                MultipleSelectionModel<T> oldValue,
-//                MultipleSelectionModel<T> newValue) {
-//
-//            if (oldValue != null) {
-//                oldValue.getSelectedIndices().removeListener(weakSelectedListener);
-//            }
-//
-//            if (newValue != null) {
-//                newValue.getSelectedIndices().addListener(weakSelectedListener);
-//            }
-//
-//            updateSelection();
-//        }
-//
-//    };
 
     /**
      * Listens to the items on the ListView. Whenever the items are changed in such a way that

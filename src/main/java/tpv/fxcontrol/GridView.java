@@ -46,6 +46,7 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.Pair;
+import tpv.fxcontrol.behavior.GridCellBehavior;
 import tpv.fxcontrol.skin.GridViewSkin;
 
 import java.lang.ref.WeakReference;
@@ -185,7 +186,9 @@ public class GridView<T> extends ControlsFXControl {
      * {@inheritDoc}
      */
     @Override protected Skin<?> createDefaultSkin() {
-        return new GridViewSkin<>(this);
+        Skin skin = new GridViewSkin(this);
+        setSkin(skin);
+        return skin;
     }
 
     /** {@inheritDoc} */
@@ -489,7 +492,7 @@ public class GridView<T> extends ControlsFXControl {
     }
 
     public void edit(int i) {
-        throw new RuntimeException("Implementation, please!");
+//        throw new RuntimeException("Implementation, please!");
     }
 
     public IntegerProperty editingIndexProperty() {
@@ -852,14 +855,14 @@ public class GridView<T> extends ControlsFXControl {
         @Override public void selectAll() {
             // when a selectAll happens, the anchor should not change, so we store it
             // before, and restore it afterwards
-            final int anchor = ListCellBehavior.getAnchor(gridView, -1);
+            final int anchor = GridCellBehavior.getAnchor(gridView, -1);
             super.selectAll();
-            ListCellBehavior.setAnchor(gridView, anchor, false);
+            GridCellBehavior.setAnchor(gridView, anchor, false);
         }
 
         /** {@inheritDoc} */
         @Override public void clearAndSelect(int row) {
-            ListCellBehavior.setAnchor(gridView, row, false);
+            GridCellBehavior.setAnchor(gridView, row, false);
             super.clearAndSelect(row);
         }
 

@@ -68,6 +68,7 @@ public class GridRowSkin<T> extends CellSkinBase<GridRow<T>> {
         int rowIndex = getSkinnable().getIndex();
         if (rowIndex >= 0) {
             GridView<T> gridView = getSkinnable().getGridView();
+
             int maxCellsInRow = ((GridViewSkin<?>)gridView.getSkin()).computeMaxCellsInRow();
             int totalCellsInGrid = gridView.getItems().size();
             int startCellIndex = rowIndex * maxCellsInRow;
@@ -82,7 +83,7 @@ public class GridRowSkin<T> extends CellSkinBase<GridRow<T>> {
                         cell = createCell();
                         getChildren().add(cell);
                     }
-                    cell.updateIndex(-1);
+//                    cell.updateIndex(-1); //Thanhpv
                     cell.updateIndex(cellIndex);
                 }
                 // we are going out of bounds -> exist the loop

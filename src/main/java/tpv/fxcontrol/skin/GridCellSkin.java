@@ -26,13 +26,28 @@
  */
 package tpv.fxcontrol.skin;
 
+import com.sun.javafx.scene.control.behavior.ListCellBehavior;
 import javafx.scene.control.skin.CellSkinBase;
+import javafx.scene.input.MouseEvent;
 import tpv.fxcontrol.GridCell;
+import tpv.fxcontrol.behavior.GridCellBehavior;
 
 public class GridCellSkin<T> extends CellSkinBase<GridCell<T>> {
-
+    GridCellBehavior behavior;
     public GridCellSkin(GridCell<T> control) {
         super(control);
+        behavior = new GridCellBehavior<>(control);
+
+
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        if (behavior != null) {
+            behavior.dispose();
+        }
     }
 
 }

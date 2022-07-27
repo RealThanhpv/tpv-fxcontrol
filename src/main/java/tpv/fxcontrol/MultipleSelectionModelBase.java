@@ -396,6 +396,7 @@ abstract class MultipleSelectionModelBase<T> extends MultipleSelectionModel<T> {
     }
 
     @Override public void select(int row) {
+//        System.out.println("Select row: "+row);
         if (row == -1) {
             clearSelection();
             return;

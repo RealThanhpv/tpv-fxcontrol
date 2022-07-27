@@ -14,7 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>11</maven.compiler.release>
-    <javafx.version>18</javafx.version>
+    <javafx.version>19-ea+8</javafx.version>
   </properties>
   <repositories>
     <repository>
@@ -102,6 +102,7 @@
             <arg>--add-exports=javafx.base/com.sun.javafx=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.base/com.sun.javafx.logging=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol</arg>
+            <arg>--add-exports=javafx.base/com.sun.javafx.collections=tpv.fxcontrol </arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.css=tpv.fxcontrol</arg>
             <arg>--add-exports=javafx.graphics/com.sun.javafx.util=tpv.fxcontrol</arg>
@@ -174,7 +175,8 @@
               <option>javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</option>
               <option>--add-exports</option>
               <option>javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</option>
-
+              <option>--add-exports</option>
+              <option>javafx.base/com.sun.javafx.collections=tpv.fxcontrol </option>
             </options>
 
         </configuration>
