@@ -26,12 +26,6 @@
 package tpv.fxcontrol;
 
 import com.sun.javafx.collections.NonIterableChange;
-import static javafx.scene.control.SelectionMode.SINGLE;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import com.sun.javafx.scene.control.MultipleAdditionAndRemovedChange;
 import com.sun.javafx.scene.control.ReadOnlyUnbackedObservableList;
 import com.sun.javafx.scene.control.SelectedItemsReadOnlyObservableList;
@@ -41,9 +35,13 @@ import javafx.collections.ObservableListBase;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.util.Callback;
-
 import javafx.util.Pair;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static javafx.scene.control.SelectionMode.SINGLE;
 
 
 /**
@@ -53,7 +51,7 @@ import javafx.util.Pair;
  *
  * @param <T> The type of the underlying data model for the UI control.
  */
-public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionModel<T> {
+abstract class MultipleSelectionModelBase<T> extends MultipleSelectionModel<T> {
 
     /* *********************************************************************
      *                                                                     *
@@ -128,7 +126,7 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
      *                                                                     *
      **********************************************************************/
 
-    protected ListChangeListener.Change selectedItemChange;
+    ListChangeListener.Change selectedItemChange;
 
 
 
@@ -195,11 +193,11 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
     }
 
     // package only
-    public void shiftSelection(int position, int shift, final Callback<ShiftParams, Void> callback) {
+    void shiftSelection(int position, int shift, final Callback<ShiftParams, Void> callback) {
         shiftSelection(Arrays.asList(new Pair<>(position, shift)), callback);
     }
 
-    public void shiftSelection(List<Pair<Integer, Integer>> shifts, final Callback<ShiftParams, Void> callback) {
+    void shiftSelection(List<Pair<Integer, Integer>> shifts, final Callback<ShiftParams, Void> callback) {
         int selectedIndicesCardinality = selectedIndices.size(); // number of true bits
         if (selectedIndicesCardinality == 0) return;
 
@@ -322,15 +320,15 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
         }
     }
 
-    public void startAtomic() {
+    void startAtomic() {
         selectedIndices.startAtomic();
     }
 
-    public void stopAtomic() {
+    void stopAtomic() {
         selectedIndices.stopAtomic();
     }
 
-    public boolean isAtomic() {
+    boolean isAtomic() {
         return selectedIndices.isAtomic();
     }
 
@@ -672,10 +670,10 @@ public abstract class MultipleSelectionModelBase<T> extends MultipleSelectionMod
         boolean isAtomic() {
             return atomicityCount > 0;
         }
-        public void startAtomic() {
+        void startAtomic() {
             atomicityCount++;
         }
-        public void stopAtomic() {
+        void stopAtomic() {
             atomicityCount = Math.max(0, atomicityCount - 1);
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,6 +29,8 @@ import com.sun.javafx.scene.control.behavior.BehaviorBase;
 import com.sun.javafx.scene.control.behavior.FocusTraversalInputMap;
 import com.sun.javafx.scene.control.behavior.ListCellBehavior;
 import com.sun.javafx.scene.control.behavior.TwoLevelFocusListBehavior;
+import com.sun.javafx.scene.control.inputmap.InputMap;
+import com.sun.javafx.scene.control.inputmap.KeyBinding;
 import com.sun.javafx.scene.control.skin.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -37,28 +39,25 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.WeakListChangeListener;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
 import javafx.scene.control.FocusModel;
-import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
-import com.sun.javafx.scene.control.inputmap.InputMap;
-import com.sun.javafx.scene.control.inputmap.KeyBinding;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-import tpv.fxcontrol.FlowView;
+import tpv.fxcontrol.GridView;
+
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.Random;
 
-import static com.sun.javafx.scene.control.inputmap.InputMap.*;
+import static com.sun.javafx.scene.control.inputmap.InputMap.KeyMapping;
+import static com.sun.javafx.scene.control.inputmap.InputMap.MouseMapping;
 import static javafx.scene.input.KeyCode.*;
 
-public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
-    private final InputMap<FlowView<T>> listViewInputMap;
+public class GridViewBehavior<T> extends BehaviorBase<GridView<T>> {
+    private final InputMap<GridView<T>> listViewInputMap;
 
     private final EventHandler<KeyEvent> keyEventListener = e -> {
         if (!e.isConsumed()) {
@@ -78,112 +77,106 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
      *                                                                         *
      **************************************************************************/
 
-    public FlowViewBehavior(FlowView<T> control) {
+    public GridViewBehavior(GridView<T> control) {
         super(control);
 
         // create a map for listView-specific mappings
         listViewInputMap = createInputMap();
 
         // add focus traversal mappings
-        Supplier<Boolean> isListViewOfComboBox =
-                (Supplier<Boolean>) control.getProperties().get("editableComboBox");
-        Predicate<KeyEvent> isInComboBox = e -> isListViewOfComboBox != null;
-        Predicate<KeyEvent> isInEditableComboBox =
-                e -> isListViewOfComboBox != null && isListViewOfComboBox.get();
-        if (isListViewOfComboBox == null) {
-            addDefaultMapping(listViewInputMap, FocusTraversalInputMap.getFocusTraversalMappings());
-        }
+        addDefaultMapping(listViewInputMap, FocusTraversalInputMap.getFocusTraversalMappings());
         addDefaultMapping(listViewInputMap,
-                new KeyMapping(new KeyBinding(HOME), e -> selectFirstRow(), isInEditableComboBox),
-                new KeyMapping(new KeyBinding(END), e -> selectLastRow(), isInEditableComboBox),
-                new KeyMapping(new KeyBinding(HOME).shift(), e -> selectAllToFirstRow(), isInComboBox),
-                new KeyMapping(new KeyBinding(END).shift(), e -> selectAllToLastRow(), isInComboBox),
-                new KeyMapping(new KeyBinding(PAGE_UP).shift(), e -> selectAllPageUp()),
-                new KeyMapping(new KeyBinding(PAGE_DOWN).shift(), e -> selectAllPageDown()),
+            new KeyMapping(HOME, e -> selectFirstRow()),
+            new KeyMapping(END, e -> selectLastRow()),
+            new KeyMapping(new KeyBinding(HOME).shift(), e -> selectAllToFirstRow()),
+            new KeyMapping(new KeyBinding(END).shift(), e -> selectAllToLastRow()),
+            new KeyMapping(new KeyBinding(PAGE_UP).shift(), e -> selectAllPageUp()),
+            new KeyMapping(new KeyBinding(PAGE_DOWN).shift(), e -> selectAllPageDown()),
 
-                new KeyMapping(new KeyBinding(SPACE).shift(), e -> selectAllToFocus(false)),
-                new KeyMapping(new KeyBinding(SPACE).shortcut().shift(), e -> selectAllToFocus(true)),
+            new KeyMapping(new KeyBinding(SPACE).shift(), e -> selectAllToFocus(false)),
+            new KeyMapping(new KeyBinding(SPACE).shortcut().shift(), e -> selectAllToFocus(true)),
 
-                new KeyMapping(PAGE_UP, e -> scrollPageUp()),
-                new KeyMapping(PAGE_DOWN, e -> scrollPageDown()),
+            new KeyMapping(PAGE_UP, e -> scrollPageUp()),
+            new KeyMapping(PAGE_DOWN, e -> scrollPageDown()),
 
-                new KeyMapping(ENTER, e -> activate()),
-                new KeyMapping(SPACE, e -> activate()),
-                new KeyMapping(F2, e -> activate()),
-                new KeyMapping(ESCAPE, e -> cancelEdit()),
+            new KeyMapping(ENTER, e -> activate()),
+            new KeyMapping(SPACE, e -> activate()),
+            new KeyMapping(F2, e -> activate()),
+            new KeyMapping(ESCAPE, e -> cancelEdit()),
 
-                new KeyMapping(new KeyBinding(A).shortcut(), e -> selectAll(), isInComboBox),
-                new KeyMapping(new KeyBinding(HOME).shortcut(), e -> focusFirstRow(), isInComboBox),
-                new KeyMapping(new KeyBinding(END).shortcut(), e -> focusLastRow(), isInComboBox),
-                new KeyMapping(new KeyBinding(PAGE_UP).shortcut(), e -> focusPageUp()),
-                new KeyMapping(new KeyBinding(PAGE_DOWN).shortcut(), e -> focusPageDown()),
+            new KeyMapping(new KeyBinding(A).shortcut(), e -> selectAll()),
+            new KeyMapping(new KeyBinding(HOME).shortcut(), e -> focusFirstRow()),
+            new KeyMapping(new KeyBinding(END).shortcut(), e -> focusLastRow()),
+            new KeyMapping(new KeyBinding(PAGE_UP).shortcut(), e -> focusPageUp()),
+            new KeyMapping(new KeyBinding(PAGE_DOWN).shortcut(), e -> focusPageDown()),
 
-                new KeyMapping(new KeyBinding(BACK_SLASH).shortcut(), e -> clearSelection()),
+            new KeyMapping(new KeyBinding(BACK_SLASH).shortcut(), e -> clearSelection()),
 
-                new MouseMapping(MouseEvent.MOUSE_PRESSED, this::mousePressed)
+            new MouseMapping(MouseEvent.MOUSE_PRESSED, this::mousePressed)
         );
 
         // create OS-specific child mappings
         // --- mac OS
-        InputMap<FlowView<T>> macInputMap = new InputMap<>(control);
+        InputMap<GridView<T>> macInputMap = new InputMap<>(control);
         macInputMap.setInterceptor(event -> !PlatformUtil.isMac());
         addDefaultMapping(macInputMap, new KeyMapping(new KeyBinding(SPACE).shortcut().ctrl(), e -> toggleFocusOwnerSelection()));
         addDefaultChildMap(listViewInputMap, macInputMap);
 
         // --- all other platforms
-        InputMap<FlowView<T>> otherOsInputMap = new InputMap<>(control);
+        InputMap<GridView<T>> otherOsInputMap = new InputMap(control);
         otherOsInputMap.setInterceptor(event -> PlatformUtil.isMac());
         addDefaultMapping(otherOsInputMap, new KeyMapping(new KeyBinding(SPACE).ctrl(), e -> toggleFocusOwnerSelection()));
         addDefaultChildMap(listViewInputMap, otherOsInputMap);
 
         // create two more child maps, one for vertical listview and one for horizontal listview
         // --- vertical listview
-        InputMap<FlowView<T>> verticalListInputMap = new InputMap<>(control);
-        verticalListInputMap.setInterceptor(event -> control.getOrientation() != Orientation.VERTICAL);
+        InputMap<GridView<T>> verticalListInputMap = new InputMap<>(control);
+//        verticalListInputMap.setInterceptor(event -> control.getOrientation() != Orientation.VERTICAL);
 
         addDefaultMapping(verticalListInputMap,
-                new KeyMapping(UP, e -> selectPreviousRow()),
-                new KeyMapping(KP_UP, e -> selectPreviousRow()),
-                new KeyMapping(DOWN, e -> selectNextRow()),
-                new KeyMapping(KP_DOWN, e -> selectNextRow()),
+            new KeyMapping(UP, e -> selectPreviousRow()),
+            new KeyMapping(KP_UP, e -> selectPreviousRow()),
+            new KeyMapping(DOWN, e -> selectNextRow()),
+            new KeyMapping(KP_DOWN, e -> selectNextRow()),
 
-                new KeyMapping(new KeyBinding(UP).shift(), e -> alsoSelectPreviousRow()),
-                new KeyMapping(new KeyBinding(KP_UP).shift(), e -> alsoSelectPreviousRow()),
-                new KeyMapping(new KeyBinding(DOWN).shift(), e -> alsoSelectNextRow()),
-                new KeyMapping(new KeyBinding(KP_DOWN).shift(), e -> alsoSelectNextRow()),
+            new KeyMapping(new KeyBinding(UP).shift(), e -> alsoSelectPreviousRow()),
+            new KeyMapping(new KeyBinding(KP_UP).shift(), e -> alsoSelectPreviousRow()),
+            new KeyMapping(new KeyBinding(DOWN).shift(), e -> alsoSelectNextRow()),
+            new KeyMapping(new KeyBinding(KP_DOWN).shift(), e -> alsoSelectNextRow()),
 
-                new KeyMapping(new KeyBinding(UP).shortcut(), e -> focusPreviousRow()),
-                new KeyMapping(new KeyBinding(DOWN).shortcut(), e -> focusNextRow()),
+            new KeyMapping(new KeyBinding(UP).shortcut(), e -> focusPreviousRow()),
+            new KeyMapping(new KeyBinding(DOWN).shortcut(), e -> focusNextRow()),
 
-                new KeyMapping(new KeyBinding(UP).shortcut().shift(), e -> discontinuousSelectPreviousRow()),
-                new KeyMapping(new KeyBinding(DOWN).shortcut().shift(), e -> discontinuousSelectNextRow()),
-                new KeyMapping(new KeyBinding(PAGE_UP).shortcut().shift(), e -> discontinuousSelectPageUp()),
-                new KeyMapping(new KeyBinding(PAGE_DOWN).shortcut().shift(), e -> discontinuousSelectPageDown()),
-                new KeyMapping(new KeyBinding(HOME).shortcut().shift(), e -> discontinuousSelectAllToFirstRow(), isInComboBox),
-                new KeyMapping(new KeyBinding(END).shortcut().shift(), e -> discontinuousSelectAllToLastRow(), isInComboBox)
+            new KeyMapping(new KeyBinding(UP).shortcut().shift(), e -> discontinuousSelectPreviousRow()),
+            new KeyMapping(new KeyBinding(DOWN).shortcut().shift(), e -> discontinuousSelectNextRow()),
+            new KeyMapping(new KeyBinding(PAGE_UP).shortcut().shift(), e -> discontinuousSelectPageUp()),
+            new KeyMapping(new KeyBinding(PAGE_DOWN).shortcut().shift(), e -> discontinuousSelectPageDown()),
+            new KeyMapping(new KeyBinding(HOME).shortcut().shift(), e -> discontinuousSelectAllToFirstRow()),
+            new KeyMapping(new KeyBinding(END).shortcut().shift(), e -> discontinuousSelectAllToLastRow())
         );
+
         addDefaultChildMap(listViewInputMap, verticalListInputMap);
 
         // --- horizontal listview
-        InputMap<FlowView<T>> horizontalListInputMap = new InputMap<>(control);
-        horizontalListInputMap.setInterceptor(event -> control.getOrientation() != Orientation.HORIZONTAL);
+        InputMap<GridView<T>> horizontalListInputMap = new InputMap<>(control);
+//        horizontalListInputMap.setInterceptor(event -> control.getOrientation() != Orientation.HORIZONTAL);
 
         addDefaultMapping(horizontalListInputMap,
-                new KeyMapping(LEFT, e -> selectPreviousRow()),
-                new KeyMapping(KP_LEFT, e -> selectPreviousRow()),
-                new KeyMapping(RIGHT, e -> selectNextRow()),
-                new KeyMapping(KP_RIGHT, e -> selectNextRow()),
+            new KeyMapping(LEFT, e -> selectPreviousRow()),
+            new KeyMapping(KP_LEFT, e -> selectPreviousRow()),
+            new KeyMapping(RIGHT, e -> selectNextRow()),
+            new KeyMapping(KP_RIGHT, e -> selectNextRow()),
 
-                new KeyMapping(new KeyBinding(LEFT).shift(), e -> alsoSelectPreviousRow()),
-                new KeyMapping(new KeyBinding(KP_LEFT).shift(), e -> alsoSelectPreviousRow()),
-                new KeyMapping(new KeyBinding(RIGHT).shift(), e -> alsoSelectNextRow()),
-                new KeyMapping(new KeyBinding(KP_RIGHT).shift(), e -> alsoSelectNextRow()),
+            new KeyMapping(new KeyBinding(LEFT).shift(), e -> alsoSelectPreviousRow()),
+            new KeyMapping(new KeyBinding(KP_LEFT).shift(), e -> alsoSelectPreviousRow()),
+            new KeyMapping(new KeyBinding(RIGHT).shift(), e -> alsoSelectNextRow()),
+            new KeyMapping(new KeyBinding(KP_RIGHT).shift(), e -> alsoSelectNextRow()),
 
-                new KeyMapping(new KeyBinding(LEFT).shortcut(), e -> focusPreviousRow()),
-                new KeyMapping(new KeyBinding(RIGHT).shortcut(), e -> focusNextRow()),
+            new KeyMapping(new KeyBinding(LEFT).shortcut(), e -> focusPreviousRow()),
+            new KeyMapping(new KeyBinding(RIGHT).shortcut(), e -> focusNextRow()),
 
-                new KeyMapping(new KeyBinding(LEFT).shortcut().shift(), e -> discontinuousSelectPreviousRow()),
-                new KeyMapping(new KeyBinding(RIGHT).shortcut().shift(), e -> discontinuousSelectNextRow())
+            new KeyMapping(new KeyBinding(LEFT).shortcut().shift(), e -> discontinuousSelectPreviousRow()),
+            new KeyMapping(new KeyBinding(RIGHT).shortcut().shift(), e -> discontinuousSelectNextRow())
         );
 
         addDefaultChildMap(listViewInputMap, horizontalListInputMap);
@@ -211,33 +204,30 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
     }
 
 
+
     /***************************************************************************
      *                                                                         *
      * Implementation of BehaviorBase API                                      *
      *                                                                         *
      **************************************************************************/
 
-    @Override public InputMap<FlowView<T>> getInputMap() {
+    @Override public InputMap<GridView<T>> getInputMap() {
         return listViewInputMap;
     }
 
     @Override public void dispose() {
-        FlowView<T> control = getNode();
+        GridView<T> control = getNode();
 
         ListCellBehavior.removeAnchor(control);
-        control.selectionModelProperty().removeListener(weakSelectionModelListener);
-        if (control.getSelectionModel() != null) {
-            control.getSelectionModel().getSelectedIndices().removeListener(weakSelectedIndicesListener);
-        }
-        control.itemsProperty().removeListener(weakItemsListener);
-        if (control.getItems() != null) {
-            control.getItems().removeListener(weakItemsListListener);
-        }
-
         if (tlFocus != null) tlFocus.dispose();
-        control.removeEventFilter(KeyEvent.ANY, keyEventListener);
         super.dispose();
+
+        control.removeEventHandler(KeyEvent.ANY, keyEventListener);
     }
+
+
+
+
 
     /**************************************************************************
      *                         State and Functions                            *
@@ -270,6 +260,7 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
         int newAnchor = getAnchor();
 
         while (c.next()) {
+            System.out.println("selectedIndices changed: "+c);
             if (c.wasReplaced()) {
                 if (ListCellBehavior.hasDefaultAnchor(getNode())) {
                     ListCellBehavior.removeAnchor(getNode());
@@ -337,6 +328,8 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
                 ObservableValue<? extends MultipleSelectionModel<T>> observable,
                 MultipleSelectionModel<T> oldValue,
                 MultipleSelectionModel<T> newValue) {
+
+            System.out.println("selection model changed: "+ newValue);
             if (oldValue != null) {
                 oldValue.getSelectedIndices().removeListener(weakSelectedIndicesListener);
             }
@@ -370,6 +363,11 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
     }
 
     private void mousePressed(MouseEvent e) {
+
+        System.out.println("selectedIndex: "+getNode().getSelectionModel().getSelectedIndex() );
+        Random intRand = new Random();
+
+        getNode().getSelectionModel().select(intRand.nextInt(5));
         if (! e.isShiftDown() && ! e.isSynthesized()) {
             int index = getNode().getSelectionModel().getSelectedIndex();
             setAnchor(index);
@@ -574,7 +572,7 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
     }
 
     private void selectNextRow() {
-        FlowView<T> listView = getNode();
+        GridView<T> listView = getNode();
         FocusModel<T> fm = listView.getFocusModel();
         if (fm == null) return;
 
@@ -716,7 +714,7 @@ public class FlowViewBehavior<T> extends BehaviorBase<FlowView<T>> {
 
     private void selectAllToFocus(boolean setAnchorToFocusIndex) {
         // Fix for RT-31241
-        final FlowView<T> listView = getNode();
+        final GridView<T> listView = getNode();
         if (listView.getEditingIndex() >= 0) return;
 
         MultipleSelectionModel<T> sm = listView.getSelectionModel();

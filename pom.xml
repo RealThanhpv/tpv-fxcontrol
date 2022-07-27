@@ -119,25 +119,25 @@
             <arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=tpv.fxcontrol</arg>
 
           </compilerArgs>
-          <options>
-            <option>--add-exports</option>
-            <option>javafx.graphics/com.sun.javafx.tk=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.graphics/com.sun.javafx.util=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol</option>
-            <option>--add-exports</option>
-            <option>javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</option>
+<!--          <options>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.graphics/com.sun.javafx.tk=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.graphics/com.sun.javafx.util=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.graphics/com.sun.javafx.scene=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.graphics/com.sun.javafx.scene.traversal=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.controls/com.sun.javafx.scene.control=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.controls/com.sun.javafx.scene.control.behavior=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.controls/com.sun.javafx.scene.control.inputmap=tpv.fxcontrol</option>-->
+<!--            <option>&#45;&#45;add-exports</option>-->
+<!--            <option>javafx.controls/com.sun.javafx.scene.control.skin=tpv.fxcontrol</option>-->
 
-          </options>
+<!--          </options>-->
         </configuration>
 
       </plugin>
