@@ -107,15 +107,17 @@ import java.util.List;
  */
 public class GridView<T> extends ControlsFXControl {
 
-    public void setSelectionModel(MultipleSelectionModel selectionModel) {
-        this.selectionModel.set(selectionModel);
-    }
 
-    // --- Selection Model
     private ObjectProperty<MultipleSelectionModel<T>> selectionModel = new SimpleObjectProperty<MultipleSelectionModel<T>>(this, "selectionModel");
 
 
     private ObjectProperty<FocusModel<T>>  focusModel;
+
+    private ObjectProperty<ObservableList<T>> items;
+
+    private DoubleProperty horizontalCellSpacing;
+
+    private DoubleProperty verticalCellSpacing;
 
     /**************************************************************************
      *
@@ -145,6 +147,11 @@ public class GridView<T> extends ControlsFXControl {
         setSelectionModel(new GridViewBitSetSelectionModel(this));
         setFocusModel(new GridViewFocusModel(this));
     }
+
+    public void setSelectionModel(MultipleSelectionModel selectionModel) {
+        this.selectionModel.set(selectionModel);
+    }
+
 
     public final ObjectProperty<FocusModel<T>> focusModelProperty() {
         if (focusModel == null) {
@@ -186,9 +193,7 @@ public class GridView<T> extends ControlsFXControl {
      * {@inheritDoc}
      */
     @Override protected Skin<?> createDefaultSkin() {
-        Skin skin = new GridViewSkin(this);
-        setSkin(skin);
-        return skin;
+        return new GridViewSkin(this);
     }
 
     /** {@inheritDoc} */
@@ -225,7 +230,7 @@ public class GridView<T> extends ControlsFXControl {
         }
         return horizontalCellSpacing;
     }
-    private DoubleProperty horizontalCellSpacing;
+
 
     /**
      * Sets the amount of horizontal spacing there should be between cells in
@@ -251,7 +256,7 @@ public class GridView<T> extends ControlsFXControl {
      * Property for specifying how much spacing there is between each cell
      * in a column (i.e. how much vertical spacing there is).
      */
-    private DoubleProperty verticalCellSpacing;
+
     public final DoubleProperty verticalCellSpacingProperty() {
         if (verticalCellSpacing == null) {
             verticalCellSpacing = new StyleableDoubleProperty(12) {
@@ -368,42 +373,6 @@ public class GridView<T> extends ControlsFXControl {
     }
 
 
-    // I've removed this functionality until there is a clear need for it.
-    // To re-enable it, there is code in GridRowSkin that has been commented
-    // out that must be re-enabled.
-    // Don't forget also to enable the styleable property further down in this
-    // class.
-//    // --- horizontal alignment
-//    private ObjectProperty<HPos> horizontalAlignment;
-//    public final ObjectProperty<HPos> horizontalAlignmentProperty() {
-//        if (horizontalAlignment == null) {
-//            horizontalAlignment = new StyleableObjectProperty<HPos>(HPos.CENTER) {
-//                @Override public CssMetaData<GridView<?>,HPos> getCssMetaData() {
-//                    return GridView.StyleableProperties.HORIZONTAL_ALIGNMENT;
-//                }
-//
-//                @Override public Object getBean() {
-//                    return GridView.this;
-//                }
-//
-//                @Override public String getName() {
-//                    return "horizontalAlignment";
-//                }
-//            };
-//        }
-//        return horizontalAlignment;
-//    }
-//
-//    public final void setHorizontalAlignment(HPos value) {
-//        horizontalAlignmentProperty().set(value);
-//    }
-//
-//    public final HPos getHorizontalAlignment() {
-//        return horizontalAlignment == null ? HPos.CENTER : horizontalAlignment.get();
-//    }
-
-
-    // --- cell factory
     /**
      * Property representing the cell factory that is currently set in this
      * GridView, or null if no cell factory has been set (in which case the
@@ -456,7 +425,7 @@ public class GridView<T> extends ControlsFXControl {
         }
         return items;
     }
-    private ObjectProperty<ObservableList<T>> items;
+
 
     /**
      * Sets a new {@link ObservableList} as the items list underlying GridView.
@@ -574,24 +543,6 @@ public class GridView<T> extends ControlsFXControl {
                     }
                 };
 
-//        private static final CssMetaData<GridView<?>,HPos> HORIZONTAL_ALIGNMENT =
-//            new CssMetaData<GridView<?>,HPos>("-fx-horizontal_alignment",
-//                new EnumConverter<HPos>(HPos.class),
-//                HPos.CENTER) {
-//
-//            @Override public HPos getInitialValue(GridView node) {
-//                return node.getHorizontalAlignment();
-//            }
-//
-//            @Override public boolean isSettable(GridView n) {
-//                return n.horizontalAlignment == null || !n.horizontalAlignment.isBound();
-//            }
-//
-//            @Override public StyleableProperty<HPos> getStyleableProperty(GridView n) {
-//                return (StyleableProperty<HPos>)n.horizontalAlignmentProperty();
-//            }
-//        };
-
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
         static {
             final List<CssMetaData<? extends Styleable, ?>> styleables =
@@ -621,7 +572,7 @@ public class GridView<T> extends ControlsFXControl {
         return getClassCssMetaData();
     }
 
-    // package for testing
+
     static class GridViewBitSetSelectionModel<T> extends MultipleSelectionModelBase<T> {
 
         /* *********************************************************************
@@ -632,7 +583,7 @@ public class GridView<T> extends ControlsFXControl {
 
         public GridViewBitSetSelectionModel(final GridView<T> gridView) {
             if (gridView == null) {
-                throw new IllegalArgumentException("ListView can not be null");
+                throw new IllegalArgumentException("GridView can not be null");
             }
 
             this.gridView = gridView;
